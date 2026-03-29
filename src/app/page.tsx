@@ -527,7 +527,7 @@ export default function Home() {
           <div className="pricing-grid">
             <div className="price-card">
               <div className="price-tier">Builder</div>
-              <div className="price-num">€0</div>
+              <div className="price-num">$0</div>
               <div className="price-period">Free forever</div>
               <p className="price-desc">Create your profile, show your work, get discovered by employers who need Claude-native talent.</p>
               <ul className="price-features">
@@ -541,7 +541,7 @@ export default function Home() {
             </div>
             <div className="price-card featured">
               <div className="price-tier">Employer — Full access</div>
-              <div className="price-num"><sup>€</sup>199</div>
+              <div className="price-num"><sup>$</sup>199</div>
               <div className="price-period">per month</div>
               <p className="price-desc">Search, filter, and contact verified Claude builders directly. Unlimited posts and outreach included.</p>
               <ul className="price-features">
@@ -555,7 +555,7 @@ export default function Home() {
             </div>
             <div className="price-card">
               <div className="price-tier">Employer — Job post</div>
-              <div className="price-num"><sup>€</sup>79</div>
+              <div className="price-num"><sup>$</sup>79</div>
               <div className="price-period">per listing · 30 days</div>
               <p className="price-desc">Post a single role to our verified builder community. Applicants contact you directly.</p>
               <ul className="price-features">
@@ -573,7 +573,7 @@ export default function Home() {
               <h4>Concierge matching</h4>
               <p>Tell us exactly what you need. We manually find and vet 3 Claude builders and deliver them to your inbox within 48 hours.</p>
             </div>
-            <div className="concierge-price">€500 <span>per match</span></div>
+            <div className="concierge-price">$500 <span>per match</span></div>
             <Link href="/join" className="btn-blue" style={{whiteSpace:'nowrap'}}>Request a match →</Link>
           </div>
         </div>
