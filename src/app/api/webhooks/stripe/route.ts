@@ -19,10 +19,11 @@ export async function POST(req: Request) {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
-    const supabase = await createServerSupabaseClient()
 
     const product = session.metadata?.product || 'unknown'
-    const email = session.customer_email || session.customer_details?.email || ''
+    const email = session.customer_email 
+      || session.customer_details?.email 
+      || 'unknown@claudhire.com'
 
     let expiresAt = null
     if (product === 'job_post') {
@@ -31,14 +32,20 @@ export async function POST(req: Request) {
       expiresAt = d.toISOString()
     }
 
-    await supabase.from('subscriptions').insert([{
+    const supabase = await createServerSupabaseClient()
+    const { error } = await supabase.from('subscriptions').insert([{
       email,
-      stripe_customer_id: session.customer as string,
+      stripe_customer_id: session.customer as string || 'test',
       stripe_session_id: session.id,
       product,
       status: 'active',
       expires_at: expiresAt
     }])
+
+    if (error) {
+      console.error('Supabase insert error:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
   }
 
   return NextResponse.json({ received: true })
