@@ -2,16 +2,6 @@
 
 import Link from 'next/link'
 
-async function checkout(product: string) {
-  const res = await fetch('/api/checkout', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ product })
-  })
-  const { url } = await res.json()
-  if (url) window.location.href = url
-}
-
 export default function Home() {
   return (
     <>
@@ -310,7 +300,7 @@ export default function Home() {
                 <li>Applicant tracking</li>
                 <li>Concierge matching available</li>
               </ul>
-              <button onClick={() => checkout('full_access')} className="price-btn price-btn-white">Get full access →</button>
+              <Link href="/signup?role=employer" className="price-btn price-btn-white">Get full access →</Link>
             </div>
             <div className="price-card">
               <div className="price-tier">Employer — Job post</div>
@@ -324,7 +314,7 @@ export default function Home() {
                 <li>Role promoted to matched talent</li>
                 <li>Basic applicant list</li>
               </ul>
-              <button onClick={() => checkout('job_post')} className="price-btn price-btn-ghost">Post a job →</button>
+              <Link href="/signup?role=employer" className="price-btn price-btn-ghost">Post a job →</Link>
             </div>
           </div>
           <div className="concierge">
@@ -333,7 +323,7 @@ export default function Home() {
               <p>Tell us exactly what you need. We manually find and vet 3 Claude builders and deliver them to your inbox within 48 hours.</p>
             </div>
             <div className="concierge-price">$500 <span>per match</span></div>
-            <button onClick={() => checkout('concierge')} className="btn-blue" style={{whiteSpace:'nowrap'}}>Request a match →</button>
+            <Link href="/signup?role=employer" className="btn-blue" style={{whiteSpace:'nowrap'}}>Request a match →</Link>
           </div>
         </div>
       </section>

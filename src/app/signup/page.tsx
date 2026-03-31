@@ -1,18 +1,26 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { createClient } from '@/lib/supabase'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
-export default function SignupPage() {
+function SignupForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState<'builder' | 'employer'>('builder')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
+
+  useEffect(() => {
+    const roleParam = searchParams.get('role')
+    if (roleParam === 'employer') {
+      setRole('employer')
+    }
+  }, [searchParams])
 
   const handleSignup = async () => {
     setLoading(true)
@@ -70,7 +78,9 @@ export default function SignupPage() {
             ))}
           </div>
           <p style={{ fontSize: 12, color: '#6e6e73', marginTop: '0.5rem' }}>
-            {role === 'builder' ? 'Create a free profile and showcase your Claude work.' : 'Find and hire verified Claude builders.'}
+            {role === 'builder'
+              ? 'Create a free profile and showcase your Claude work.'
+              : 'Create your account, then choose a plan to get started.'}
           </p>
         </div>
 
@@ -101,5 +111,13 @@ export default function SignupPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense>
+      <SignupForm />
+    </Suspense>
   )
 }
