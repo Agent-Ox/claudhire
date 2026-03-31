@@ -96,9 +96,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
     ...(allSkillNames.length > 0 && { knowsAbout: allSkillNames }),
   }
 
-  const xShareUrl = 'https://x.com/intent/tweet?text=Check out ' + encodeURIComponent(profile.full_name) + ' on ClaudHire&url=' + encodeURIComponent(profileUrl)
+  const xShareUrl = 'https://x.com/intent/tweet?text=' + encodeURIComponent('Check out ' + profile.full_name + ' on ClaudHire') + '&url=' + encodeURIComponent(profileUrl)
   const waShareUrl = 'https://wa.me/?text=' + encodeURIComponent('Check out ' + profile.full_name + ' on ClaudHire: ' + profileUrl)
-  const liShareUrl = 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(profileUrl)
 
   return (
     <>
@@ -106,6 +105,18 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <style>{`
+        .profile-h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin: 0; color: #1d1d1f; }
+        .profile-h2 { font-size: 15px; font-weight: 600; margin-bottom: 0.75rem; color: #1d1d1f; }
+        .profile-role { color: #6e6e73; font-size: 15px; margin: 0 0 0.4rem; }
+        .profile-location { color: #aeaeb2; font-size: 13px; margin: 0; }
+        .project-title { font-size: 16px; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.01em; color: #1d1d1f; }
+        @media (max-width: 768px) {
+          .profile-h1 { font-size: 20px; }
+          .profile-h2 { font-size: 14px; }
+          .project-title { font-size: 15px; }
+        }
+      `}</style>
       <div style={{ minHeight: '100vh', background: '#fbfbfd', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
         <nav style={{ borderBottom: '0.5px solid #e0e0e5', padding: '1rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(20px)' }}>
           <a href="/" style={{ fontSize: 16, fontWeight: 700, color: '#1d1d1f', textDecoration: 'none', letterSpacing: '-0.02em' }}>
@@ -124,15 +135,15 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: '0.3rem' }}>
-                <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.02em', margin: 0 }}>{profile.full_name}</h1>
+                <h1 className="profile-h1">{profile.full_name}</h1>
                 {profile.verified && (
                   <span style={{ background: '#e8f1fd', color: '#0071e3', fontSize: 11, fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: 20, letterSpacing: '0.05em' }}>
                     VERIFIED
                   </span>
                 )}
               </div>
-              <p style={{ color: '#6e6e73', fontSize: 15, margin: '0 0 0.4rem' }}>{profile.role}</p>
-              {profile.location && <p style={{ color: '#aeaeb2', fontSize: 13, margin: 0 }}>{profile.location}</p>}
+              <p className="profile-role">{profile.role}</p>
+              {profile.location && <p className="profile-location">{profile.location}</p>}
             </div>
             {profile.availability && (
               <span style={{ background: '#e8fdf0', color: '#1a7f37', fontSize: 12, fontWeight: 500, padding: '0.3rem 0.75rem', borderRadius: 20, whiteSpace: 'nowrap' }}>
@@ -149,14 +160,14 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
           {profile.about && (
             <div style={{ marginBottom: '2rem' }}>
-              <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: '0.75rem', color: '#1d1d1f' }}>About</h2>
+              <h2 className="profile-h2">About</h2>
               <p style={{ fontSize: 15, color: '#6e6e73', lineHeight: 1.7 }}>{profile.about}</p>
             </div>
           )}
 
           {byCategory('claude_use_case').length > 0 && (
             <div style={{ marginBottom: '2rem' }}>
-              <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: '0.75rem' }}>Claude use cases</h2>
+              <h2 className="profile-h2">Claude use cases</h2>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 {byCategory('claude_use_case').map((s: string) => (
                   <span key={s} style={{ background: '#e8f1fd', color: '#0071e3', fontSize: 13, padding: '0.3rem 0.75rem', borderRadius: 20, fontWeight: 500 }}>{s}</span>
@@ -167,10 +178,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
           {projects && projects.length > 0 && (
             <div style={{ marginBottom: '2rem' }}>
-              <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: '1rem' }}>Projects</h2>
+              <h2 className="profile-h2">Projects</h2>
               {projects.map((p: any) => (
                 <div key={p.id} style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.5rem', marginBottom: '1rem' }}>
-                  <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: '0.5rem', letterSpacing: '-0.01em' }}>{p.title}</h3>
+                  <h3 className="project-title">{p.title}</h3>
                   {p.description && <p style={{ fontSize: 14, color: '#6e6e73', lineHeight: 1.6, marginBottom: '0.75rem' }}>{p.description}</p>}
                   {p.prompt_approach && (
                     <div style={{ background: '#f5f5f7', borderRadius: 8, padding: '0.75rem 1rem', marginBottom: '0.75rem' }}>
@@ -196,7 +207,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
           {(byCategory('language').length > 0 || byCategory('framework').length > 0 || byCategory('ai_tool').length > 0) && (
             <div style={{ marginBottom: '2rem' }}>
-              <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: '1rem' }}>Skills and tools</h2>
+              <h2 className="profile-h2">Skills and tools</h2>
               {[
                 { label: 'Languages', items: byCategory('language') },
                 { label: 'Frameworks', items: byCategory('framework') },
@@ -228,7 +239,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
             <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
               <a href={xShareUrl} target="_blank" style={{ ...btnStyle, background: '#000' }}>Share on X</a>
               <a href={waShareUrl} target="_blank" style={{ ...btnStyle, background: '#25D366' }}>WhatsApp</a>
-              <a href={liShareUrl} target="_blank" style={{ ...btnStyle, background: '#0077b5' }}>LinkedIn</a>
+              <a href={profileUrl} style={{ ...btnStyle, background: '#0071e3' }}>Copy link</a>
             </div>
           </div>
 
