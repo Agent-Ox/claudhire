@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase'
 import { Skill } from '@/lib/types'
 
 const STEPS = ['Basics', 'About', 'Your Claude work', 'Your stack', 'Links', 'Done']
@@ -50,6 +50,7 @@ export default function JoinPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [username, setUsername] = useState('')
+  const [authUserId, setAuthUserId] = useState<string | null>(null)
 
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
@@ -77,6 +78,17 @@ export default function JoinPage() {
   const [selectedDomains, setSelectedDomains] = useState<string[]>([])
   const [selectedUseCases, setSelectedUseCases] = useState<string[]>([])
 
+  // On mount — check if user is already logged in and pre-fill email
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setAuthUserId(user.id)
+        if (user.email) setEmail(user.email)
+      }
+    })
+  }, [])
+
   const toggle = (arr: string[], setArr: (v: string[]) => void, val: string) => {
     setArr(arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val])
   }
@@ -89,6 +101,7 @@ export default function JoinPage() {
     setLoading(true)
     setError('')
     try {
+      const supabase = createClient()
       const slug = generateUsername(fullName)
       setUsername(slug)
 
@@ -108,7 +121,8 @@ export default function JoinPage() {
           linkedin_url: linkedinUrl,
           website_url: websiteUrl,
           verified: false,
-          published: true
+          published: true,
+          ...(authUserId && { user_id: authUserId }),
         }])
         .select()
         .single()
@@ -194,7 +208,16 @@ export default function JoinPage() {
             </div>
             <div style={{ marginBottom: '1.25rem' }}>
               <label style={labelStyle}>Email</label>
-              <input autoComplete="email" type="email" placeholder="sara@example.com" value={email} onChange={e => setEmail(e.target.value)} style={inputStyle} />
+              <input
+                autoComplete="email"
+                type="email"
+                placeholder="sara@example.com"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                disabled={!!authUserId}
+                style={{ ...inputStyle, ...(authUserId && { background: '#f5f5f7', color: '#6e6e73' }) }}
+              />
+              {authUserId && <p style={{ fontSize: 12, color: '#6e6e73', marginTop: '0.3rem' }}>Linked to your account.</p>}
             </div>
             <div style={{ marginBottom: '1.25rem' }}>
               <label style={labelStyle}>Role / title</label>
@@ -341,9 +364,16 @@ export default function JoinPage() {
                 Share / Copy link
               </button>
             </div>
-            <a href={`/u/${username}`} style={{ display: 'inline-block', marginTop: '1.5rem', color: '#0071e3', fontSize: 14, textDecoration: 'none' }}>
-              View your profile →
-            </a>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: '1.5rem', flexWrap: 'wrap' }}>
+              {authUserId && (
+                <a href="/dashboard" style={{ display: 'inline-block', color: 'white', background: '#0071e3', padding: '0.65rem 1.25rem', borderRadius: 20, fontSize: 14, textDecoration: 'none', fontWeight: 500 }}>
+                  Go to dashboard →
+                </a>
+              )}
+              <a href={`/u/${username}`} style={{ display: 'inline-block', color: '#0071e3', fontSize: 14, textDecoration: 'none', padding: '0.65rem 1.25rem' }}>
+                View your profile →
+              </a>
+            </div>
           </div>
         )}
 

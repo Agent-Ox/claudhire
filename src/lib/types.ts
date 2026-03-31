@@ -1,5 +1,6 @@
 export type Profile = {
   id?: string
+  user_id?: string
   username: string
   full_name: string
   email: string
@@ -33,4 +34,3 @@ export type Skill = {
   category: string
   name: string
 }
-
