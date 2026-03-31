@@ -1,6 +1,5 @@
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
 
 export default async function DashboardPage() {
   const supabase = await createServerSupabaseClient()
@@ -41,12 +40,12 @@ export default async function DashboardPage() {
                 <p style={{ fontSize: 15, fontWeight: 600, color: '#1d1d1f' }}>claudhire.com/u/{profile.username}</p>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
-                <Link href="/dashboard/edit" style={{ padding: '0.5rem 1rem', background: '#f5f5f7', color: '#1d1d1f', borderRadius: 20, fontSize: 13, fontWeight: 500, textDecoration: 'none' }}>
+                <a href="/dashboard/edit" style={{ padding: '0.5rem 1rem', background: '#f5f5f7', color: '#1d1d1f', borderRadius: 20, fontSize: 13, fontWeight: 500, textDecoration: 'none' }}>
                   Edit
-                </Link>
-                <Link href={`/u/${profile.username}`} style={{ padding: '0.5rem 1rem', background: '#0071e3', color: 'white', borderRadius: 20, fontSize: 13, fontWeight: 500, textDecoration: 'none' }}>
+                </a>
+                <a href={`/u/${profile.username}`} style={{ padding: '0.5rem 1rem', background: '#0071e3', color: 'white', borderRadius: 20, fontSize: 13, fontWeight: 500, textDecoration: 'none' }}>
                   View →
-                </Link>
+                </a>
               </div>
             </div>
 
@@ -85,9 +84,9 @@ export default async function DashboardPage() {
         ) : (
           <div style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '2rem', textAlign: 'center' }}>
             <p style={{ color: '#6e6e73', marginBottom: '1rem' }}>You do not have a profile yet.</p>
-            <Link href="/join" style={{ padding: '0.75rem 1.5rem', background: '#0071e3', color: 'white', borderRadius: 20, fontSize: 14, fontWeight: 500, textDecoration: 'none' }}>
+            <a href="/join" style={{ padding: '0.75rem 1.5rem', background: '#0071e3', color: 'white', borderRadius: 20, fontSize: 14, fontWeight: 500, textDecoration: 'none' }}>
               Create your profile →
-            </Link>
+            </a>
           </div>
         )}
       </div>
