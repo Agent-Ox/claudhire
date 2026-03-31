@@ -52,7 +52,10 @@ export default function LoginPage() {
           <input type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} style={inputStyle} />
         </div>
         <div>
-          <label style={{ display: 'block', fontSize: 13, fontWeight: 500, marginBottom: '0.4rem', color: '#1d1d1f' }}>Password</label>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+            <label style={{ fontSize: 13, fontWeight: 500, color: '#1d1d1f' }}>Password</label>
+            <Link href="/reset-password" style={{ fontSize: 12, color: '#0071e3', textDecoration: 'none' }}>Forgot password?</Link>
+          </div>
           <input type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleLogin()} style={inputStyle} />
         </div>
         <button
