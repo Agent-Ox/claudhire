@@ -1,5 +1,6 @@
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
+import ShareButtons from '@/app/u/[username]/ShareButtons'
 
 export default async function DashboardPage() {
   const supabase = await createServerSupabaseClient()
@@ -12,6 +13,8 @@ export default async function DashboardPage() {
     .select('*')
     .eq('email', user.email)
     .single()
+
+  const profileUrl = profile ? 'https://claudhire.com/u/' + profile.username : ''
 
   return (
     <div style={{ minHeight: '100vh', background: '#fbfbfd', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
@@ -63,21 +66,10 @@ export default async function DashboardPage() {
               )}
             </div>
 
-            <div style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <p style={{ fontSize: 13, color: '#6e6e73', marginBottom: '0.25rem' }}>Share your profile</p>
-                <p style={{ fontSize: 14, color: '#1d1d1f' }}>Let the world know you build with Claude.</p>
-              </div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <a href={`https://x.com/intent/tweet?text=Check out my ClaudHire profile — here is what I build with Claude&url=https://claudhire.com/u/${profile.username}`}
-                  target="_blank" style={{ padding: '0.5rem 1rem', background: '#000', color: 'white', borderRadius: 20, fontSize: 12, fontWeight: 500, textDecoration: 'none' }}>
-                  X
-                </a>
-                <a href={`https://wa.me/?text=Check out my ClaudHire profile: https://claudhire.com/u/${profile.username}`}
-                  target="_blank" style={{ padding: '0.5rem 1rem', background: '#25D366', color: 'white', borderRadius: 20, fontSize: 12, fontWeight: 500, textDecoration: 'none' }}>
-                  WhatsApp
-                </a>
-              </div>
+            <div style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.5rem' }}>
+              <p style={{ fontSize: 13, color: '#6e6e73', marginBottom: '0.25rem' }}>Share your profile</p>
+              <p style={{ fontSize: 14, color: '#1d1d1f', marginBottom: '1rem' }}>Let the world know you build with Claude.</p>
+              <ShareButtons name={profile.full_name} url={profileUrl} />
             </div>
 
           </div>
