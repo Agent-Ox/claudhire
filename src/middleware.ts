@@ -16,14 +16,19 @@ export async function middleware(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({ request })
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+            supabaseResponse.cookies.set(name, value, {
+              ...options,
+              secure: true,
+              httpOnly: true,
+              sameSite: 'lax',
+              path: '/',
+            })
           )
         },
       },
     }
   )
 
-  // CRITICAL: always call getUser() in middleware to refresh the session cookie
   const { data: { user } } = await supabase.auth.getUser()
 
   const protectedRoutes = ['/dashboard', '/post-job', '/talent', '/admin']
@@ -35,8 +40,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // CRITICAL: return supabaseResponse not NextResponse.next()
-  // This ensures the refreshed session cookies are passed through
   return supabaseResponse
 }
 
