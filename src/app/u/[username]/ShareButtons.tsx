@@ -21,15 +21,17 @@ export default function ShareButtons({ name, url }: { name: string, url: string 
   const xShareUrl = 'https://x.com/intent/tweet?text=' + encodeURIComponent('Check out ' + name + ' on ClaudHire') + '&url=' + encodeURIComponent(url)
   const waShareUrl = 'https://wa.me/?text=' + encodeURIComponent('Check out ' + name + ' on ClaudHire: ' + url)
 
-  const handleShare = () => {
+  const handleShareAll = () => {
     if (navigator.share) {
       navigator.share({ title: name + ' on ClaudHire', url })
-    } else {
-      navigator.clipboard.writeText(url).then(() => {
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
-      })
     }
+  }
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
   }
 
   return (
@@ -38,8 +40,9 @@ export default function ShareButtons({ name, url }: { name: string, url: string 
       <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
         <a href={xShareUrl} target="_blank" style={{ ...btnStyle, background: '#000' }}>Share on X</a>
         <a href={waShareUrl} target="_blank" style={{ ...btnStyle, background: '#25D366' }}>WhatsApp</a>
-        <button onClick={handleShare} style={{ ...btnStyle, background: copied ? '#1a7f37' : '#0071e3' }}>
-          {copied ? 'Link copied!' : 'Share / Copy link'}
+        <button onClick={handleShareAll} style={{ ...btnStyle, background: '#6e6e73' }}>Share on all apps</button>
+        <button onClick={handleCopy} style={{ ...btnStyle, background: copied ? '#1a7f37' : '#0071e3' }}>
+          {copied ? 'Copied!' : 'Copy link'}
         </button>
       </div>
     </div>
