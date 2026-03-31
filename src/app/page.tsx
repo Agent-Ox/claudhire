@@ -170,7 +170,7 @@ export default function Home() {
           <a href="#pricing">Pricing</a>
         </div>
         <div className="nav-right">
-          <Link href="/join" className="nav-btn-primary">Create profile</Link>
+          <Link href="/signup" className="nav-btn-primary">Create profile</Link>
         </div>
       </nav>
 
@@ -182,7 +182,7 @@ export default function Home() {
         <h1>The home for<br /><span className="blue">Claude-native</span> talent.</h1>
         <p className="hero-sub">Anyone can say they use Claude. ClaudHire is where you prove it — and where companies come to hire people who actually can.</p>
         <div className="hero-actions">
-          <Link href="/join" className="btn-blue">Create free profile →</Link>
+          <Link href="/signup" className="btn-blue">Create free profile →</Link>
           <a href="#pricing" className="btn-ghost">Hire talent</a>
         </div>
         <div className="hero-stats">
@@ -286,7 +286,7 @@ export default function Home() {
                 <li>Discoverable by all employers</li>
                 <li>Profile analytics</li>
               </ul>
-              <Link href="/join" className="price-btn price-btn-blue">Create free profile →</Link>
+              <Link href="/signup" className="price-btn price-btn-blue">Create free profile →</Link>
             </div>
             <div className="price-card featured">
               <div className="price-tier">Employer — Full access</div>
@@ -331,7 +331,7 @@ export default function Home() {
       <section className="cta-section" id="signup">
         <h2>Free to prove<br />you can build.</h2>
         <p>Create your profile in 5 minutes. No credit card. No catch.</p>
-        <Link href="/join" className="btn-blue" style={{fontSize:'1rem', padding:'1rem 2rem'}}>Create your free profile →</Link>
+        <Link href="/signup" className="btn-blue" style={{fontSize:'1rem', padding:'1rem 2rem'}}>Create your free profile →</Link>
         <p className="cta-note">Builders are free forever.</p>
       </section>
 
@@ -342,7 +342,7 @@ export default function Home() {
             <a href="#how">How it works</a>
             <a href="#talent">Talent</a>
             <a href="#pricing">Pricing</a>
-            <Link href="/join">Join</Link>
+            <Link href="/signup">Join</Link>
           </div>
           <p className="footer-copy">© 2026 ClaudHire. All rights reserved.</p>
         </div>

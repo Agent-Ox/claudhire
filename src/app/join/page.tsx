@@ -48,6 +48,7 @@ function Tag({ label, selected, onClick }: { label: string, selected: boolean, o
 export default function JoinPage() {
   const [step, setStep] = useState(0)
   const [loading, setLoading] = useState(false)
+  const [checking, setChecking] = useState(true)
   const [error, setError] = useState('')
   const [username, setUsername] = useState('')
   const [authUserId, setAuthUserId] = useState<string | null>(null)
@@ -78,14 +79,17 @@ export default function JoinPage() {
   const [selectedDomains, setSelectedDomains] = useState<string[]>([])
   const [selectedUseCases, setSelectedUseCases] = useState<string[]>([])
 
-  // On mount — check if user is already logged in and pre-fill email
+  // On mount — require auth session. If no session, send to /signup.
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        setAuthUserId(user.id)
-        if (user.email) setEmail(user.email)
+      if (!user) {
+        window.location.href = '/signup'
+        return
       }
+      setAuthUserId(user.id)
+      if (user.email) setEmail(user.email)
+      setChecking(false)
     })
   }, [])
 
@@ -173,6 +177,16 @@ export default function JoinPage() {
     return true
   }
 
+  // Show nothing while checking auth — prevents flash of form before redirect
+  if (checking) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#fbfbfd', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: 32, height: 32, border: '2px solid #e0e0e5', borderTopColor: '#0071e3', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    )
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: '#fbfbfd', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
       <div style={{ maxWidth: 640, margin: '0 auto', padding: '2rem 1.5rem' }}>
@@ -213,11 +227,10 @@ export default function JoinPage() {
                 type="email"
                 placeholder="sara@example.com"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
-                disabled={!!authUserId}
-                style={{ ...inputStyle, ...(authUserId && { background: '#f5f5f7', color: '#6e6e73' }) }}
+                disabled={true}
+                style={{ ...inputStyle, background: '#f5f5f7', color: '#6e6e73' }}
               />
-              {authUserId && <p style={{ fontSize: 12, color: '#6e6e73', marginTop: '0.3rem' }}>Linked to your account.</p>}
+              <p style={{ fontSize: 12, color: '#6e6e73', marginTop: '0.3rem' }}>Linked to your account.</p>
             </div>
             <div style={{ marginBottom: '1.25rem' }}>
               <label style={labelStyle}>Role / title</label>
@@ -365,11 +378,9 @@ export default function JoinPage() {
               </button>
             </div>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: '1.5rem', flexWrap: 'wrap' }}>
-              {authUserId && (
-                <a href="/dashboard" style={{ display: 'inline-block', color: 'white', background: '#0071e3', padding: '0.65rem 1.25rem', borderRadius: 20, fontSize: 14, textDecoration: 'none', fontWeight: 500 }}>
-                  Go to dashboard →
-                </a>
-              )}
+              <a href="/dashboard" style={{ display: 'inline-block', color: 'white', background: '#0071e3', padding: '0.65rem 1.25rem', borderRadius: 20, fontSize: 14, textDecoration: 'none', fontWeight: 500 }}>
+                Go to dashboard →
+              </a>
               <a href={`/u/${username}`} style={{ display: 'inline-block', color: '#0071e3', fontSize: 14, textDecoration: 'none', padding: '0.65rem 1.25rem' }}>
                 View your profile →
               </a>
