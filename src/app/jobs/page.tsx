@@ -1,5 +1,17 @@
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import Link from 'next/link'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Claude-Native Jobs',
+  description: 'Browse open roles at companies hiring Claude builders, prompt engineers, and AI automation specialists. Verified talent. Direct applications.',
+  alternates: { canonical: 'https://claudhire.com/jobs' },
+  openGraph: {
+    title: 'Claude-Native Jobs — ClaudHire',
+    description: 'Browse open roles at companies hiring Claude builders, prompt engineers, and AI automation specialists.',
+    url: 'https://claudhire.com/jobs',
+  },
+}
 
 export default async function JobsPage() {
   const supabase = await createServerSupabaseClient()
@@ -41,7 +53,7 @@ export default async function JobsPage() {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {jobs.map((job: any) => (
-              <div key={job.id} style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.75rem', transition: 'box-shadow 0.2s' }}>
+              <div key={job.id} style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.75rem' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', marginBottom: '0.75rem' }}>
                   <div>
                     <h2 style={{ fontSize: 17, fontWeight: 600, color: '#1d1d1f', letterSpacing: '-0.02em', marginBottom: '0.2rem' }}>{job.role_title}</h2>
