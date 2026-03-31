@@ -98,7 +98,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
             ClaudHire<span style={{ color: '#0071e3' }}>.</span>
           </a>
           <a href="/signup" style={{ padding: '0.4rem 1rem', background: '#0071e3', color: 'white', borderRadius: 20, fontSize: 13, fontWeight: 500, textDecoration: 'none' }}>
-            Create your profile →
+            Create your profile
           </a>
         </nav>
 
@@ -113,7 +113,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                 <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.02em', margin: 0 }}>{profile.full_name}</h1>
                 {profile.verified && (
                   <span style={{ background: '#e8f1fd', color: '#0071e3', fontSize: 11, fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: 20, letterSpacing: '0.05em' }}>
-                    ✓ VERIFIED
+                    VERIFIED
                   </span>
                 )}
               </div>
@@ -129,7 +129,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
           {profile.bio && (
             <p style={{ fontSize: 16, color: '#1d1d1f', lineHeight: 1.6, marginBottom: '1.5rem', fontStyle: 'italic' }}>
-              "{profile.bio}"
+              &quot;{profile.bio}&quot;
             </p>
           )}
 
@@ -172,7 +172,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                   )}
                   {p.project_url && (
                     <a href={p.project_url} target="_blank" style={{ display: 'inline-block', marginTop: '0.75rem', fontSize: 13, color: '#0071e3', textDecoration: 'none' }}>
-                      View project →
+                      View project
                     </a>
                   )}
                 </div>
@@ -203,29 +203,29 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
           )}
 
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', paddingTop: '1.5rem', borderTop: '1px solid #e0e0e5', marginBottom: '2rem' }}>
-            {profile.github_url && <a href={profile.github_url} target="_blank" style={{ fontSize: 13, color: '#0071e3', textDecoration: 'none' }}>GitHub →</a>}
-            {profile.x_url && <a href={profile.x_url} target="_blank" style={{ fontSize: 13, color: '#0071e3', textDecoration: 'none' }}>X →</a>}
-            {profile.linkedin_url && <a href={profile.linkedin_url} target="_blank" style={{ fontSize: 13, color: '#0071e3', textDecoration: 'none' }}>LinkedIn →</a>}
-            {profile.website_url && <a href={profile.website_url} target="_blank" style={{ fontSize: 13, color: '#0071e3', textDecoration: 'none' }}>Website →</a>}
+            {profile.github_url && <a href={profile.github_url} target="_blank" style={{ fontSize: 13, color: '#0071e3', textDecoration: 'none' }}>GitHub</a>}
+            {profile.x_url && <a href={profile.x_url} target="_blank" style={{ fontSize: 13, color: '#0071e3', textDecoration: 'none' }}>X</a>}
+            {profile.linkedin_url && <a href={profile.linkedin_url} target="_blank" style={{ fontSize: 13, color: '#0071e3', textDecoration: 'none' }}>LinkedIn</a>}
+            {profile.website_url && <a href={profile.website_url} target="_blank" style={{ fontSize: 13, color: '#0071e3', textDecoration: 'none' }}>Website</a>}
           </div>
 
           <div style={{ padding: '1.5rem', background: '#f5f5f7', borderRadius: 14, marginBottom: '1rem' }}>
             <p style={{ fontSize: 13, color: '#6e6e73', marginBottom: '1rem', textAlign: 'center' }}>Share this profile</p>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
               
-                href={`https://x.com/intent/tweet?text=Check out ${profile.full_name}'s Claude builder profile&url=${profileUrl}`}
+                href={'https://x.com/intent/tweet?text=Check out ' + profile.full_name + ' on ClaudHire&url=' + profileUrl}
                 target="_blank"
                 style={{ padding: '0.5rem 1.25rem', background: '#000', color: 'white', borderRadius: 20, fontSize: 13, textDecoration: 'none', fontWeight: 500 }}>
                 Share on X
               </a>
               
-                href={`https://wa.me/?text=Check out ${profile.full_name}'s Claude builder profile: ${profileUrl}`}
+                href={'https://wa.me/?text=Check out ' + profile.full_name + ' on ClaudHire: ' + profileUrl}
                 target="_blank"
                 style={{ padding: '0.5rem 1.25rem', background: '#25D366', color: 'white', borderRadius: 20, fontSize: 13, textDecoration: 'none', fontWeight: 500 }}>
                 WhatsApp
               </a>
               
-                href={`https://www.linkedin.com/sharing/share-offsite/?url=${profileUrl}`}
+                href={'https://www.linkedin.com/sharing/share-offsite/?url=' + profileUrl}
                 target="_blank"
                 style={{ padding: '0.5rem 1.25rem', background: '#0077b5', color: 'white', borderRadius: 20, fontSize: 13, textDecoration: 'none', fontWeight: 500 }}>
                 LinkedIn
@@ -234,8 +234,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
           </div>
 
           <div style={{ padding: '1.5rem', background: '#f5f5f7', borderRadius: 14, textAlign: 'center' }}>
-            <p style={{ fontSize: 14, color: '#6e6e73', marginBottom: '0.75rem' }}>Are you looking to hire Claude-native talent?</p>
-            <a href="/signup?role=employer" style={{ fontSize: 13, color: '#0071e3', textDecoration: 'none', fontWeight: 500 }}>Post a job on ClaudHire →</a>
+            <p style={{ fontSize: 14, color: '#6e6e73', marginBottom: '0.75rem' }}>Looking to hire Claude-native talent?</p>
+            <a href="/signup?role=employer" style={{ fontSize: 13, color: '#0071e3', textDecoration: 'none', fontWeight: 500 }}>Post a job on ClaudHire</a>
           </div>
 
         </div>
