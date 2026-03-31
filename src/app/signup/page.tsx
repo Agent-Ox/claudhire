@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { createClient } from '@/lib/supabase'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 
 function SignupForm() {
   const [email, setEmail] = useState('')
@@ -11,7 +11,6 @@ function SignupForm() {
   const [role, setRole] = useState<'builder' | 'employer'>('builder')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
 
@@ -37,9 +36,9 @@ function SignupForm() {
       setLoading(false)
     } else {
       if (role === 'builder') {
-        router.push('/join')
+        window.location.href = '/join'
       } else {
-        router.push('/#pricing')
+        window.location.href = '/#pricing'
       }
     }
   }
