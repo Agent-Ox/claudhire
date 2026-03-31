@@ -16,9 +16,9 @@ function SignupForm() {
 
   useEffect(() => {
     const roleParam = searchParams.get('role')
-    if (roleParam === 'employer') {
-      setRole('employer')
-    }
+    if (roleParam === 'employer') setRole('employer')
+    const errorParam = searchParams.get('error')
+    if (errorParam) setError(decodeURIComponent(errorParam))
   }, [searchParams])
 
   const handleSignup = async () => {
@@ -27,19 +27,13 @@ function SignupForm() {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: { role }
-      }
+      options: { data: { role } }
     })
     if (error) {
       setError(error.message)
       setLoading(false)
     } else {
-      if (role === 'builder') {
-        window.location.href = '/join'
-      } else {
-        window.location.href = '/#pricing'
-      }
+      window.location.href = role === 'builder' ? '/join' : '/#pricing'
     }
   }
 
