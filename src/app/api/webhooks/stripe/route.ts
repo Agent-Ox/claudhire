@@ -49,7 +49,7 @@ export async function POST(req: Request) {
       type: 'magiclink',
       email,
       options: {
-        redirectTo: `${siteUrl}/talent`
+        redirectTo: `${siteUrl}/api/auth/confirm?next=/talent`
       }
     })
 
