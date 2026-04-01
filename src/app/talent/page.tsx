@@ -41,6 +41,7 @@ export default async function TalentPage() {
         </a>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
           <span style={{ fontSize: 13, color: '#6e6e73' }}>{user.email}</span>
+          <a href="/employer" style={{ fontSize: 13, color: '#6e6e73', textDecoration: 'none' }}>Dashboard</a>
           <Link href="/post-job" style={{ fontSize: 13, color: '#0071e3', textDecoration: 'none', fontWeight: 500 }}>Post a job</Link>
           <a href="/api/logout" style={{ fontSize: 13, color: '#6e6e73', textDecoration: 'none' }}>Sign out</a>
         </div>

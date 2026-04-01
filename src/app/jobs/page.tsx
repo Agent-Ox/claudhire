@@ -30,6 +30,7 @@ export default async function JobsPage() {
           ClaudHire<span style={{ color: '#0071e3' }}>.</span>
         </a>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <a href="/employer" style={{ fontSize: 13, color: '#6e6e73', textDecoration: 'none' }}>Dashboard</a>
           <Link href="/join" style={{ fontSize: 13, color: '#0071e3', textDecoration: 'none', fontWeight: 500 }}>Create profile →</Link>
         </div>
       </nav>
