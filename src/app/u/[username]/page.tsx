@@ -298,7 +298,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                 Send them a message directly via email.
               </p>
               
-                href={`mailto:${profile.email}?subject=Opportunity via ClaudHire`}
+              <a
                 style={{ display: 'inline-block', padding: '0.7rem 1.5rem', background: 'var(--accent)', color: 'white', borderRadius: 20, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
                 Contact {profile.full_name.split(' ')[0]}
               </a>
