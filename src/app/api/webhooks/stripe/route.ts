@@ -25,20 +25,18 @@ export async function POST(req: Request) {
       || session.customer_details?.email
       || 'unknown@claudhire.com'
 
-    // Use service role client — bypasses RLS, can create auth users
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    // Create Supabase auth account if one doesn't exist yet
-    // inviteUserByEmail sends them a magic link to set their password
+    // Create auth account if doesn't exist
     const { data: existingUsers } = await supabase.auth.admin.listUsers()
     const alreadyExists = existingUsers?.users?.some((u: any) => u.email === email)
 
     if (!alreadyExists) {
       await supabase.auth.admin.inviteUserByEmail(email, {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://claudhire.com'}/update-password`,
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://claudhire.com'}/api/auth/confirm?next=/update-password`,
         data: { role: 'employer' }
       })
     }
