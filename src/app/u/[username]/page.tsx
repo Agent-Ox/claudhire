@@ -137,9 +137,18 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
           <a href="/" style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', textDecoration: 'none', letterSpacing: '-0.02em' }}>
             ClaudHire<span style={{ color: 'var(--accent2)' }}>.</span>
           </a>
-          <a href="/signup" style={{ padding: '0.4rem 1rem', background: 'var(--accent)', color: 'white', borderRadius: 20, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
-            Create profile
-          </a>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            {resolvedUser ? (
+              <>
+                <a href={resolvedUser.user_metadata?.role === 'employer' ? '/employer' : '/dashboard'} style={{ fontSize: 13, color: 'var(--text2)', textDecoration: 'none' }}>Dashboard</a>
+                <a href="/api/logout" style={{ fontSize: 13, color: 'var(--text3)', textDecoration: 'none' }}>Sign out</a>
+              </>
+            ) : (
+              <a href="/signup" style={{ padding: '0.4rem 1rem', background: 'var(--accent)', color: 'white', borderRadius: 20, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
+                Create profile
+              </a>
+            )}
+          </div>
         </nav>
 
         <div style={{ maxWidth: 720, margin: '0 auto', padding: '3rem 1.5rem 5rem', position: 'relative', zIndex: 1 }}>
@@ -278,15 +287,26 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
             <ShareButtons name={profile.full_name} url={profileUrl} />
           </div>
 
-          {/* Hire CTA */}
-          <div className="fade-up" style={{ background: 'linear-gradient(135deg, rgba(108,99,255,0.15) 0%, rgba(167,139,250,0.08) 100%)', border: '1px solid rgba(108,99,255,0.25)', borderRadius: 16, padding: '2rem', textAlign: 'center', animationDelay: '0.4s' }}>
-            <p style={{ fontSize: 13, color: 'var(--accent2)', fontWeight: 600, letterSpacing: '0.05em', marginBottom: '0.5rem', fontFamily: 'var(--mono)' }}>FOR EMPLOYERS</p>
-            <p style={{ fontSize: 17, fontWeight: 600, color: 'var(--text)', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>Looking to hire Claude-native talent?</p>
-            <p style={{ fontSize: 14, color: 'var(--text2)', marginBottom: '1.25rem', fontWeight: 300 }}>Access our full verified builder directory and contact candidates directly.</p>
-            <a href="/#pricing" style={{ display: 'inline-block', padding: '0.7rem 1.5rem', background: 'var(--accent)', color: 'white', borderRadius: 20, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
-              Get full access
-            </a>
-          </div>
+          {/* Role-aware CTA */}
+          {hasAccess ? (
+            <div className="fade-up" style={{ background: 'linear-gradient(135deg, rgba(108,99,255,0.15) 0%, rgba(167,139,250,0.08) 100%)', border: '1px solid rgba(108,99,255,0.25)', borderRadius: 16, padding: '2rem', textAlign: 'center', animationDelay: '0.4s' }}>
+              <p style={{ fontSize: 13, color: 'var(--accent2)', fontWeight: 600, letterSpacing: '0.05em', marginBottom: '0.5rem', fontFamily: 'var(--mono)' }}>READY TO HIRE?</p>
+              <p style={{ fontSize: 17, fontWeight: 600, color: 'var(--text)', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>Contact {profile.full_name.split(' ')[0]}</p>
+              <p style={{ fontSize: 14, color: 'var(--text2)', marginBottom: '1.25rem', fontWeight: 300 }}>Send them a message directly via email.</p>
+              <a href={} style={{ display: 'inline-block', padding: '0.7rem 1.5rem', background: 'var(--accent)', color: 'white', borderRadius: 20, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
+                Contact {profile.full_name.split(' ')[0]}
+              </a>
+              <p style={{ fontSize: 12, color: 'var(--text3)', marginTop: '0.75rem' }}>Opens your email client with a pre-filled message.</p>
+            </div>
+            <div className="fade-up" style={{ background: 'linear-gradient(135deg, rgba(108,99,255,0.15) 0%, rgba(167,139,250,0.08) 100%)', border: '1px solid rgba(108,99,255,0.25)', borderRadius: 16, padding: '2rem', textAlign: 'center', animationDelay: '0.4s' }}>
+              <p style={{ fontSize: 13, color: 'var(--accent2)', fontWeight: 600, letterSpacing: '0.05em', marginBottom: '0.5rem', fontFamily: 'var(--mono)' }}>FOR EMPLOYERS</p>
+              <p style={{ fontSize: 17, fontWeight: 600, color: 'var(--text)', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>Looking to hire Claude-native talent?</p>
+              <p style={{ fontSize: 14, color: 'var(--text2)', marginBottom: '1.25rem', fontWeight: 300 }}>Access our full verified builder directory and contact candidates directly.</p>
+              <a href="/#pricing" style={{ display: 'inline-block', padding: '0.7rem 1.5rem', background: 'var(--accent)', color: 'white', borderRadius: 20, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
+                Get full access
+              </a>
+            </div>
+          ) : null}
 
         </div>
       </div>

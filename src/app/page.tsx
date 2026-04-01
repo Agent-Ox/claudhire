@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import NavBar from '@/app/components/NavBar'
 
 async function goToCheckout(product: string) {
   const res = await fetch('/api/checkout', {
@@ -174,18 +175,7 @@ export default function Home() {
         }
       `}</style>
 
-      <nav>
-        <a href="/" className="logo">ClaudHire<span className="logo-dot">.</span></a>
-        <div className="nav-links">
-          <a href="#how">How it works</a>
-          <a href="#talent">Talent</a>
-          <a href="#pricing">Pricing</a>
-        </div>
-        <div className="nav-right">
-          <a href="/login" style={{ fontSize: '0.8rem', color: 'var(--text)', textDecoration: 'none', opacity: 0.8 }}>Sign in</a>
-          <Link href="/signup" className="nav-btn-primary">Create profile</Link>
-        </div>
-      </nav>
+      <NavBar />
 
       <section className="hero">
         <div className="hero-tag">
