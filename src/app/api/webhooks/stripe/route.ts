@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
+import { Resend } from 'resend'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(req: Request) {
   const body = await req.text()
@@ -49,9 +51,7 @@ export async function POST(req: Request) {
     const { data: linkData } = await supabase.auth.admin.generateLink({
       type: 'magiclink',
       email,
-      options: {
-        redirectTo: `${siteUrl}/auth/callback`
-      }
+      options: { redirectTo: `${siteUrl}/auth/callback` }
     })
 
     const magicLink = linkData?.properties?.action_link || null
@@ -79,15 +79,33 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    // Send employer welcome email with password setup link
+    // Send welcome email directly via Resend
     try {
-      await fetch(`${siteUrl}/api/employer-welcome`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
+      await resend.emails.send({
+        from: 'ClaudHire <hello@claudhire.com>',
+        to: email,
+        subject: 'Welcome to ClaudHire — set your password',
+        html: `
+          <div style="font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 2rem;">
+            <h1 style="font-size: 24px; font-weight: 700; color: #1d1d1f; letter-spacing: -0.02em;">Welcome to ClaudHire.</h1>
+            <p style="color: #6e6e73; font-size: 15px; line-height: 1.6;">Your Full Access subscription is active. You can now search and contact verified Claude-native builders.</p>
+            <a href="${siteUrl}/talent"
+              style="display: inline-block; margin: 1.5rem 0; padding: 0.75rem 1.5rem; background: #0071e3; color: white; border-radius: 20px; text-decoration: none; font-size: 15px; font-weight: 500;">
+              Access talent directory
+            </a>
+            <p style="color: #6e6e73; font-size: 14px; line-height: 1.6;">Set a password so you can sign in any time:</p>
+            <a href="${siteUrl}/reset-password"
+              style="display: inline-block; margin: 1rem 0; padding: 0.75rem 1.5rem; background: #f5f5f7; color: #1d1d1f; border-radius: 20px; text-decoration: none; font-size: 15px; font-weight: 500;">
+              Set your password
+            </a>
+            <hr style="border: none; border-top: 1px solid #e0e0e5; margin: 1.5rem 0;" />
+            <p style="color: #aeaeb2; font-size: 12px;">Questions? Reply to this email or contact hello@claudhire.com</p>
+            <p style="color: #aeaeb2; font-size: 12px;">ClaudHire — The hiring platform for Claude-native talent.</p>
+          </div>
+        `
       })
     } catch (e) {
-      console.error('Failed to send employer welcome email:', e)
+      console.error('Failed to send welcome email:', e)
     }
   }
 
