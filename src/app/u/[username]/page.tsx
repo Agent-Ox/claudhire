@@ -133,24 +133,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       <div style={{ minHeight: '100vh', background: 'var(--bg)', fontFamily: 'var(--sans)', position: 'relative' }}>
         <div className="mesh-bg" />
 
-        <nav style={{ position: 'sticky', top: 0, zIndex: 100, borderBottom: '1px solid var(--border)', padding: '0 2rem', height: 52, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(10,10,15,0.85)', backdropFilter: 'saturate(180%) blur(20px)' }}>
-          <a href="/" style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', textDecoration: 'none', letterSpacing: '-0.02em' }}>
-            ClaudHire<span style={{ color: 'var(--accent2)' }}>.</span>
-          </a>
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            {resolvedUser ? (
-              <>
-                <a href={resolvedUser.user_metadata?.role === 'employer' ? '/employer' : '/dashboard'} style={{ fontSize: 13, color: 'var(--text2)', textDecoration: 'none' }}>Dashboard</a>
-                <a href="/api/logout" style={{ fontSize: 13, color: 'var(--text3)', textDecoration: 'none' }}>Sign out</a>
-              </>
-            ) : (
-              <a href="/signup" style={{ padding: '0.4rem 1rem', background: 'var(--accent)', color: 'white', borderRadius: 20, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
-                Create profile
-              </a>
-            )}
-          </div>
-        </nav>
-
         <div style={{ maxWidth: 720, margin: '0 auto', padding: '3rem 1.5rem 5rem', position: 'relative', zIndex: 1 }}>
 
           {/* Hero */}

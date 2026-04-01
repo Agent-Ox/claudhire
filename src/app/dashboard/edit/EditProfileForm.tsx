@@ -202,15 +202,6 @@ export default function EditProfileForm({ profile, projects: initialProjects, sk
 
   return (
     <div style={{ minHeight: '100vh', background: '#fbfbfd', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
-      <nav style={{ borderBottom: '0.5px solid #e0e0e5', padding: '0 2rem', height: 52, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 100 }}>
-        <a href="/" style={{ fontSize: 16, fontWeight: 700, color: '#1d1d1f', textDecoration: 'none', letterSpacing: '-0.02em' }}>
-          ClaudHire<span style={{ color: '#0071e3' }}>.</span>
-        </a>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <a href="/dashboard" style={{ fontSize: 13, color: '#6e6e73', textDecoration: 'none' }}>Dashboard</a>
-          <a href={`/u/${profile.username}`} target="_blank" style={{ fontSize: 13, color: '#0071e3', textDecoration: 'none', fontWeight: 500 }}>View profile</a>
-        </div>
-      </nav>
 
       <div style={{ maxWidth: 640, margin: '0 auto', padding: '3rem 1.5rem' }}>
         <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-0.03em', marginBottom: '0.5rem', color: '#1d1d1f' }}>Edit profile</h1>

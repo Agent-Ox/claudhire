@@ -25,15 +25,6 @@ export default async function JobsPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#fbfbfd', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
-      <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, height: 52, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2rem', background: 'rgba(255,255,255,0.85)', backdropFilter: 'saturate(180%) blur(20px)', borderBottom: '0.5px solid rgba(0,0,0,0.1)' }}>
-        <a href="/" style={{ fontSize: 16, fontWeight: 700, color: '#1d1d1f', textDecoration: 'none', letterSpacing: '-0.02em' }}>
-          ClaudHire<span style={{ color: '#0071e3' }}>.</span>
-        </a>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <a href="/employer" style={{ fontSize: 13, color: '#6e6e73', textDecoration: 'none' }}>Dashboard</a>
-          <Link href="/join" style={{ fontSize: 13, color: '#0071e3', textDecoration: 'none', fontWeight: 500 }}>Create profile →</Link>
-        </div>
-      </nav>
 
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '5rem 1.5rem 3rem' }}>
         <div style={{ marginBottom: '2.5rem' }}>

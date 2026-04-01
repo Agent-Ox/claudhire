@@ -18,15 +18,6 @@ export default async function DashboardPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#fbfbfd', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
-      <nav style={{ borderBottom: '0.5px solid #e0e0e5', padding: '1rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(20px)' }}>
-        <a href="/" style={{ fontSize: 16, fontWeight: 700, color: '#1d1d1f', textDecoration: 'none', letterSpacing: '-0.02em' }}>
-          ClaudHire<span style={{ color: '#0071e3' }}>.</span>
-        </a>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <span style={{ fontSize: 13, color: '#6e6e73' }}>{user.email}</span>
-          <a href="/api/logout" style={{ fontSize: 13, color: '#0071e3', textDecoration: 'none' }}>Sign out</a>
-        </div>
-      </nav>
 
       <div style={{ maxWidth: 680, margin: '0 auto', padding: '3rem 1.5rem' }}>
         <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-0.03em', marginBottom: '0.5rem', color: '#1d1d1f' }}>
