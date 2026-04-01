@@ -88,7 +88,7 @@ export default async function SuccessPage({
             
               href={magicLink}
               style={{ display: 'inline-block', padding: '1rem 2.5rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 16, fontWeight: 600, textDecoration: 'none', letterSpacing: '-0.01em' }}>
-              Access ClaudHire →
+              Access ClaudHire
             </a>
             <p style={{ color: '#aeaeb2', fontSize: 12, marginTop: '1rem' }}>
               One click — you're in. No password needed right now.
