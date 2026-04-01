@@ -105,7 +105,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
           --mono: 'DM Mono', monospace;
         }
         body { background: var(--bg); color: var(--text); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
-        .fade-up { opacity: 0; transform: translateY(16px); animation: fadeUp 0.6s ease forwards; }
+        .fade-up { opacity: 0; transform: translateY(16px); animation: fadeUp 0.6s ease forwards; animation-fill-mode: forwards; } .fade-up a, .fade-up button { pointer-events: auto; }
         @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
         .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; transition: border-color 0.2s; }
         .card:hover { border-color: var(--border-hover); }
