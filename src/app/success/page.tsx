@@ -31,6 +31,12 @@ async function getMagicLink(sessionId: string): Promise<string | null> {
   }
 }
 
+const productLabels: Record<string, string> = {
+  full_access: 'Full Access subscription',
+  job_post: 'Job Post',
+  concierge: 'Concierge matching',
+}
+
 export default async function SuccessPage({
   searchParams,
 }: {
@@ -51,18 +57,11 @@ export default async function SuccessPage({
 
   const { email, product } = await getSessionData(session_id)
 
-  // Poll for magic link — webhook may take a second or two
   let magicLink: string | null = null
   for (let i = 0; i < 5; i++) {
     magicLink = await getMagicLink(session_id)
     if (magicLink) break
     await new Promise(r => setTimeout(r, 1000))
-  }
-
-  const productLabels: Record<string, string> = {
-    full_access: 'Full Access subscription',
-    job_post: 'Job Post',
-    concierge: 'Concierge matching',
   }
 
   return (
@@ -82,31 +81,29 @@ export default async function SuccessPage({
             {email}
           </p>
         )}
-
         {magicLink ? (
-          <>
+          <div>
             
               href={magicLink}
               style={{ display: 'inline-block', padding: '1rem 2.5rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 16, fontWeight: 600, textDecoration: 'none', letterSpacing: '-0.01em' }}>
               Access ClaudHire
             </a>
             <p style={{ color: '#aeaeb2', fontSize: 12, marginTop: '1rem' }}>
-              One click — you're in. No password needed right now.
+              One click and you are in. No password needed right now.
             </p>
-          </>
+          </div>
         ) : (
-          <>
+          <div>
             <p style={{ color: '#6e6e73', fontSize: 14, marginBottom: '1.5rem' }}>
-              We're setting up your account — this takes just a moment.
+              We are setting up your account. This takes just a moment.
             </p>
             
-              href={`/login`}
+              href="/login"
               style={{ display: 'inline-block', padding: '1rem 2.5rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 16, fontWeight: 600, textDecoration: 'none' }}>
-              Continue to sign in →
+              Continue to sign in
             </a>
-          </>
+          </div>
         )}
-
         <p style={{ color: '#6e6e73', fontSize: 13, marginTop: '2rem' }}>
           Questions? <a href="mailto:hello@claudhire.com" style={{ color: '#0071e3', textDecoration: 'none' }}>hello@claudhire.com</a>
         </p>
