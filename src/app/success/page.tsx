@@ -37,6 +37,54 @@ const productLabels: Record<string, string> = {
   concierge: 'Concierge matching',
 }
 
+const containerStyle = {
+  minHeight: '100vh',
+  background: '#fbfbfd',
+  fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+}
+
+const innerStyle = {
+  maxWidth: 480,
+  padding: '2rem',
+  textAlign: 'center' as const,
+}
+
+const iconStyle = {
+  width: 72,
+  height: 72,
+  background: '#e3f3e3',
+  borderRadius: '50%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  margin: '0 auto 1.5rem',
+  fontSize: 32,
+  color: '#1a7f37',
+}
+
+const headingStyle = {
+  fontSize: 28,
+  fontWeight: 700,
+  letterSpacing: '-0.03em',
+  marginBottom: '0.75rem',
+  color: '#1d1d1f',
+}
+
+const btnStyle = {
+  display: 'inline-block',
+  padding: '1rem 2.5rem',
+  background: '#0071e3',
+  color: 'white',
+  borderRadius: 980,
+  fontSize: 16,
+  fontWeight: 600,
+  textDecoration: 'none',
+  letterSpacing: '-0.01em',
+}
+
 export default async function SuccessPage({
   searchParams,
 }: {
@@ -46,10 +94,12 @@ export default async function SuccessPage({
 
   if (!session_id) {
     return (
-      <div style={{ minHeight: '100vh', background: '#fbfbfd', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ maxWidth: 480, padding: '2rem', textAlign: 'center' }}>
-          <h1 style={{ fontSize: 28, fontWeight: 700, color: '#1d1d1f' }}>Something went wrong.</h1>
-          <p style={{ color: '#6e6e73', marginTop: '1rem' }}>Please contact <a href="mailto:hello@claudhire.com" style={{ color: '#0071e3' }}>hello@claudhire.com</a></p>
+      <div style={containerStyle}>
+        <div style={innerStyle}>
+          <h1 style={headingStyle}>Something went wrong.</h1>
+          <p style={{ color: '#6e6e73', marginTop: '1rem' }}>
+            Please contact <a href="mailto:hello@claudhire.com" style={{ color: '#0071e3' }}>hello@claudhire.com</a>
+          </p>
         </div>
       </div>
     )
@@ -65,29 +115,19 @@ export default async function SuccessPage({
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#fbfbfd', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ maxWidth: 480, padding: '2rem', textAlign: 'center' }}>
-        <div style={{ width: 72, height: 72, background: '#e3f3e3', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', fontSize: 32, color: '#1a7f37' }}>
-          ✓
-        </div>
-        <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-0.03em', marginBottom: '0.75rem', color: '#1d1d1f' }}>
-          Welcome to ClaudHire.
-        </h1>
+    <div style={containerStyle}>
+      <div style={innerStyle}>
+        <div style={iconStyle}>✓</div>
+        <h1 style={headingStyle}>Welcome to ClaudHire.</h1>
         <p style={{ color: '#6e6e73', fontSize: 15, marginBottom: '0.5rem', lineHeight: 1.6 }}>
           Your {productLabels[product] || 'purchase'} is confirmed.
         </p>
         {email && (
-          <p style={{ color: '#aeaeb2', fontSize: 13, marginBottom: '2rem' }}>
-            {email}
-          </p>
+          <p style={{ color: '#aeaeb2', fontSize: 13, marginBottom: '2rem' }}>{email}</p>
         )}
         {magicLink ? (
           <div>
-            
-              href={magicLink}
-              style={{ display: 'inline-block', padding: '1rem 2.5rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 16, fontWeight: 600, textDecoration: 'none', letterSpacing: '-0.01em' }}>
-              Access ClaudHire
-            </a>
+            <a href={magicLink} style={btnStyle}>Access ClaudHire</a>
             <p style={{ color: '#aeaeb2', fontSize: 12, marginTop: '1rem' }}>
               One click and you are in. No password needed right now.
             </p>
@@ -97,11 +137,7 @@ export default async function SuccessPage({
             <p style={{ color: '#6e6e73', fontSize: 14, marginBottom: '1.5rem' }}>
               We are setting up your account. This takes just a moment.
             </p>
-            
-              href="/login"
-              style={{ display: 'inline-block', padding: '1rem 2.5rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 16, fontWeight: 600, textDecoration: 'none' }}>
-              Continue to sign in
-            </a>
+            <a href="/login" style={btnStyle}>Continue to sign in</a>
           </div>
         )}
         <p style={{ color: '#6e6e73', fontSize: 13, marginTop: '2rem' }}>
