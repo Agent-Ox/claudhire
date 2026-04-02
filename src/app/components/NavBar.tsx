@@ -175,7 +175,7 @@ export default function NavBar() {
               <a href="/talent" onClick={() => setMenuOpen(false)} style={{ fontSize: 15, color: textColor, textDecoration: 'none', padding: '0.7rem 0', borderBottom: `0.5px solid ${mobileBorder}` }}>Browse talent</a>
               <a href="/post-job" onClick={() => setMenuOpen(false)} style={{ fontSize: 15, color: textColor, textDecoration: 'none', padding: '0.7rem 0', borderBottom: `0.5px solid ${mobileBorder}` }}>Post a job</a>
             </>
-          ) : contextLinks.filter(link => link.href !== dashboardLink).map(link => (
+          ) : isAdmin ? null : contextLinks.filter(link => link.href !== dashboardLink).map(link => (
             <a key={link.label} href={link.href || '#'} onClick={() => setMenuOpen(false)} style={{ fontSize: 15, color: textColor, textDecoration: 'none', padding: '0.7rem 0', borderBottom: `0.5px solid ${mobileBorder}` }}>
               {link.label}
             </a>
