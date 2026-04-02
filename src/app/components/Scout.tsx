@@ -11,6 +11,7 @@ type Message = {
 export default function Scout() {
   const [open, setOpen] = useState(false)
   const [isEmployer, setIsEmployer] = useState(false)
+  const [userRole, setUserRole] = useState<string>('')
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -25,15 +26,19 @@ export default function Scout() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) return
       const role = session.user.user_metadata?.role
-      if (role === 'employer') setIsEmployer(true)
+      if (role === 'employer' || role === 'builder') setIsEmployer(true)
+      setUserRole(role || '')
     })
   }, [])
 
   useEffect(() => {
     if (open && messages.length === 0) {
+      const isBuilder = userRole === 'builder'
       setMessages([{
         role: 'assistant',
-        content: "Hi, I'm Scout — I know every builder on ClaudHire. Tell me what you're looking for and I'll find your best matches."
+        content: isBuilder
+          ? "Hi, I'm Scout — I know every employer on ClaudHire. Tell me about your skills and I'll find who's hiring for someone like you."
+          : "Hi, I'm Scout — I know every builder on ClaudHire. Tell me what you're looking for and I'll find your best matches."
       }])
     }
   }, [open])
@@ -376,7 +381,7 @@ export default function Scout() {
             <textarea
               ref={inputRef}
               className="scout-textarea"
-              placeholder="Find me a RAG engineer in Europe..."
+              placeholder={userRole === "builder" ? "Who is hiring for my skills right now..." : "Find me a RAG engineer in Europe..."}
               value={input}
               onChange={e => {
                 setInput(e.target.value)
