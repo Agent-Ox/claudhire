@@ -24,8 +24,8 @@ export async function generateMetadata(
   return {
     title, description,
     alternates: { canonical: url },
-    openGraph: { title, description, url, type: 'profile', images: [{ url: `/og-default.svg`, width: 1200, height: 630, alt: title }] },
-    twitter: { card: 'summary_large_image', title, description, images: ['/og-default.svg'] },
+    openGraph: { title, description, url, type: 'profile', images: [{ url: `https://claudhire.com/og?username=${username}`, width: 1200, height: 630, alt: title }] },
+    twitter: { card: 'summary_large_image', title, description, images: [`https://claudhire.com/og?username=${username}`] },
   }
 }
 
