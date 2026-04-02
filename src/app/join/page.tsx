@@ -312,16 +312,25 @@ export default function JoinPage() {
               { label: 'Frameworks and tools', items: FRAMEWORKS, selected: selectedFrameworks, setSelected: setSelectedFrameworks },
               { label: 'AI-native platforms', items: AI_TOOLS, selected: selectedAITools, setSelected: setSelectedAITools },
               { label: 'Domain expertise', items: DOMAINS, selected: selectedDomains, setSelected: setSelectedDomains },
-            ].map(({ label, items, selected, setSelected }) => (
-              <div key={label} style={{ marginBottom: '1.75rem' }}>
-                <label style={labelStyle}>{label}</label>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {items.map(item => (
-                    <Tag key={item} label={item} selected={selected.includes(item)} onClick={() => toggle(selected, setSelected, item)} />
-                  ))}
+            ].map(({ label, items, selected, setSelected }) => {
+              const allSelected = items.every(i => selected.includes(i))
+              return (
+                <div key={label} style={{ marginBottom: '1.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
+                    <label style={labelStyle}>{label}</label>
+                    <button type="button" onClick={() => setSelected(allSelected ? [] : [...items])}
+                      style={{ fontSize: 12, color: '#0071e3', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500, padding: 0 }}>
+                      {allSelected ? 'Deselect all' : 'Select all'}
+                    </button>
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {items.map(item => (
+                      <Tag key={item} label={item} selected={selected.includes(item)} onClick={() => toggle(selected, setSelected, item)} />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
 
