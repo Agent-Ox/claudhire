@@ -205,11 +205,11 @@ export default function Home() {
             <div className="how-card">
               <span className="how-pill pill-free">Builders — Free</span>
               <h3>Prove what you can build.</h3>
-              <p className="card-sub">Create a profile, showcase real Claude projects with actual prompts and outcomes, earn your verified badge.</p>
+              <p className="card-sub">Create a profile, showcase real projects with actual prompts and outcomes, earn your verified ClaudHire badge.</p>
               <ul className="how-list">
                 <li><span className="check">✓</span> Profile live in 5 minutes</li>
                 <li><span className="check">✓</span> Showcase real projects with prompts and outcomes</li>
-                <li><span className="check">✓</span> Earn a verified Claude builder badge</li>
+                <li><span className="check">✓</span> Earn a verified ClaudHire badge</li>
                 <li><span className="check">✓</span> Get discovered by companies who need you</li>
                 <li><span className="check">✓</span> Browse and apply to open roles</li>
                 <li><span className="check">✓</span> Free forever. No catch.</li>
