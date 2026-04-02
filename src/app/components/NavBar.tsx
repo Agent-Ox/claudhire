@@ -59,6 +59,9 @@ export default function NavBar() {
     if (pathname.startsWith('/jobs')) {
       return navUser ? [{ label: dashboardLink === '/employer' ? 'Dashboard' : 'My profile', href: dashboardLink }] : []
     }
+    if (pathname.startsWith('/company/')) {
+      return navUser ? [{ label: dashboardLink === '/employer' ? 'Dashboard' : 'My profile', href: dashboardLink }] : []
+    }
     return []
   }
 
