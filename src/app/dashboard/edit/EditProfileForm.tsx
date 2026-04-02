@@ -104,11 +104,48 @@ export default function EditProfileForm({ profile, projects: initialProjects, sk
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp']
+    if (!validTypes.includes(file.type)) {
+      setError('Please use a JPG, PNG or WebP image.')
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Please use an image under 5MB.')
+      return
+    }
+
     setAvatarUploading(true)
     setError('')
     try {
+      // Resize to 400x400 client-side before upload
+      const resized = await new Promise<Blob>((resolve, reject) => {
+        const img = new Image()
+        const objectUrl = URL.createObjectURL(file)
+        img.onload = () => {
+          const MAX = 400
+          let w = img.width
+          let h = img.height
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX }
+          else { w = Math.round(w * MAX / h); h = MAX }
+          const canvas = document.createElement('canvas')
+          canvas.width = w
+          canvas.height = h
+          const ctx = canvas.getContext('2d')!
+          ctx.drawImage(img, 0, 0, w, h)
+          URL.revokeObjectURL(objectUrl)
+          canvas.toBlob(
+            blob => blob ? resolve(blob) : reject(new Error('Resize failed')),
+            'image/jpeg',
+            0.85
+          )
+        }
+        img.onerror = reject
+        img.src = objectUrl
+      })
+
       const fd = new FormData()
-      fd.append('file', file)
+      fd.append('file', new File([resized], 'avatar.jpg', { type: 'image/jpeg' }))
       const res = await fetch('/api/avatar', { method: 'POST', body: fd })
       const data = await res.json()
       if (data.url) {
@@ -117,7 +154,7 @@ export default function EditProfileForm({ profile, projects: initialProjects, sk
         setError(data.error || 'Upload failed')
       }
     } catch {
-      setError('Upload failed')
+      setError('Upload failed. Please try again.')
     }
     setAvatarUploading(false)
   }
