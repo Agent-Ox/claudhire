@@ -56,17 +56,17 @@ export default function NavBar() {
     if (pathname.startsWith('/u/')) {
       if (!navUser) return []
       if (isAdmin) return [{ label: 'Back to admin', href: '/admin' }]
-      return [{ label: dashboardLink === '/employer' ? 'Dashboard' : 'Back to dashboard', href: dashboardLink }]
+      return [{ label: 'Dashboard', href: dashboardLink }]
     }
     if (pathname.startsWith('/jobs')) {
       if (!navUser) return []
       if (isAdmin) return [{ label: 'Admin', href: '/admin' }]
-      return [{ label: dashboardLink === '/employer' ? 'Dashboard' : 'My profile', href: dashboardLink }]
+      return [{ label: 'Dashboard', href: dashboardLink }]
     }
     if (pathname.startsWith('/company/')) {
       if (!navUser) return []
       if (isAdmin) return [{ label: 'Admin', href: '/admin' }]
-      return [{ label: dashboardLink === '/employer' ? 'Dashboard' : 'My profile', href: dashboardLink }]
+      return [{ label: 'Dashboard', href: dashboardLink }]
     }
     return []
   }
@@ -188,7 +188,7 @@ export default function NavBar() {
                 </a>
               ) : (
                 <a href={dashboardLink} onClick={() => setMenuOpen(false)} style={{ fontSize: 15, color: accentColor, textDecoration: 'none', padding: '0.7rem 0', borderBottom: `0.5px solid ${mobileBorder}`, fontWeight: 500 }}>
-                  {navUser.role === 'employer' ? 'Employer dashboard' : 'My profile'}
+                  {navUser.role === 'employer' ? 'Employer dashboard' : 'Dashboard'}
                 </a>
               )}
               <a href="/api/logout" style={{ fontSize: 15, color: '#ef4444', textDecoration: 'none', padding: '0.7rem 0', fontWeight: 500 }}>Sign out</a>
