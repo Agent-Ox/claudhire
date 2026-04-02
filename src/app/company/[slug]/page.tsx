@@ -141,13 +141,17 @@ export default async function CompanyProfilePage({ params }: { params: Promise<{
                     <p style={{ fontSize: 14, color: '#3d3d3f', lineHeight: 1.6, marginBottom: '1rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                       {job.description}
                     </p>
+                  {isBuilder && (
+                    <ApplyButton jobId={job.id} jobTitle={job.role_title} />
                   )}
-                  <a
-                    href={'mailto:' + job.employer_email + '?subject=Application via ClaudHire'}
-                    style={{ display: 'inline-block', padding: '0.5rem 1.25rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 13, fontWeight: 500, textDecoration: 'none' }}
-                  >
-                    Apply
-                  </a>
+                  {isVisitor && (
+                    <a
+                      href={'/signup?next=/company/' + slug}
+                      style={{ display: 'inline-block', padding: '0.5rem 1.25rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 13, fontWeight: 500, textDecoration: 'none' }}
+                    >
+                      Create profile to apply
+                    </a>
+                  )}
                 </div>
               ))}
             </div>
