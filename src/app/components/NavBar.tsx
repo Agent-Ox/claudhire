@@ -36,7 +36,6 @@ export default function NavBar() {
     if (pathname.startsWith('/dashboard/edit')) {
       return [
         { label: 'Dashboard', href: '/dashboard' },
-        { label: 'View profile', href: null, action: 'view-profile' },
       ]
     }
     if (pathname.startsWith('/dashboard')) {
