@@ -35,6 +35,10 @@ export async function login(formData: FormData) {
   // Role-based redirect
   const metaRole = user.user_metadata?.role
 
+  if (metaRole === 'admin') {
+    redirect('/admin')
+  }
+
   if (metaRole === 'employer') {
     redirect('/employer')
   }
