@@ -3,7 +3,7 @@
 import { useState } from 'react'
 
 export default function ApplyButton({ jobId, jobTitle }: { jobId: string, jobTitle: string }) {
-  const [state, setState] = useState<'idle' | 'loading' | 'done' | 'error' | 'duplicate'>>('idle')
+  const [state, setState] = useState<'idle' | 'loading' | 'done' | 'error' | 'duplicate'>('idle')
 
   const apply = async () => {
     setState('loading')
