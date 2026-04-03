@@ -63,16 +63,19 @@ export default async function CompanyProfilePage({ params }: { params: Promise<{
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1.5rem', marginBottom: '2.5rem', flexWrap: 'wrap' }}>
           <div style={{
-            width: 72, height: 72, borderRadius: 18,
-            background: 'linear-gradient(135deg, #e8f1fd, #d0e4fb)',
+            width: 72, height: 72, borderRadius: 18, flexShrink: 0,
+            background: company.logo_url ? 'transparent' : 'linear-gradient(135deg, #e8f1fd, #d0e4fb)',
             border: '1.5px solid rgba(0,113,227,0.15)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 22, fontWeight: 700, color: '#0071e3', flexShrink: 0,
+            overflow: 'hidden',
           }}>
-            {initials}
+            {company.logo_url
+              ? <img src={company.logo_url} alt={company.company_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              : <span style={{ fontSize: 22, fontWeight: 700, color: '#0071e3' }}>{initials}</span>
+            }
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.3rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.4rem' }}>
               <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-0.03em', color: '#1d1d1f' }}>
                 {company.company_name}
               </h1>
@@ -80,17 +83,37 @@ export default async function CompanyProfilePage({ params }: { params: Promise<{
                 Hiring on ShipStacked
               </span>
             </div>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              {company.location && (
-                <span style={{ fontSize: 14, color: '#6e6e73' }}>📍 {company.location}</span>
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              {company.location && <span style={{ fontSize: 13, color: '#6e6e73' }}>📍 {company.location}</span>}
+              {company.team_size && <span style={{ fontSize: 13, color: '#6e6e73' }}>👥 {company.team_size}</span>}
+              {company.industry && (
+                <span style={{ fontSize: 12, fontWeight: 500, color: '#0071e3', background: '#e8f0fe', padding: '0.2rem 0.6rem', borderRadius: 980 }}>
+                  {company.industry}
+                </span>
               )}
-              {company.team_size && (
-                <span style={{ fontSize: 14, color: '#6e6e73' }}>👥 {company.team_size} people</span>
+              {company.hiring_type && (
+                <span style={{ fontSize: 12, fontWeight: 500, color: '#6e6e73', background: '#f5f5f7', padding: '0.2rem 0.6rem', borderRadius: 980 }}>
+                  {company.hiring_type}
+                </span>
               )}
+              {company.urgency && (
+                <span style={{ fontSize: 12, fontWeight: 500,
+                  color: company.urgency === 'Immediate' ? '#c05000' : '#6e6e73',
+                  background: company.urgency === 'Immediate' ? '#fff3e0' : '#f5f5f7',
+                  padding: '0.2rem 0.6rem', borderRadius: 980 }}>
+                  {company.urgency === 'Immediate' ? '🔥 Hiring now' : company.urgency}
+                </span>
+              )}
+            </div>
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
               {company.website_url && (
-                <a href={company.website_url} target="_blank" style={{ fontSize: 14, color: '#0071e3', textDecoration: 'none' }}>
-                  🔗 Website
-                </a>
+                <a href={company.website_url} target="_blank" style={{ fontSize: 13, color: '#0071e3', textDecoration: 'none' }}>Website →</a>
+              )}
+              {company.linkedin_url && (
+                <a href={company.linkedin_url} target="_blank" style={{ fontSize: 13, color: '#0071e3', textDecoration: 'none' }}>LinkedIn →</a>
+              )}
+              {company.x_url && (
+                <a href={company.x_url.startsWith('http') ? company.x_url : `https://x.com/${company.x_url.replace('@', '')}`} target="_blank" style={{ fontSize: 13, color: '#0071e3', textDecoration: 'none' }}>X →</a>
               )}
             </div>
           </div>
@@ -112,12 +135,19 @@ export default async function CompanyProfilePage({ params }: { params: Promise<{
           </div>
         )}
 
+        {/* Budget signal */}
+        {company.budget_range && (
+          <div style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.25rem 1.75rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span style={{ fontSize: 13, color: '#6e6e73', fontWeight: 500 }}>Budget per hire:</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#1a7f37', background: '#e3f3e3', padding: '0.2rem 0.75rem', borderRadius: 980 }}>{company.budget_range}</span>
+          </div>
+        )}
+
         {/* Open roles */}
         <div style={{ marginBottom: '2rem' }}>
           <h2 style={{ fontSize: 18, fontWeight: 600, letterSpacing: '-0.02em', color: '#1d1d1f', marginBottom: '1rem' }}>
             Open roles {jobs && jobs.length > 0 ? `(${jobs.length})` : ''}
           </h2>
-
           {!jobs || jobs.length === 0 ? (
             <div style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '2rem', textAlign: 'center' }}>
               <p style={{ color: '#6e6e73', fontSize: 14 }}>No open roles right now. Check back soon.</p>
@@ -142,14 +172,17 @@ export default async function CompanyProfilePage({ params }: { params: Promise<{
                       {job.description}
                     </p>
                   )}
-                  {isBuilder && (
-                    <ApplyButton jobId={job.id} jobTitle={job.role_title} />
+                  {job.skills && job.skills.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: '1rem' }}>
+                      {job.skills.slice(0, 6).map((skill: string) => (
+                        <span key={skill} style={{ fontSize: 12, padding: '0.2rem 0.6rem', background: '#f5f5f7', color: '#3d3d3f', borderRadius: 980, fontWeight: 500 }}>{skill}</span>
+                      ))}
+                    </div>
                   )}
+                  {isBuilder && <ApplyButton jobId={job.id} jobTitle={job.role_title} />}
                   {isVisitor && (
-                    <a
-                      href={'/signup?next=/company/' + slug}
-                      style={{ display: 'inline-block', padding: '0.5rem 1.25rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 13, fontWeight: 500, textDecoration: 'none' }}
-                    >
+                    <a href={'/signup?next=/company/' + slug}
+                      style={{ display: 'inline-block', padding: '0.5rem 1.25rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 13, fontWeight: 500, textDecoration: 'none' }}>
                       Create profile to apply
                     </a>
                   )}
@@ -161,18 +194,18 @@ export default async function CompanyProfilePage({ params }: { params: Promise<{
 
         {/* Builder CTA */}
         {showBuilderCTA && (
-        <div style={{ background: 'linear-gradient(135deg, #0f0f18, #1a1a2e)', border: '1px solid rgba(108,99,255,0.2)', borderRadius: 16, padding: '2rem', textAlign: 'center' }}>
-          <p style={{ fontSize: 13, fontWeight: 600, color: 'rgba(167,139,250,0.9)', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Are you an AI-native builder?</p>
-          <p style={{ fontSize: 17, fontWeight: 600, color: 'rgba(240,240,245,0.95)', marginBottom: '0.4rem', letterSpacing: '-0.02em' }}>
-            Get discovered by {company.company_name} and others.
-          </p>
-          <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.5)', marginBottom: '1.25rem', fontWeight: 300 }}>
-            Create a free verified profile and let companies find you.
-          </p>
-          <Link href="/signup" style={{ display: 'inline-block', padding: '0.7rem 1.5rem', background: '#6c63ff', color: 'white', borderRadius: 20, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
-            Create free profile →
-          </Link>
-        </div>
+          <div style={{ background: 'linear-gradient(135deg, #0f0f18, #1a1a2e)', border: '1px solid rgba(108,99,255,0.2)', borderRadius: 16, padding: '2rem', textAlign: 'center' }}>
+            <p style={{ fontSize: 13, fontWeight: 600, color: 'rgba(167,139,250,0.9)', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Are you an AI-native builder?</p>
+            <p style={{ fontSize: 17, fontWeight: 600, color: 'rgba(240,240,245,0.95)', marginBottom: '0.4rem', letterSpacing: '-0.02em' }}>
+              Get discovered by {company.company_name} and others.
+            </p>
+            <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.5)', marginBottom: '1.25rem', fontWeight: 300 }}>
+              Create a free verified profile and let companies find you.
+            </p>
+            <Link href="/signup" style={{ display: 'inline-block', padding: '0.7rem 1.5rem', background: '#6c63ff', color: 'white', borderRadius: 20, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
+              Create free profile →
+            </Link>
+          </div>
         )}
 
       </div>
