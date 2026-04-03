@@ -91,7 +91,7 @@ function SignupForm() {
           </div>
           <p style={{ fontSize: 12, color: '#6e6e73', marginTop: '0.5rem' }}>
             {role === 'builder'
-              ? 'Create a free profile and showcase your Claude work.'
+              ? 'Create a free profile and showcase your AI work.'
               : 'Access the full talent directory, Scout AI matching, and unlimited job posts.'}
           </p>
         </div>
