@@ -54,7 +54,6 @@ export default function EmployerDashboardClient({
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
-  const [toggling, setToggling] = useState(false)
   const [uploadingLogo, setUploadingLogo] = useState(false)
   const [deletingJobId, setDeletingJobId] = useState<string | null>(null)
   const [jobList, setJobList] = useState<any[]>(jobs)
@@ -101,33 +100,6 @@ export default function EmployerDashboardClient({
     }
   }
 
-  const handleToggle = async () => {
-    if (!isPublic && !hasProfile) {
-      setError('Save your company profile first before making it public.')
-      document.getElementById('company-form')?.scrollIntoView({ behavior: 'smooth' })
-      return
-    }
-    if (!isPublic && !profile.company_name) {
-      setError('Add a company name before making your profile public.')
-      document.getElementById('company-form')?.scrollIntoView({ behavior: 'smooth' })
-      return
-    }
-    setToggling(true)
-    try {
-      const supabase = createClient()
-      const newPublic = !isPublic
-      if (hasProfile || initial) {
-        await supabase.from('employer_profiles').update({ public: newPublic }).eq('email', email)
-      } else {
-        await supabase.from('employer_profiles').insert([{ email, public: newPublic }])
-      }
-      setProfile(p => ({ ...p, public: newPublic }))
-    } catch (e: any) {
-      setError(e.message)
-    } finally {
-      setToggling(false)
-    }
-  }
 
   const handleSave = async () => {
     if (!profile.company_name?.trim()) { setError('Company name is required'); return }
@@ -284,20 +256,11 @@ export default function EmployerDashboardClient({
         )}
 
         <div style={{ borderTop: '0.5px solid #e0e0e5', paddingTop: '2rem', marginBottom: '2.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-            <div>
-              <h2 style={{ fontSize: 16, fontWeight: 600, color: '#1d1d1f', letterSpacing: '-0.01em' }}>Company profile</h2>
-              <p style={{ fontSize: 13, color: '#6e6e73', marginTop: '0.25rem' }}>
-                {isPublic && profile.slug ? 'Public at shipstacked.com/company/' + profile.slug : 'Your profile is private — only you can see this.'}
-              </p>
-            </div>
-            <button onClick={handleToggle} disabled={toggling}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'none', border: 'none', cursor: toggling ? 'not-allowed' : 'pointer', fontFamily: 'inherit', padding: 0 }}>
-              <span style={{ fontSize: 13, fontWeight: 500, color: isPublic ? '#1a7f37' : '#6e6e73' }}>{isPublic ? 'Public' : 'Private'}</span>
-              <div style={{ width: 44, height: 26, borderRadius: 13, background: isPublic ? '#1a7f37' : '#d2d2d7', position: 'relative', transition: 'background 0.2s', opacity: toggling ? 0.6 : 1 }}>
-                <div style={{ position: 'absolute', top: 3, left: isPublic ? 21 : 3, width: 20, height: 20, borderRadius: '50%', background: 'white', transition: 'left 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.2)' }} />
-              </div>
-            </button>
+          <div style={{ marginBottom: '0.5rem' }}>
+            <h2 style={{ fontSize: 16, fontWeight: 600, color: '#1d1d1f', letterSpacing: '-0.01em' }}>Company profile</h2>
+            <p style={{ fontSize: 13, color: '#6e6e73', marginTop: '0.25rem' }}>
+              {isPublic && profile.slug ? 'Public at shipstacked.com/company/' + profile.slug : 'Your profile is private — only you can see this.'}
+            </p>
           </div>
 
           {isPublic && profile.slug && (
@@ -394,9 +357,25 @@ export default function EmployerDashboardClient({
               </div>
             </div>
 
+            <div
+              onClick={() => setProfile(p => ({ ...p, public: !p.public }))}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: isPublic ? '#f0f7ff' : '#f9f9f9', borderRadius: 10, border: '1px solid', borderColor: isPublic ? '#dce8fb' : '#e0e0e5', cursor: 'pointer' }}>
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 600, color: '#1d1d1f', marginBottom: '0.2rem' }}>
+                  {isPublic ? 'Public profile' : 'Private profile'}
+                </p>
+                <p style={{ fontSize: 12, color: '#6e6e73' }}>
+                  {isPublic ? 'Builders can find and apply to your company.' : 'Browse talent anonymously — builders cannot see your company.'}
+                </p>
+              </div>
+              <div style={{ width: 44, height: 26, borderRadius: 13, background: isPublic ? '#1a7f37' : '#d2d2d7', position: 'relative', transition: 'background 0.2s', flexShrink: 0, marginLeft: '1rem' }}>
+                <div style={{ position: 'absolute', top: 3, left: isPublic ? 21 : 3, width: 20, height: 20, borderRadius: '50%', background: 'white', transition: 'left 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.2)' }} />
+              </div>
+            </div>
+
             <button onClick={handleSave} disabled={saving}
               style={{ padding: '0.75rem', background: saving ? '#d2d2d7' : '#0071e3', color: 'white', border: 'none', borderRadius: 980, fontSize: 14, fontWeight: 500, cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'inherit', width: '100%' }}>
-              {saving ? 'Saving...' : 'Save company profile'}
+              {saving ? 'Saving...' : isPublic ? 'Save and publish profile' : 'Save profile privately'}
             </button>
           </div>
         </div>
