@@ -81,10 +81,10 @@ export default function EmployerDashboardClient({
       const img = new Image()
       const url = URL.createObjectURL(file)
       await new Promise<void>((resolve, reject) => { img.onload = () => resolve(); img.onerror = reject; img.src = url })
-      canvas.width = 200; canvas.height = 200
+      canvas.width = 400; canvas.height = 400
       const ctx = canvas.getContext('2d')!
       const size = Math.min(img.width, img.height)
-      ctx.drawImage(img, (img.width - size) / 2, (img.height - size) / 2, size, size, 0, 0, 200, 200)
+      ctx.drawImage(img, (img.width - size) / 2, (img.height - size) / 2, size, size, 0, 0, 400, 400)
       URL.revokeObjectURL(url)
       const blob = await new Promise<Blob>((resolve) => canvas.toBlob(b => resolve(b!), 'image/jpeg', 0.85))
       const supabase = createClient()
@@ -289,7 +289,7 @@ export default function EmployerDashboardClient({
                     style={{ fontSize: 13, padding: '0.4rem 0.9rem', background: '#f5f5f7', color: '#1d1d1f', border: '1px solid #d2d2d7', borderRadius: 980, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500 }}>
                     {uploadingLogo ? 'Uploading...' : profile.logo_url ? 'Change logo' : 'Upload logo'}
                   </button>
-                  <p style={{ fontSize: 12, color: '#aeaeb2', marginTop: '0.3rem' }}>Square image recommended. JPG or PNG.</p>
+                  <p style={{ fontSize: 12, color: '#aeaeb2', marginTop: '0.3rem' }}>Square format required — 400x400px or larger. JPG or PNG. Wide logos will be centre-cropped.</p>
                 </div>
                 <input ref={logoInputRef} type="file" accept="image/*" onChange={handleLogoUpload} style={{ display: 'none' }} />
               </div>
