@@ -65,12 +65,12 @@ export async function POST(req: Request) {
       status: 'applied',
     }])
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://claudhire.com'
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shipstacked.com'
     const profileUrl = siteUrl + '/u/' + profile.username
 
     // Email employer
     await resend.emails.send({
-      from: 'ClaudHire <hello@claudhire.com>',
+      from: 'ShipStacked <hello@shipstacked.com>',
       to: job.employer_email,
       subject: 'New application for ' + job.role_title + ' — ' + profile.full_name,
       html: '<div style="font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 2rem;">' +
@@ -80,21 +80,21 @@ export async function POST(req: Request) {
         '<a href="' + profileUrl + '" style="display: inline-block; padding: 0.75rem 1.5rem; background: #0071e3; color: white; border-radius: 20px; text-decoration: none; font-size: 14px; font-weight: 500; margin-bottom: 1.5rem;">View full profile</a>' +
         '<hr style="border: none; border-top: 1px solid #e0e0e5; margin: 1.5rem 0;" />' +
         '<p style="color: #aeaeb2; font-size: 12px;">Reply directly to ' + user.email + ' to get in touch.</p>' +
-        '<p style="color: #aeaeb2; font-size: 12px;">ClaudHire — The hiring platform for Claude-native talent.</p>' +
+        '<p style="color: #aeaeb2; font-size: 12px;">ShipStacked — The hiring platform for AI-native talent.</p>' +
         '</div>'
     })
 
     // Email builder confirmation
     await resend.emails.send({
-      from: 'ClaudHire <hello@claudhire.com>',
+      from: 'ShipStacked <hello@shipstacked.com>',
       to: user.email!,
       subject: 'Application sent — ' + job.role_title + ' at ' + job.company_name,
       html: '<div style="font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 2rem;">' +
         '<h2 style="font-size: 20px; font-weight: 700; color: #1d1d1f; letter-spacing: -0.02em; margin-bottom: 0.5rem;">Application sent.</h2>' +
-        '<p style="color: #6e6e73; font-size: 14px; line-height: 1.6; margin-bottom: 1.5rem;">Your application for <strong>' + job.role_title + '</strong> at ' + job.company_name + ' has been sent. They can see your full ClaudHire profile.</p>' +
+        '<p style="color: #6e6e73; font-size: 14px; line-height: 1.6; margin-bottom: 1.5rem;">Your application for <strong>' + job.role_title + '</strong> at ' + job.company_name + ' has been sent. They can see your full ShipStacked profile.</p>' +
         '<a href="' + profileUrl + '" style="display: inline-block; padding: 0.75rem 1.5rem; background: #0071e3; color: white; border-radius: 20px; text-decoration: none; font-size: 14px; font-weight: 500;">View your profile</a>' +
         '<hr style="border: none; border-top: 1px solid #e0e0e5; margin: 1.5rem 0;" />' +
-        '<p style="color: #aeaeb2; font-size: 12px;">ClaudHire — The hiring platform for Claude-native talent.</p>' +
+        '<p style="color: #aeaeb2; font-size: 12px;">ShipStacked — The hiring platform for AI-native talent.</p>' +
         '</div>'
     })
 

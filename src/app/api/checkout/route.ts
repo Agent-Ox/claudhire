@@ -26,8 +26,8 @@ export async function POST(req: Request) {
     line_items: [{ price: priceId, quantity: 1 }],
     metadata: { product },
     subscription_data: isSubscription ? { metadata: { product } } : undefined,
-    success_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://claudhire.com'}/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://claudhire.com'}/#pricing`,
+    success_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://shipstacked.com'}/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://shipstacked.com'}/#pricing`,
   })
 
   return NextResponse.json({ url: session.url })

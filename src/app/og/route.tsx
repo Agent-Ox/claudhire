@@ -7,8 +7,8 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const username = searchParams.get('username')
 
-  let name = 'ClaudHire Builder'
-  let role = 'Claude-native builder'
+  let name = 'ShipStacked Builder'
+  let role = 'AI-native builder'
   let verified = false
   let location = ''
 
@@ -55,7 +55,7 @@ export async function GET(req: Request) {
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 'auto' }}>
           <span style={{ fontSize: 28, fontWeight: 700, color: 'rgba(240,240,245,0.95)', letterSpacing: '-0.02em' }}>
-            ClaudHire<span style={{ color: '#6c63ff' }}>.</span>
+            ShipStacked<span style={{ color: '#6c63ff' }}>.</span>
           </span>
         </div>
 
@@ -107,10 +107,10 @@ export async function GET(req: Request) {
           paddingTop: 24,
         }}>
           <span style={{ fontSize: 18, color: 'rgba(167,139,250,0.8)' }}>
-            claudhire.com
+            shipstacked.com
           </span>
           <span style={{ fontSize: 16, color: 'rgba(240,240,245,0.3)' }}>
-            The home for Claude-native talent
+            The home for AI-native talent
           </span>
         </div>
       </div>

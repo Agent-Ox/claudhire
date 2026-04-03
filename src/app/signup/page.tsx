@@ -65,7 +65,7 @@ function SignupForm() {
     <div style={{ minHeight: '100vh', background: '#fbfbfd', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ width: '100%', maxWidth: 400, padding: '2rem 1.5rem' }}>
         <a href="/" style={{ fontSize: 18, fontWeight: 700, color: '#1d1d1f', textDecoration: 'none', letterSpacing: '-0.02em', display: 'block', marginBottom: '2rem' }}>
-          ClaudHire<span style={{ color: '#0071e3' }}>.</span>
+          ShipStacked<span style={{ color: '#0071e3' }}>.</span>
         </a>
 
         <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.03em', marginBottom: '0.5rem', color: '#1d1d1f' }}>Create account</h1>

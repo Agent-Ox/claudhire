@@ -99,7 +99,7 @@ export default function NavBar() {
       }}>
         {/* Logo */}
         <a href="/" style={{ fontSize: '1.1rem', fontWeight: 700, color: textColor, textDecoration: 'none', letterSpacing: '-0.02em', flexShrink: 0 }}>
-          ClaudHire<span style={{ color: accentColor }}>.</span>
+          ShipStacked<span style={{ color: accentColor }}>.</span>
         </a>
 
         {/* Desktop center links */}

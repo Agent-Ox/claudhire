@@ -59,7 +59,7 @@ export default function BuilderDashboardClient({
   const [requestSent, setRequestSent] = useState(false)
   const [requesting, setRequesting] = useState(false)
 
-  const profileUrl = profile ? 'https://claudhire.com/u/' + profile.username : ''
+  const profileUrl = profile ? 'https://shipstacked.com/u/' + profile.username : ''
   const { score, tips } = profile ? calcScore(profile) : { score: 0, tips: [] }
   const firstName = profile?.full_name?.split(' ')[0] || 'there'
 
@@ -85,7 +85,7 @@ export default function BuilderDashboardClient({
           <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-0.03em', color: '#1d1d1f', marginBottom: '0.3rem' }}>
             Welcome back, {firstName}.
           </h1>
-          <p style={{ color: '#6e6e73', fontSize: 15 }}>Your ClaudHire builder dashboard.</p>
+          <p style={{ color: '#6e6e73', fontSize: 15 }}>Your ShipStacked builder dashboard.</p>
         </div>
 
         {!profile ? (
@@ -131,7 +131,7 @@ export default function BuilderDashboardClient({
                   <>
                     <div style={{ fontSize: 28, marginBottom: '0.5rem' }}>✓</div>
                     <p style={{ fontSize: 15, fontWeight: 700, color: '#1a7f37', marginBottom: '0.3rem' }}>Verified builder</p>
-                    <p style={{ fontSize: 12, color: '#6e6e73', lineHeight: 1.5 }}>Your profile carries the ClaudHire verified badge. Employers trust verified builders.</p>
+                    <p style={{ fontSize: 12, color: '#6e6e73', lineHeight: 1.5 }}>Your profile carries the ShipStacked verified badge. Employers trust verified builders.</p>
                   </>
                 ) : (
                   <>
@@ -157,7 +157,7 @@ export default function BuilderDashboardClient({
             <div style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.5rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
                 <p style={{ fontSize: 12, fontWeight: 600, color: '#6e6e73', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '0.4rem' }}>Your profile</p>
-                <p style={{ fontSize: 14, fontWeight: 500, color: '#1d1d1f' }}>claudhire.com/u/{profile.username}</p>
+                <p style={{ fontSize: 14, fontWeight: 500, color: '#1d1d1f' }}>shipstacked.com/u/{profile.username}</p>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <a href="/dashboard/edit" style={{ padding: '0.5rem 1rem', background: '#f5f5f7', color: '#1d1d1f', borderRadius: 980, fontSize: 13, fontWeight: 500, textDecoration: 'none' }}>
@@ -180,7 +180,7 @@ export default function BuilderDashboardClient({
                 </div>
                 <div>
                   <p style={{ fontSize: 14, fontWeight: 600, color: 'rgba(240,240,245,0.95)', marginBottom: '0.2rem' }}>Ask Scout who is hiring</p>
-                  <p style={{ fontSize: 12, color: 'rgba(167,139,250,0.8)' }}>Scout knows every employer on ClaudHire. Ask it who is looking for your skillset right now.</p>
+                  <p style={{ fontSize: 12, color: 'rgba(167,139,250,0.8)' }}>Scout knows every employer on ShipStacked. Ask it who is looking for your skillset right now.</p>
                 </div>
               </div>
               <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(240,240,245,0.7)', background: 'rgba(108,99,255,0.15)', border: '1px solid rgba(108,99,255,0.25)', padding: '0.4rem 0.875rem', borderRadius: 980, whiteSpace: 'nowrap' }}>

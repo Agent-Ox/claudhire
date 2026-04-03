@@ -30,15 +30,15 @@ export async function POST(req: Request) {
     // Send email to builder if verifying
     if (verified) {
       await resend.emails.send({
-        from: 'ClaudHire <hello@claudhire.com>',
+        from: 'ShipStacked <hello@shipstacked.com>',
         to: builder_email,
-        subject: 'You are now a verified ClaudHire builder',
+        subject: 'You are now a verified ShipStacked builder',
         html: '<div style="font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 2rem;">' +
           '<h2 style="font-size: 20px; font-weight: 700; color: #1d1d1f; margin-bottom: 0.5rem;">You are verified.</h2>' +
-          '<p style="color: #6e6e73; font-size: 14px; line-height: 1.6; margin-bottom: 1.5rem;">Hi ' + builder_name + ' — your ClaudHire profile has been reviewed and verified. Your profile now carries the verified badge, making you more visible to employers.</p>' +
-          '<a href="https://claudhire.com/dashboard" style="display: inline-block; padding: 0.75rem 1.5rem; background: #0071e3; color: white; border-radius: 20px; text-decoration: none; font-size: 14px; font-weight: 500;">View your dashboard</a>' +
+          '<p style="color: #6e6e73; font-size: 14px; line-height: 1.6; margin-bottom: 1.5rem;">Hi ' + builder_name + ' — your ShipStacked profile has been reviewed and verified. Your profile now carries the verified badge, making you more visible to employers.</p>' +
+          '<a href="https://shipstacked.com/dashboard" style="display: inline-block; padding: 0.75rem 1.5rem; background: #0071e3; color: white; border-radius: 20px; text-decoration: none; font-size: 14px; font-weight: 500;">View your dashboard</a>' +
           '<hr style="border: none; border-top: 1px solid #e0e0e5; margin: 1.5rem 0;" />' +
-          '<p style="color: #aeaeb2; font-size: 12px;">ClaudHire — The hiring platform for Claude-native talent.</p>' +
+          '<p style="color: #aeaeb2; font-size: 12px;">ShipStacked — The hiring platform for AI-native talent.</p>' +
           '</div>'
       })
     }

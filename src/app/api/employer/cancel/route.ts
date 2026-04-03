@@ -9,7 +9,7 @@ export async function POST() {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    return NextResponse.redirect(new URL('/login', 'https://claudhire.com'))
+    return NextResponse.redirect(new URL('/login', 'https://shipstacked.com'))
   }
 
   const { data: sub } = await supabase
@@ -46,5 +46,5 @@ export async function POST() {
     .eq('email', user.email)
     .eq('product', 'full_access')
 
-  return NextResponse.redirect(new URL('/employer?cancelled=true', 'https://claudhire.com'))
+  return NextResponse.redirect(new URL('/employer?cancelled=true', 'https://shipstacked.com'))
 }

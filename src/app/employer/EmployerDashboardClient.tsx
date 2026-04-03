@@ -140,7 +140,7 @@ export default function EmployerDashboardClient({
         <a href="/talent" style={{ display: 'block', background: '#0071e3', borderRadius: 18, padding: '2rem 2.5rem', textDecoration: 'none', marginBottom: '1rem' }}>
           <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: '0.5rem' }}>Core product</p>
           <h2 style={{ fontSize: 26, fontWeight: 700, color: 'white', letterSpacing: '-0.02em', marginBottom: '0.4rem' }}>Search talent</h2>
-          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.8)', marginBottom: '1.5rem' }}>Browse and contact verified Claude-native builders directly. Ask Scout for instant matches.</p>
+          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.8)', marginBottom: '1.5rem' }}>Browse and contact verified AI-native builders directly. Ask Scout for instant matches.</p>
           <span style={{ display: 'inline-block', background: 'white', color: '#0071e3', padding: '0.6rem 1.25rem', borderRadius: 980, fontSize: 14, fontWeight: 600 }}>
             Browse talent →
           </span>
@@ -193,7 +193,7 @@ export default function EmployerDashboardClient({
               <h2 style={{ fontSize: 16, fontWeight: 600, color: '#1d1d1f', letterSpacing: '-0.01em' }}>Company profile</h2>
               <p style={{ fontSize: 13, color: '#6e6e73', marginTop: '0.25rem' }}>
                 {isPublic && profile.slug
-                  ? "Public at claudhire.com/company/" + profile.slug
+                  ? "Public at shipstacked.com/company/" + profile.slug
                   : 'Your profile is private — only you can see this.'}
               </p>
             </div>
@@ -244,7 +244,7 @@ export default function EmployerDashboardClient({
           )}
           {saved && (
             <div style={{ background: '#e3f3e3', border: '1px solid #b3e0b3', borderRadius: 10, padding: '0.75rem 1rem', marginBottom: '1rem', fontSize: 14, color: '#1a7f37' }}>
-              ✓ Profile saved.{profile.public && profile.slug ? ` Live at claudhire.com/company/${profile.slug}` : ''}
+              ✓ Profile saved.{profile.public && profile.slug ? ` Live at shipstacked.com/company/${profile.slug}` : ''}
             </div>
           )}
 

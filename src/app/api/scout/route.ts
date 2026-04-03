@@ -37,7 +37,7 @@ Availability: ${myProfile.availability || 'not specified'}
 Bio: ${myProfile.bio || 'none'}
 Skills: ${mySkills}
 Projects: ${myProjects}
-Profile URL: claudhire.com/u/${myProfile.username}
+Profile URL: shipstacked.com/u/${myProfile.username}
 
 Use this to personalise your responses. Address them by first name. You already know their background — do not ask them to repeat it.`
       }
@@ -93,7 +93,7 @@ Use this context to personalise your responses. You already know what they are h
         ' | BIO: ' + (p.bio || 'none') +
         ' | SKILLS: ' + skills +
         ' | PROJECTS: ' + projects +
-        ' | PROFILE URL: claudhire.com/u/' + p.username +
+        ' | PROFILE URL: shipstacked.com/u/' + p.username +
         '---'
     }).join('\n') || 'No profiles available yet.'
 
@@ -105,10 +105,10 @@ Use this context to personalise your responses. You already know what they are h
 
     const employerProfileContext = employerProfiles?.length ? employerProfiles.map(e => {
       const jobs = e.jobs?.filter((j: any) => j.status === 'active').map((j: any) => j.role_title).join(', ') || 'none'
-      return 'COMPANY: ' + e.company_name + ' | LOCATION: ' + (e.location || 'n/a') + ' | BUILDING: ' + (e.what_they_build || 'n/a') + ' | OPEN ROLES: ' + jobs + ' | PROFILE: claudhire.com/company/' + e.slug
+      return 'COMPANY: ' + e.company_name + ' | LOCATION: ' + (e.location || 'n/a') + ' | BUILDING: ' + (e.what_they_build || 'n/a') + ' | OPEN ROLES: ' + jobs + ' | PROFILE: shipstacked.com/company/' + e.slug
     }).join('\n') : 'No public employer profiles yet.'
 
-    const systemPrompt = 'You are Scout, the AI talent concierge for ClaudHire — the hiring platform for Claude builders.' +
+    const systemPrompt = 'You are Scout, the AI talent concierge for ShipStacked — the hiring platform for Claude builders.' +
       (currentUserContext ? currentUserContext : '') +
       (employerContext ? employerContext : '') +
       '\n\nALL BUILDER PROFILES ON CLAUDHIRE:\n' + profileContext +
@@ -118,7 +118,7 @@ Use this context to personalise your responses. You already know what they are h
       'FOR EMPLOYERS: When you receive __EMPLOYER_GREETING__, respond with ONE sentence only. Look at their company name and active job listings. Format: Hey - I can see COMPANY is hiring for ROLE. Ask me to find your best builder matches. If no company or jobs found say: Hey - tell me what role you are hiring for and I will find your best matches. ONE sentence only.\n\n' +
       'FOR EMPLOYERS asking real questions: Surface the best matching builder profiles. Be specific - reference actual projects, skills, location, availability. Give 2-4 matches. Always include profile URLs. Proactively suggest matches based on their job listings.\n\n' +
       'FOR BUILDERS: When you receive __BUILDER_GREETING__, respond with ONE sentence only. No more. Say: Hey - I know your profile. Ask me who is hiring for your skills and I will find your best matches. ONE sentence only.\n\n' +
-      'ALWAYS: Be concise and useful. Never make up information. Answer questions about how ClaudHire works.\n\n' +
+      'ALWAYS: Be concise and useful. Never make up information. Answer questions about how ShipStacked works.\n\n' +
       'TONE: Confident, sharp, warm. Like a great recruiter who already knows you.'
 
     // Handle builder auto-init — replace with a proper prompt

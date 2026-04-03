@@ -37,7 +37,7 @@ export default async function AdminPage() {
 
       <div style={{ maxWidth: 1000, margin: '0 auto', padding: '3rem 1.5rem' }}>
         <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-0.03em', marginBottom: '0.5rem', color: '#1d1d1f' }}>Admin dashboard</h1>
-        <p style={{ color: '#6e6e73', fontSize: 15, marginBottom: '2.5rem' }}>ClaudHire platform overview.</p>
+        <p style={{ color: '#6e6e73', fontSize: 15, marginBottom: '2.5rem' }}>ShipStacked platform overview.</p>
 
         {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '1rem', marginBottom: '3rem' }}>

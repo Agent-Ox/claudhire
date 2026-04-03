@@ -98,7 +98,7 @@ export default async function SuccessPage({
         <div style={innerStyle}>
           <h1 style={headingStyle}>Something went wrong.</h1>
           <p style={{ color: '#6e6e73', marginTop: '1rem' }}>
-            Please contact <a href="mailto:hello@claudhire.com" style={{ color: '#0071e3' }}>hello@claudhire.com</a>
+            Please contact <a href="mailto:hello@shipstacked.com" style={{ color: '#0071e3' }}>hello@shipstacked.com</a>
           </p>
         </div>
       </div>
@@ -118,7 +118,7 @@ export default async function SuccessPage({
     <div style={containerStyle}>
       <div style={innerStyle}>
         <div style={iconStyle}>✓</div>
-        <h1 style={headingStyle}>Welcome to ClaudHire.</h1>
+        <h1 style={headingStyle}>Welcome to ShipStacked.</h1>
         <p style={{ color: '#6e6e73', fontSize: 15, marginBottom: '0.5rem', lineHeight: 1.6 }}>
           Your {productLabels[product] || 'purchase'} is confirmed.
         </p>
@@ -127,7 +127,7 @@ export default async function SuccessPage({
         )}
         {magicLink ? (
           <div>
-            <a href={magicLink} style={btnStyle}>Access ClaudHire</a>
+            <a href={magicLink} style={btnStyle}>Access ShipStacked</a>
             <p style={{ color: '#aeaeb2', fontSize: 12, marginTop: '1rem' }}>
               One click and you are in. No password needed right now.
             </p>
@@ -141,7 +141,7 @@ export default async function SuccessPage({
           </div>
         )}
         <p style={{ color: '#6e6e73', fontSize: 13, marginTop: '2rem' }}>
-          Questions? <a href="mailto:hello@claudhire.com" style={{ color: '#0071e3', textDecoration: 'none' }}>hello@claudhire.com</a>
+          Questions? <a href="mailto:hello@shipstacked.com" style={{ color: '#0071e3', textDecoration: 'none' }}>hello@shipstacked.com</a>
         </p>
       </div>
     </div>

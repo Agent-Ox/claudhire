@@ -10,25 +10,25 @@ export const metadata: Metadata = {
     apple: '/icon.svg',
   },
   title: {
-    default: 'ClaudHire — Hire Claude-Native Talent',
-    template: '%s | ClaudHire',
+    default: 'ShipStacked — Hire Claude-Native Talent',
+    template: '%s | ShipStacked',
   },
-  description: 'The hiring platform for Claude-native builders. Find verified developers, prompt engineers, and AI automation specialists who prove their skills with real projects.',
-  metadataBase: new URL('https://claudhire.com'),
+  description: 'The hiring platform for AI-native builders. Find verified developers, prompt engineers, and AI automation specialists who prove their skills with real projects.',
+  metadataBase: new URL('https://shipstacked.com'),
   openGraph: {
-    siteName: 'ClaudHire',
+    siteName: 'ShipStacked',
     type: 'website',
     locale: 'en_US',
-    url: 'https://claudhire.com',
-    title: 'ClaudHire — Hire Claude-Native Talent',
-    description: 'The hiring platform for Claude-native builders. Find verified developers, prompt engineers, and AI automation specialists who prove their skills with real projects.',
-    images: [{ url: '/og-default.svg', width: 1200, height: 630, alt: 'ClaudHire' }],
+    url: 'https://shipstacked.com',
+    title: 'ShipStacked — Hire Claude-Native Talent',
+    description: 'The hiring platform for AI-native builders. Find verified developers, prompt engineers, and AI automation specialists who prove their skills with real projects.',
+    images: [{ url: '/og-default.svg', width: 1200, height: 630, alt: 'ShipStacked' }],
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@ClaudHire',
-    title: 'ClaudHire — Hire Claude-Native Talent',
-    description: 'The hiring platform for Claude-native builders. Verified skills. Real projects. Free to prove you can build.',
+    site: '@ShipStacked',
+    title: 'ShipStacked — Hire Claude-Native Talent',
+    description: 'The hiring platform for AI-native builders. Verified skills. Real projects. Free to prove you can build.',
     images: ['/og-default.svg'],
   },
   robots: {
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true },
   },
   alternates: {
-    canonical: 'https://claudhire.com',
+    canonical: 'https://shipstacked.com',
   },
 }
 

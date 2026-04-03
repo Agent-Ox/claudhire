@@ -18,8 +18,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!data) return { title: 'Company not found' }
 
   return {
-    title: `${data.company_name} — Hiring on ClaudHire`,
-    description: data.about || `${data.company_name} is hiring Claude-native builders on ClaudHire.`,
+    title: `${data.company_name} — Hiring on ShipStacked`,
+    description: data.about || `${data.company_name} is hiring AI-native builders on ShipStacked.`,
   }
 }
 
@@ -77,7 +77,7 @@ export default async function CompanyProfilePage({ params }: { params: Promise<{
                 {company.company_name}
               </h1>
               <span style={{ fontSize: 11, fontWeight: 600, color: '#1a7f37', background: '#e3f3e3', padding: '0.2rem 0.6rem', borderRadius: 980 }}>
-                Hiring on ClaudHire
+                Hiring on ShipStacked
               </span>
             </div>
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>

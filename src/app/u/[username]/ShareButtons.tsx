@@ -18,12 +18,12 @@ const btnStyle = {
 export default function ShareButtons({ name, url }: { name: string, url: string }) {
   const [copied, setCopied] = useState(false)
 
-  const xShareUrl = 'https://x.com/intent/tweet?text=' + encodeURIComponent('Check out ' + name + ' on ClaudHire') + '&url=' + encodeURIComponent(url)
-  const waShareUrl = 'https://wa.me/?text=' + encodeURIComponent('Check out ' + name + ' on ClaudHire: ' + url)
+  const xShareUrl = 'https://x.com/intent/tweet?text=' + encodeURIComponent('Check out ' + name + ' on ShipStacked') + '&url=' + encodeURIComponent(url)
+  const waShareUrl = 'https://wa.me/?text=' + encodeURIComponent('Check out ' + name + ' on ShipStacked: ' + url)
 
   const handleShareAll = () => {
     if (navigator.share) {
-      navigator.share({ title: name + ' on ClaudHire', url })
+      navigator.share({ title: name + ' on ShipStacked', url })
     }
   }
 

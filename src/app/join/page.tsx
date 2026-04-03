@@ -210,7 +210,7 @@ export default function JoinPage() {
       <div style={{ maxWidth: 640, margin: '0 auto', padding: '2rem 1.5rem' }}>
 
         <a href="/" style={{ fontSize: 18, fontWeight: 700, color: '#1d1d1f', textDecoration: 'none', letterSpacing: '-0.02em' }}>
-          ClaudHire<span style={{ color: '#0071e3' }}>.</span>
+          ShipStacked<span style={{ color: '#0071e3' }}>.</span>
         </a>
 
         {step < 5 && (
@@ -434,24 +434,24 @@ export default function JoinPage() {
               ✓
             </div>
             <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-0.03em', marginBottom: '0.5rem' }}>You are live.</h1>
-            <p style={{ color: '#6e6e73', marginBottom: '2rem', fontSize: 15 }}>Your ClaudHire profile is published. Share it everywhere.</p>
+            <p style={{ color: '#6e6e73', marginBottom: '2rem', fontSize: 15 }}>Your ShipStacked profile is published. Share it everywhere.</p>
             <div style={{ background: '#f5f5f7', borderRadius: 10, padding: '0.75rem 1rem', marginBottom: '1.5rem', fontSize: 14, color: '#1d1d1f', fontFamily: 'monospace' }}>
-              claudhire.com/u/{username}
+              shipstacked.com/u/{username}
             </div>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <a href={`https://x.com/intent/tweet?text=I just created my ClaudHire profile — here is what I build with Claude&url=https://claudhire.com/u/${username}`}
+              <a href={`https://x.com/intent/tweet?text=I just created my ShipStacked profile — here is what I build with Claude&url=https://shipstacked.com/u/${username}`}
                 target="_blank" style={{ padding: '0.75rem 1.5rem', background: '#000', color: 'white', borderRadius: 20, fontSize: 14, textDecoration: 'none', fontWeight: 500 }}>
                 Share on X
               </a>
-              <a href={`https://wa.me/?text=I just created my ClaudHire profile: https://claudhire.com/u/${username}`}
+              <a href={`https://wa.me/?text=I just created my ShipStacked profile: https://shipstacked.com/u/${username}`}
                 target="_blank" style={{ padding: '0.75rem 1.5rem', background: '#25D366', color: 'white', borderRadius: 20, fontSize: 14, textDecoration: 'none', fontWeight: 500 }}>
                 Share on WhatsApp
               </a>
               <button type="button" onClick={() => {
                 if (navigator.share) {
-                  navigator.share({ title: 'My ClaudHire Profile', url: `https://claudhire.com/u/${username}` })
+                  navigator.share({ title: 'My ShipStacked Profile', url: `https://shipstacked.com/u/${username}` })
                 } else {
-                  navigator.clipboard.writeText(`https://claudhire.com/u/${username}`)
+                  navigator.clipboard.writeText(`https://shipstacked.com/u/${username}`)
                 }
               }} style={{ padding: '0.75rem 1.5rem', background: '#f5f5f7', color: '#1d1d1f', borderRadius: 20, fontSize: 14, border: 'none', cursor: 'pointer', fontWeight: 500, fontFamily: 'inherit' }}>
                 Share / Copy link

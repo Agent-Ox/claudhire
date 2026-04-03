@@ -130,7 +130,7 @@ export default function PostJobForm({ employerEmail, jobId, initialData }: {
             {jobId ? 'Job updated.' : 'Job posted.'}
           </h1>
           <p style={{ color: '#6e6e73', fontSize: 15, marginBottom: '2rem', lineHeight: 1.6 }}>
-            {jobId ? 'Your listing has been updated.' : 'Your listing is live for 30 days. Verified ClaudHire builders can now find and apply for your role.'}
+            {jobId ? 'Your listing has been updated.' : 'Your listing is live for 30 days. Verified ShipStacked builders can now find and apply for your role.'}
           </p>
           <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
             <a href="/employer" style={{ padding: '0.75rem 1.5rem', background: '#0071e3', color: 'white', borderRadius: 20, fontSize: 14, textDecoration: 'none', fontWeight: 500 }}>

@@ -169,11 +169,11 @@ export default function Home() {
       <section className="hero">
         <div className="hero-tag">
           <span className="hero-tag-dot"></span>
-          Hiring is changing. ClaudHire is the change.
+          Hiring is changing. ShipStacked is the change.
         </div>
-        <h1>The home for<br /><span className="blue">Claude-native</span> talent.</h1>
+        <h1>The home for<br /><span className="blue">AI-native</span> talent.</h1>
         <p className="hero-sub">
-          AI is reshaping how work gets done. The builders leading that shift deserve a platform built for this moment — not retrofitted from the last one. ClaudHire is proof-first hiring for the Claude economy.
+          AI is reshaping how work gets done. The builders leading that shift deserve a platform built for this moment — not retrofitted from the last one. ShipStacked is proof-first hiring for the Claude economy.
         </p>
         <div className="hero-actions">
           <Link href="/signup" className="btn-blue">Create free profile</Link>
@@ -205,11 +205,11 @@ export default function Home() {
             <div className="how-card">
               <span className="how-pill pill-free">Builders — Free</span>
               <h3>Prove what you can build.</h3>
-              <p className="card-sub">Create a profile, showcase real projects with actual prompts and outcomes, earn your verified ClaudHire badge.</p>
+              <p className="card-sub">Create a profile, showcase real projects with actual prompts and outcomes, earn your verified ShipStacked badge.</p>
               <ul className="how-list">
                 <li><span className="check">✓</span> Profile live in 5 minutes</li>
                 <li><span className="check">✓</span> Showcase real projects with prompts and outcomes</li>
-                <li><span className="check">✓</span> Earn a verified ClaudHire badge</li>
+                <li><span className="check">✓</span> Earn a verified ShipStacked badge</li>
                 <li><span className="check">✓</span> Get discovered by companies who need you</li>
                 <li><span className="check">✓</span> Browse and apply to open roles</li>
                 <li><span className="check">✓</span> Free forever. No catch.</li>
@@ -237,7 +237,7 @@ export default function Home() {
         <div className="section-inner">
           <p className="section-eyebrow">The talent</p>
           <h2 className="section-title">Real builders. Real proof.</h2>
-          <p className="section-sub">Every profile on ClaudHire shows actual work — not just a claim that someone uses AI.</p>
+          <p className="section-sub">Every profile on ShipStacked shows actual work — not just a claim that someone uses AI.</p>
           <div className="profiles-scroll">
             {displayProfiles.map((profile: any, i: number) => {
               const isReal = showReal
@@ -342,14 +342,14 @@ export default function Home() {
       {/* Footer */}
       <footer>
         <div className="footer-inner">
-          <a href="/" className="footer-logo">ClaudHire.</a>
+          <a href="/" className="footer-logo">ShipStacked.</a>
           <div className="footer-links">
             <a href="#how">How it works</a>
             <a href="#talent">Talent</a>
             <a href="#pricing">Pricing</a>
             <Link href="/signup">Join</Link>
           </div>
-          <p className="footer-copy">© 2026 ClaudHire. All rights reserved.</p>
+          <p className="footer-copy">© 2026 ShipStacked. All rights reserved.</p>
         </div>
       </footer>
     </>

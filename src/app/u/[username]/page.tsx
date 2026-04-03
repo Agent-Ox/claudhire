@@ -17,15 +17,15 @@ export async function generateMetadata(
 
   if (!profile) return { title: 'Profile not found' }
 
-  const title = `${profile.full_name} — Claude Builder on ClaudHire`
-  const description = profile.bio || profile.about?.slice(0, 155) || `${profile.full_name} is a verified Claude-native builder. View their projects on ClaudHire.`
-  const url = `https://claudhire.com/u/${username}`
+  const title = `${profile.full_name} — Claude Builder on ShipStacked`
+  const description = profile.bio || profile.about?.slice(0, 155) || `${profile.full_name} is a verified AI-native builder. View their projects on ShipStacked.`
+  const url = `https://shipstacked.com/u/${username}`
 
   return {
     title, description,
     alternates: { canonical: url },
-    openGraph: { title, description, url, type: 'profile', images: [{ url: `https://claudhire.com/og?username=${username}`, width: 1200, height: 630, alt: title }] },
-    twitter: { card: 'summary_large_image', title, description, images: [`https://claudhire.com/og?username=${username}`] },
+    openGraph: { title, description, url, type: 'profile', images: [{ url: `https://shipstacked.com/og?username=${username}`, width: 1200, height: 630, alt: title }] },
+    twitter: { card: 'summary_large_image', title, description, images: [`https://shipstacked.com/og?username=${username}`] },
   }
 }
 
@@ -55,7 +55,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
   const byCategory = (cat: string) => skills?.filter(s => s.category === cat).map(s => s.name) || []
   const initials = profile.full_name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()
-  const profileUrl = 'https://claudhire.com/u/' + profile.username
+  const profileUrl = 'https://shipstacked.com/u/' + profile.username
   const allSkillNames = skills?.map(s => s.name) || []
 
   const { hasSubscription, user: resolvedUser } = await getResolvedUser()
@@ -332,7 +332,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
               </p>
               
               <a
-                href={`mailto:${profile.email}?subject=Opportunity via ClaudHire`}
+                href={`mailto:${profile.email}?subject=Opportunity via ShipStacked`}
                 style={{ display: 'inline-block', padding: '0.7rem 1.5rem', background: 'var(--accent)', color: 'white', borderRadius: 20, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
                 Contact {profile.full_name.split(' ')[0]}
               </a>
@@ -340,7 +340,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
           ) : !resolvedUser ? (
             <div className="fade-up" style={{ background: 'linear-gradient(135deg, rgba(108,99,255,0.15) 0%, rgba(167,139,250,0.08) 100%)', border: '1px solid rgba(108,99,255,0.25)', borderRadius: 16, padding: '2rem', textAlign: 'center', animationDelay: '0.4s' }}>
               <p style={{ fontSize: 13, color: 'var(--accent2)', fontWeight: 600, letterSpacing: '0.05em', marginBottom: '0.5rem', fontFamily: 'var(--mono)' }}>FOR EMPLOYERS</p>
-              <p style={{ fontSize: 17, fontWeight: 600, color: 'var(--text)', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>Looking to hire Claude-native talent?</p>
+              <p style={{ fontSize: 17, fontWeight: 600, color: 'var(--text)', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>Looking to hire AI-native talent?</p>
               <p style={{ fontSize: 14, color: 'var(--text2)', marginBottom: '1.25rem', fontWeight: 300 }}>Access our full verified builder directory and contact candidates directly.</p>
               <a href="/#pricing" style={{ display: 'inline-block', padding: '0.7rem 1.5rem', background: 'var(--accent)', color: 'white', borderRadius: 20, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
                 Get full access

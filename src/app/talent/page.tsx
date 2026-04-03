@@ -39,7 +39,7 @@ export default async function TalentPage() {
           <p style={{ fontSize: 12, fontWeight: 500, color: '#0071e3', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Talent</p>
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
-              <h1 style={{ fontSize: 32, fontWeight: 700, letterSpacing: '-0.03em', color: '#1d1d1f', marginBottom: '0.4rem' }}>Claude-native builders</h1>
+              <h1 style={{ fontSize: 32, fontWeight: 700, letterSpacing: '-0.03em', color: '#1d1d1f', marginBottom: '0.4rem' }}>AI-native builders</h1>
               <p style={{ fontSize: 15, color: '#6e6e73' }}>
                 {profiles?.length || 0} builders · {verifiedCount} verified
               </p>
@@ -206,7 +206,7 @@ export default async function TalentPage() {
                           Profile
                         </Link>
                         {profile.email && (
-                          <a href={`mailto:${profile.email}?subject=Opportunity via ClaudHire`} style={{ fontSize: 12, padding: '0.4rem 0.85rem', background: '#0071e3', color: 'white', borderRadius: 980, textDecoration: 'none', fontWeight: 500 }}>
+                          <a href={`mailto:${profile.email}?subject=Opportunity via ShipStacked`} style={{ fontSize: 12, padding: '0.4rem 0.85rem', background: '#0071e3', color: 'white', borderRadius: 980, textDecoration: 'none', fontWeight: 500 }}>
                             Contact
                           </a>
                         )}

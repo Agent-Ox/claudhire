@@ -25,14 +25,14 @@ export async function POST(req: Request) {
     const product = session.metadata?.product || 'unknown'
     const email = session.customer_email
       || session.customer_details?.email
-      || 'unknown@claudhire.com'
+      || 'unknown@shipstacked.com'
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://claudhire.com'
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shipstacked.com'
 
     // Create auth account if doesn't exist
     const { data: existingUsers } = await supabase.auth.admin.listUsers()
@@ -82,13 +82,13 @@ export async function POST(req: Request) {
     // Send welcome email directly via Resend
     try {
       await resend.emails.send({
-        from: 'ClaudHire <hello@claudhire.com>',
+        from: 'ShipStacked <hello@shipstacked.com>',
         to: email,
-        subject: 'Welcome to ClaudHire — set your password',
+        subject: 'Welcome to ShipStacked — set your password',
         html: `
           <div style="font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 2rem;">
-            <h1 style="font-size: 24px; font-weight: 700; color: #1d1d1f; letter-spacing: -0.02em;">Welcome to ClaudHire.</h1>
-            <p style="color: #6e6e73; font-size: 15px; line-height: 1.6;">Your Full Access subscription is active. You can now search and contact verified Claude-native builders.</p>
+            <h1 style="font-size: 24px; font-weight: 700; color: #1d1d1f; letter-spacing: -0.02em;">Welcome to ShipStacked.</h1>
+            <p style="color: #6e6e73; font-size: 15px; line-height: 1.6;">Your Full Access subscription is active. You can now search and contact verified AI-native builders.</p>
             <a href="${siteUrl}/talent"
               style="display: inline-block; margin: 1.5rem 0; padding: 0.75rem 1.5rem; background: #0071e3; color: white; border-radius: 20px; text-decoration: none; font-size: 15px; font-weight: 500;">
               Access talent directory
@@ -99,8 +99,8 @@ export async function POST(req: Request) {
               Set your password
             </a>
             <hr style="border: none; border-top: 1px solid #e0e0e5; margin: 1.5rem 0;" />
-            <p style="color: #aeaeb2; font-size: 12px;">Questions? Reply to this email or contact hello@claudhire.com</p>
-            <p style="color: #aeaeb2; font-size: 12px;">ClaudHire — The hiring platform for Claude-native talent.</p>
+            <p style="color: #aeaeb2; font-size: 12px;">Questions? Reply to this email or contact hello@shipstacked.com</p>
+            <p style="color: #aeaeb2; font-size: 12px;">ShipStacked — The hiring platform for AI-native talent.</p>
           </div>
         `
       })

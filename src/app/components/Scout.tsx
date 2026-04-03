@@ -132,7 +132,7 @@ export default function Scout() {
 
   const formatMessage = (text: string) => {
     // Convert URLs to clickable links
-    const urlRegex = /(claudhire\.com\/u\/[^\s,)]+)/g
+    const urlRegex = /(shipstacked\.com\/u\/[^\s,)]+)/g
     const parts = text.split(urlRegex)
     return parts.map((part, i) => {
       if (urlRegex.test(part)) {
@@ -362,7 +362,7 @@ export default function Scout() {
             </div>
             <div>
               <p style={{ fontSize: 14, fontWeight: 700, color: 'rgba(240,240,245,0.95)', letterSpacing: '-0.01em' }}>Scout</p>
-              <p style={{ fontSize: 11, color: 'rgba(167,139,250,0.8)', fontWeight: 500 }}>ClaudHire talent concierge</p>
+              <p style={{ fontSize: 11, color: 'rgba(167,139,250,0.8)', fontWeight: 500 }}>ShipStacked talent concierge</p>
             </div>
             <button
               onClick={() => { setMessages([]); setOpen(false) }}
