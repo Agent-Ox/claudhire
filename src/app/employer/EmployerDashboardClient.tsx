@@ -87,12 +87,12 @@ export default function EmployerDashboardClient({
       ctx.drawImage(img, (img.width - size) / 2, (img.height - size) / 2, size, size, 0, 0, 400, 400)
       URL.revokeObjectURL(url)
       const blob = await new Promise<Blob>((resolve) => canvas.toBlob(b => resolve(b!), 'image/jpeg', 0.85))
-      const supabase = createClient()
-      const fileName = `logo-${email.replace(/[^a-z0-9]/gi, '-')}-${Date.now()}.jpg`
-      const { error: uploadError } = await supabase.storage.from('avatars').upload(fileName, blob, { contentType: 'image/jpeg', upsert: true })
-      if (uploadError) throw uploadError
-      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName)
-      setProfile(p => ({ ...p, logo_url: publicUrl }))
+      const formData = new FormData()
+      formData.append('file', new File([blob], 'logo.jpg', { type: 'image/jpeg' }))
+      const res = await fetch('/api/employer-logo', { method: 'POST', body: formData })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Upload failed')
+      setProfile(p => ({ ...p, logo_url: data.url }))
     } catch (e: any) {
       setError('Logo upload failed: ' + e.message)
     } finally {
