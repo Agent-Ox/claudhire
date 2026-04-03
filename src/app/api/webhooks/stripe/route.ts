@@ -60,7 +60,7 @@ export async function POST(req: Request) {
     const { data: resetLinkData } = await supabase.auth.admin.generateLink({
       type: 'recovery',
       email,
-      options: { redirectTo: `${siteUrl}/update-password` }
+      options: { redirectTo: `${siteUrl}/api/auth/confirm?next=/update-password` }
     })
 
     const resetLink = resetLinkData?.properties?.action_link || `${siteUrl}/reset-password`
