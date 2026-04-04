@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
+import { createServerSupabaseClient } from '@/lib/supabase-server'
 import type { Metadata } from 'next'
 import FeedClient from './FeedClient'
 
@@ -14,16 +14,15 @@ export const metadata: Metadata = {
 }
 
 export default async function FeedPage() {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
+  const supabase = await createServerSupabaseClient()
 
-  const { data: posts } = await supabase
+  const { data: posts, error } = await supabase
     .from('posts')
     .select('*, profiles(username, full_name, avatar_url, verified, github_connected)')
     .order('created_at', { ascending: false })
     .limit(20)
+
+  if (error) console.error('Feed fetch error:', error)
 
   return <FeedClient initialPosts={posts || []} />
 }
