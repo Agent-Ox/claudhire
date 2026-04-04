@@ -179,9 +179,9 @@ export default function Home() {
           <span className="hero-tag-dot"></span>
           The proof-of-work platform for AI-native builders
         </div>
-        <h1>Stop guessing<br />who actually <span className="blue">ships.</span></h1>
+        <h1>Where builders <span className="blue">prove</span> their work.<br />Where founders find builders<br />who ship.</h1>
         <p className="hero-sub">
-          Builders prove what they've built. Employers pay to find them and message them directly. Every hire stays on-platform. No CVs. No guesswork. No commissions.
+          AI-native builders post real outcomes. Founders browse verified proof of work and message directly. No CVs. No guesswork. No commissions.
         </p>
         <div className="hero-actions">
           <Link href="/join" className="btn-blue">Create free builder profile</Link>
@@ -392,6 +392,31 @@ export default function Home() {
         <p>Create your profile in 5 minutes. No credit card. No catch.</p>
         <Link href="/signup" className="btn-blue" style={{fontSize:'1rem', padding:'1rem 2rem'}}>Create your free profile</Link>
         <p className="cta-note">Builders are free forever.</p>
+      </section>
+
+      {/* Founder story */}
+      <section style={{ background: '#f5f5f7', padding: '5rem 2rem', borderTop: '0.5px solid #e8e8ed' }}>
+        <div className="section-inner" style={{ maxWidth: 680, margin: '0 auto', display: 'flex', gap: '2rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+          <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, #0071e3, #6c63ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 22 }}>
+            👋
+          </div>
+          <div style={{ flex: 1, minWidth: 280 }}>
+            <p style={{ fontSize: 12, fontWeight: 600, color: '#0071e3', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Built by a builder, for builders</p>
+            <p style={{ fontSize: 17, color: '#1d1d1f', lineHeight: 1.75, marginBottom: '1rem', fontWeight: 400 }}>
+              ShipStacked was built with Claude Code by a solo founder who tried to hire an AI-native developer the normal way — and couldn&apos;t.
+            </p>
+            <p style={{ fontSize: 15, color: '#6e6e73', lineHeight: 1.75, marginBottom: '1rem' }}>
+              The best AI builders aren&apos;t on LinkedIn. They&apos;re shipping tools in Discord servers, building SaaS products over weekends, and automating entire workflows without writing a single line of traditional code. They have no résumé. They have receipts.
+            </p>
+            <p style={{ fontSize: 15, color: '#6e6e73', lineHeight: 1.75 }}>
+              ShipStacked exists so those builders have somewhere to prove it — and so founders can find them without guessing.
+            </p>
+            <div style={{ marginTop: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 13, color: '#aeaeb2' }}>Built entirely with Claude Code ·</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#0071e3', background: '#e8f1fd', padding: '0.2rem 0.6rem', borderRadius: 980 }}>Velocity Score: 94</span>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Footer */}

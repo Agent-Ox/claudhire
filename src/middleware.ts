@@ -22,7 +22,7 @@ export async function middleware(request: NextRequest) {
   const { data: { session } } = await supabase.auth.getSession()
   const { pathname } = request.nextUrl
 
-  // Routes that require auth
+  // Routes that require auth — /talent is PUBLIC (handles its own access tiers server-side)
   const authRequired = ['/dashboard', '/post-job', '/admin', '/employer', '/messages']
   const isProtected = authRequired.some(route => pathname.startsWith(route))
 

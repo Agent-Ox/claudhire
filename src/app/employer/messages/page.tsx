@@ -12,6 +12,35 @@ function timeAgo(date: string) {
   return new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 }
 
+// iOS Safari keyboard fix — Telegram --vh approach
+function useViewportHeight() {
+  useEffect(() => {
+    function setVh() {
+      const h = window.visualViewport ? window.visualViewport.height : window.innerHeight
+      document.documentElement.style.setProperty('--vh', h * 0.01 + 'px')
+    }
+    setVh()
+    let debounce: ReturnType<typeof setTimeout>
+    function onResize() {
+      clearTimeout(debounce)
+      debounce = setTimeout(setVh, 16)
+    }
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', onResize)
+      window.visualViewport.addEventListener('scroll', onResize)
+    }
+    window.addEventListener('resize', onResize)
+    return () => {
+      clearTimeout(debounce)
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', onResize)
+        window.visualViewport.removeEventListener('scroll', onResize)
+      }
+      window.removeEventListener('resize', onResize)
+    }
+  }, [])
+}
+
 function EmployerMessagesInner() {
   const [conversations, setConversations] = useState<any[]>([])
   const [selected, setSelected] = useState<any>(null)
@@ -29,10 +58,7 @@ function EmployerMessagesInner() {
   const searchParams = useSearchParams()
   const newProfileId = searchParams.get('new')
 
-  useEffect(() => {
-    document.documentElement.classList.add('msgs-open')
-    return () => { document.documentElement.classList.remove('msgs-open') }
-  }, [])
+  useViewportHeight()
 
   useEffect(() => {
     const supabase = createClient()
@@ -57,7 +83,6 @@ function EmployerMessagesInner() {
       .subscribe()
     return () => { supabase.removeChannel(channel) }
   }, [])
-
 
   useEffect(() => { selectedRef.current = selected }, [selected])
   useEffect(() => { userEmailRef.current = userEmail }, [userEmail])
@@ -184,8 +209,19 @@ function EmployerMessagesInner() {
         @media (min-width: 641px) { .emp-mobile { display: none !important; } .emp-desktop { display: block !important; } }
       `}</style>
 
-      {/* ── MOBILE ── */}
-      <div className="emp-mobile" style={{ position: 'absolute', top: 52, left: 0, right: 0, bottom: 0, background: '#fbfbfd', display: 'flex', flexDirection: 'column', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif', overflow: 'hidden' }}>
+      {/* ── MOBILE ── position:fixed + calc(var(--vh)*100 - 52px) */}
+      <div className="emp-mobile" style={{
+        position: 'fixed',
+        top: 52,
+        left: 0,
+        right: 0,
+        height: 'calc(var(--vh, 1vh) * 100 - 52px)',
+        background: '#fbfbfd',
+        display: 'flex',
+        flexDirection: 'column',
+        fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
+        overflow: 'hidden',
+      }}>
         {view === 'list' ? (
           <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', padding: '1rem' }}>
             <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -199,6 +235,7 @@ function EmployerMessagesInner() {
           </div>
         ) : selected ? (
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'white' }}>
+            {/* Thread header */}
             <div style={{ background: 'white', borderBottom: '0.5px solid #e0e0e5', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '0.65rem', flexShrink: 0 }}>
               <button onClick={() => setView('list')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#0071e3', fontSize: 20, padding: '0 0.25rem', lineHeight: 1 }}>←</button>
               {(() => { const builder = b(selected); const initials = builder.full_name?.split(' ').map((n: string) => n[0]).join('').slice(0,2).toUpperCase() || '?'; return (
@@ -214,11 +251,22 @@ function EmployerMessagesInner() {
                 </>
               )})()}
             </div>
+            {/* Messages */}
             <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' } as any}>
               {messages.map(msg => msgBubble(msg))}
               <div ref={messagesEndRef} />
             </div>
-            <div style={{ background: 'white', borderTop: '0.5px solid #e0e0e5', padding: '0.625rem 0.875rem', paddingBottom: 'max(0.625rem, env(safe-area-inset-bottom))', display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexShrink: 0 }}>
+            {/* Input bar */}
+            <div style={{
+              background: 'white',
+              borderTop: '0.5px solid #e0e0e5',
+              padding: '0.625rem 0.875rem',
+              paddingBottom: 'max(0.625rem, env(safe-area-inset-bottom))',
+              display: 'flex',
+              gap: '0.5rem',
+              alignItems: 'flex-end',
+              flexShrink: 0,
+            }}>
               <textarea ref={textareaRef} value={input}
                 onChange={e => { setInput(e.target.value); e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 96) + 'px' }}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(textareaRef) } }}
@@ -235,7 +283,7 @@ function EmployerMessagesInner() {
         ) : null}
       </div>
 
-      {/* ── DESKTOP ── */}
+      {/* ── DESKTOP ── unchanged */}
       <div className="emp-desktop" style={{ minHeight: '100vh', background: '#fbfbfd', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
         <div style={{ maxWidth: 900, margin: '0 auto', padding: '4rem 1.5rem 2rem' }}>
           <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

@@ -18,13 +18,6 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Messages pages on mobile: full height chain so position:absolute works */
-@media (max-width: 640px) {
-  html.msgs-open,
-  html.msgs-open body {
-    height: 100%;
-    overflow: hidden;
-    position: fixed;
-    width: 100%;
-  }
-}
+/* --vh CSS variable is set by JS in messages pages via visualViewport API.
+   This is the iOS Safari keyboard fix (Telegram approach).
+   Usage: calc(var(--vh, 1vh) * 100) tracks true visible height even when keyboard is open. */
