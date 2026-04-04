@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import NavBar from '@/app/components/NavBar'
-import Scout from '@/app/components/Scout'
 
 export const viewport = {
   width: 'device-width',
@@ -52,7 +51,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <NavBar />
-        <Scout />
         <div style={{ paddingTop: 52 }}>{children}</div>
       </body>
     </html>

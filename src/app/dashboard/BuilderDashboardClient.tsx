@@ -291,19 +291,6 @@ export default function BuilderDashboardClient({
               <FeedPostForm onSuccess={recalculateScore} />
             </div>
 
-            {/* Scout */}
-            <div style={{ background: 'linear-gradient(135deg, #0f0f18, #1a1a2e)', border: '1px solid rgba(108,99,255,0.25)', borderRadius: 14, padding: '1.5rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
-                <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'linear-gradient(135deg, #6c63ff, #a78bfa)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="white" strokeWidth="2"/><path d="M16.5 16.5L21 21" stroke="white" strokeWidth="2.5" strokeLinecap="round"/></svg>
-                </div>
-                <div>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: 'rgba(240,240,245,0.95)', marginBottom: '0.2rem' }}>Ask Scout who is hiring</p>
-                  <p style={{ fontSize: 12, color: 'rgba(167,139,250,0.8)' }}>Scout knows every employer on ShipStacked. Ask it who is looking for your skillset right now.</p>
-                </div>
-              </div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(240,240,245,0.7)', background: 'rgba(108,99,255,0.15)', border: '1px solid rgba(108,99,255,0.25)', padding: '0.4rem 0.875rem', borderRadius: 980, whiteSpace: 'nowrap' }}>Scout is active</div>
-            </div>
 
             {/* Applications */}
             {applications.length > 0 && (

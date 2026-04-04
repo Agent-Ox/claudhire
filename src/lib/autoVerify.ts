@@ -76,7 +76,7 @@ export async function checkAutoVerify(profileId: string): Promise<boolean> {
             ${profile.full_name?.split(' ')[0] || 'Hey'} — your ShipStacked profile just earned the verified builder badge. You proved you ship real things with real outcomes.
           </p>
           <p style="color: #6e6e73; font-size: 15px; line-height: 1.6; margin-bottom: 1.5rem;">
-            Verified builders get more employer attention, rank higher in search, and carry more weight when Scout matches them to roles.
+            Verified builders get more employer attention, rank higher in search, and get surfaced first to employers browsing the talent directory.
           </p>
           <a href="${siteUrl}/dashboard"
             style="display: inline-block; padding: 0.75rem 1.5rem; background: #0071e3; color: white; border-radius: 20px; text-decoration: none; font-size: 15px; font-weight: 500; margin-bottom: 1.5rem;">

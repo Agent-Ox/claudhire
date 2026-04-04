@@ -92,7 +92,7 @@ function SignupForm() {
           <p style={{ fontSize: 12, color: '#6e6e73', marginTop: '0.5rem' }}>
             {role === 'builder'
               ? 'Create a free profile and showcase your AI work.'
-              : 'Access the full talent directory, Scout AI matching, and unlimited job posts.'}
+              : 'Access the full talent directory and message verified builders directly.'}
           </p>
         </div>
 
@@ -127,7 +127,7 @@ function SignupForm() {
             </div>
             <div style={{ fontSize: 13, color: '#6e6e73', marginBottom: '1.5rem' }}>per month</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem', textAlign: 'left' }}>
-              {['Full talent directory', 'Scout AI concierge matching', 'Direct builder contact', 'Unlimited job posts', 'Public or anonymous profile', 'No commission ever'].map(f => (
+              {['Full talent directory', 'Direct builder contact', 'Unlimited job posts', 'Public or anonymous profile', 'No commission ever'].map(f => (
                 <div key={f} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 13, color: '#3d3d3f' }}>
                   <span style={{ color: '#0071e3', fontWeight: 700, fontSize: 12 }}>✓</span>
                   {f}

@@ -158,7 +158,7 @@ export default function EmployerDashboardClient({
         <a href="/talent" style={{ display: 'block', background: '#0071e3', borderRadius: 18, padding: '2rem 2.5rem', textDecoration: 'none', marginBottom: '1rem' }}>
           <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: '0.5rem' }}>Core product</p>
           <h2 style={{ fontSize: 26, fontWeight: 700, color: 'white', letterSpacing: '-0.02em', marginBottom: '0.4rem' }}>Search talent</h2>
-          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.8)', marginBottom: '1.5rem' }}>Browse and contact verified AI-native builders directly. Ask Scout for instant matches.</p>
+          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.8)', marginBottom: '1.5rem' }}>Browse and contact verified AI-native builders directly.</p>
           <span style={{ display: 'inline-block', background: 'white', color: '#0071e3', padding: '0.6rem 1.25rem', borderRadius: 980, fontSize: 14, fontWeight: 600 }}>Browse talent →</span>
         </a>
 
