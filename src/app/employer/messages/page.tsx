@@ -30,6 +30,11 @@ function EmployerMessagesInner() {
   const newProfileId = searchParams.get('new')
 
   useEffect(() => {
+    document.documentElement.classList.add('msgs-open')
+    return () => { document.documentElement.classList.remove('msgs-open') }
+  }, [])
+
+  useEffect(() => {
     const supabase = createClient()
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) { setUserEmail(session.user.email || ''); userEmailRef.current = session.user.email || '' }
@@ -180,7 +185,7 @@ function EmployerMessagesInner() {
       `}</style>
 
       {/* ── MOBILE ── */}
-      <div className="emp-mobile" style={{ minHeight: '100vh', background: '#fbfbfd', display: 'flex', flexDirection: 'column', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+      <div className="emp-mobile" style={{ position: 'absolute', top: 52, left: 0, right: 0, bottom: 0, background: '#fbfbfd', display: 'flex', flexDirection: 'column', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif', overflow: 'hidden' }}>
         {view === 'list' ? (
           <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', padding: '1rem' }}>
             <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -193,9 +198,8 @@ function EmployerMessagesInner() {
             <div style={{ flex: 1, overflow: 'hidden' }}>{convList(openConversation)}</div>
           </div>
         ) : selected ? (
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            {/* Sticky header */}
-            <div style={{ position: 'sticky', top: 52, zIndex: 5, background: 'white', borderBottom: '0.5px solid #e0e0e5', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'white' }}>
+            <div style={{ background: 'white', borderBottom: '0.5px solid #e0e0e5', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '0.65rem', flexShrink: 0 }}>
               <button onClick={() => setView('list')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#0071e3', fontSize: 20, padding: '0 0.25rem', lineHeight: 1 }}>←</button>
               {(() => { const builder = b(selected); const initials = builder.full_name?.split(' ').map((n: string) => n[0]).join('').slice(0,2).toUpperCase() || '?'; return (
                 <>
@@ -210,13 +214,11 @@ function EmployerMessagesInner() {
                 </>
               )})()}
             </div>
-            {/* Messages — natural scroll */}
-            <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.6rem', minHeight: 200 }}>
+            <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' } as any}>
               {messages.map(msg => msgBubble(msg))}
               <div ref={messagesEndRef} />
             </div>
-            {/* Sticky input */}
-            <div style={{ position: 'sticky', bottom: 0, background: 'white', borderTop: '0.5px solid #e0e0e5', padding: '0.625rem 0.875rem', paddingBottom: 'max(0.625rem, env(safe-area-inset-bottom))', display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
+            <div style={{ background: 'white', borderTop: '0.5px solid #e0e0e5', padding: '0.625rem 0.875rem', paddingBottom: 'max(0.625rem, env(safe-area-inset-bottom))', display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexShrink: 0 }}>
               <textarea ref={textareaRef} value={input}
                 onChange={e => { setInput(e.target.value); e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 96) + 'px' }}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(textareaRef) } }}

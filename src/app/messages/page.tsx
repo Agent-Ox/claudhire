@@ -26,6 +26,11 @@ export default function MessagesPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
+    document.documentElement.classList.add('msgs-open')
+    return () => { document.documentElement.classList.remove('msgs-open') }
+  }, [])
+
+  useEffect(() => {
     const supabase = createClient()
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) { setUserEmail(session.user.email || ''); userEmailRef.current = session.user.email || '' }
@@ -171,9 +176,10 @@ export default function MessagesPage() {
 
       {/* ── MOBILE ── full height flex column, keyboard-safe */}
       <div className="msgs-mobile" style={{
-        minHeight: '100vh', background: '#fbfbfd', display: 'flex',
-        flexDirection: 'column',
+        position: 'absolute', top: 52, left: 0, right: 0, bottom: 0,
+        background: '#fbfbfd', display: 'flex', flexDirection: 'column',
         fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
+        overflow: 'hidden',
       }}>
         {view === 'list' ? (
           <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', padding: '1rem' }}>
@@ -184,22 +190,22 @@ export default function MessagesPage() {
             <div style={{ flex: 1, overflow: 'hidden' }}>{convList(openConversation)}</div>
           </div>
         ) : selected ? (
-          <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
-            {/* Sticky header */}
-            <div style={{ position: 'sticky', top: 52, zIndex: 5, background: 'white', borderBottom: '0.5px solid #e0e0e5', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'white' }}>
+            {/* Header */}
+            <div style={{ background: 'white', borderBottom: '0.5px solid #e0e0e5', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
               <button onClick={() => setView('list')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#0071e3', fontSize: 20, padding: '0 0.25rem', lineHeight: 1 }}>←</button>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontSize: 15, fontWeight: 600, color: '#1d1d1f', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{getConvName(selected)}</p>
                 {selected.jobs?.role_title && <p style={{ fontSize: 12, color: '#0071e3', fontWeight: 500 }}>Re: {selected.jobs.role_title}</p>}
               </div>
             </div>
-            {/* Messages — natural scroll */}
-            <div style={{ flex: 1, padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.6rem', minHeight: 200 }}>
+            {/* Messages — scrollable flex-1 */}
+            <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' } as any}>
               {messages.map(msg => msgBubble(msg))}
               <div ref={messagesEndRef} />
             </div>
-            {/* Sticky input at bottom */}
-            <div style={{ position: 'sticky', bottom: 0, background: 'white', borderTop: '0.5px solid #e0e0e5', padding: '0.625rem 0.875rem', paddingBottom: 'max(0.625rem, env(safe-area-inset-bottom))', display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
+            {/* Input — at bottom of flex column, keyboard pushes it up via the absolute container shrinking */}
+            <div style={{ background: 'white', borderTop: '0.5px solid #e0e0e5', padding: '0.625rem 0.875rem', paddingBottom: 'max(0.625rem, env(safe-area-inset-bottom))', display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexShrink: 0 }}>
               <textarea ref={textareaRef} value={input}
                 onChange={e => { setInput(e.target.value); e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 96) + 'px' }}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}

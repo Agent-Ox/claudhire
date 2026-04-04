@@ -18,15 +18,13 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Messages page — full height, no fixed positioning */
+/* Messages pages on mobile: full height chain so position:absolute works */
 @media (max-width: 640px) {
   html.msgs-open,
   html.msgs-open body {
     height: 100%;
     overflow: hidden;
-  }
-  html.msgs-open body > div {
-    height: 100%;
-    overflow: hidden;
+    position: fixed;
+    width: 100%;
   }
 }
