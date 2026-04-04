@@ -1,7 +1,13 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import NavBar from '@/app/components/NavBar'
 import Scout from '@/app/components/Scout'
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  interactiveWidget: 'overlays-content',
+}
 
 export const metadata: Metadata = {
   icons: {
