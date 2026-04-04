@@ -23,7 +23,7 @@ export default async function TalentPage() {
   // Verified first, then by recency
   const { data: profiles } = await supabase
     .from('profiles')
-    .select('*, skills(*)')
+    .select('*, skills(*), velocity_score')
     .eq('published', true)
     .order('verified', { ascending: false })
     .order('created_at', { ascending: false })
@@ -169,6 +169,11 @@ export default async function TalentPage() {
                       {profile.verified && (
                         <span style={{ fontSize: 11, fontWeight: 600, color: '#0071e3', background: '#e8f1fd', padding: '0.2rem 0.5rem', borderRadius: 980, whiteSpace: 'nowrap', flexShrink: 0 }}>
                           ✓ Verified
+                        </span>
+                      )}
+                      {profile.velocity_score > 0 && (
+                        <span style={{ fontSize: 11, fontWeight: 600, color: '#6e6e73', background: '#f5f5f7', padding: '0.2rem 0.5rem', borderRadius: 980, whiteSpace: 'nowrap', flexShrink: 0 }}>
+                          ⚡ {profile.velocity_score}
                         </span>
                       )}
                     </div>

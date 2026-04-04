@@ -218,6 +218,12 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                     <p style={{ fontSize: 14, color: 'var(--text)', fontWeight: 500 }}>{profile.timezone}</p>
                   </div>
                 )}
+                {profile.velocity_score > 0 && (
+                  <div>
+                    <p style={{ fontSize: 10, fontWeight: 600, color: 'var(--text3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.25rem', fontFamily: 'var(--mono)' }}>Velocity Score</p>
+                    <p style={{ fontSize: 14, color: 'var(--accent2)', fontWeight: 700 }}>⚡ {profile.velocity_score}<span style={{ fontSize: 11, color: 'var(--text3)', fontWeight: 400 }}>/100</span></p>
+                  </div>
+                )}
                 {profile.languages && profile.languages.length > 0 && (
                   <div>
                     <p style={{ fontSize: 10, fontWeight: 600, color: 'var(--text3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.25rem', fontFamily: 'var(--mono)' }}>Languages</p>

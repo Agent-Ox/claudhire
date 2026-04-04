@@ -27,7 +27,6 @@ export default async function DashboardPage() {
     .order('created_at', { ascending: false })
     .limit(6)
 
-  // Fetch GitHub data if connected
   const { data: githubData } = profile ? await supabase
     .from('github_data')
     .select('*')
@@ -41,6 +40,7 @@ export default async function DashboardPage() {
       employers={employers || []}
       email={user.email!}
       githubData={githubData || null}
+      velocityScore={profile?.velocity_score || 0}
     />
   )
 }
