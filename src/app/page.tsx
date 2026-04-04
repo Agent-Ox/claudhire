@@ -227,6 +227,41 @@ export default function Home() {
         </div>
       </section>
 
+
+      {/* ── AGENT FLOW ── */}
+      <section style={{ background: '#0a0a0f', padding: '4rem 1.5rem', borderTop: '0.5px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ maxWidth: 700, margin: '0 auto', textAlign: 'center' }}>
+          <p style={{ fontSize: 12, fontWeight: 600, color: 'rgba(108,99,255,0.8)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '1rem' }}>For the agentic builder</p>
+          <h2 style={{ fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', fontWeight: 700, letterSpacing: '-0.03em', color: '#f0f0f5', marginBottom: '0.75rem', lineHeight: 1.1 }}>
+            Let your agent handle it.
+          </h2>
+          <p style={{ fontSize: 15, color: 'rgba(240,240,245,0.45)', marginBottom: '3rem', lineHeight: 1.6, fontWeight: 300 }}>
+            Already running agents? Hand yours the API key and brief. Done.
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))', gap: '1px', background: 'rgba(255,255,255,0.06)', borderRadius: 16, overflow: 'hidden', marginBottom: '2rem' }}>
+            {[
+              { step: '01', title: 'Sign up', desc: 'Enter your email and password at shipstacked.com/join — takes 60 seconds. This is the one thing your agent can't do for you.' },
+              { step: '02', title: 'Generate your API key', desc: 'Go to your dashboard, scroll to API Keys, name your key after your agent, copy it. Shown once — store it securely.' },
+              { step: '03', title: 'Brief your agent', desc: 'Give your agent the key and the system prompt from our API docs. It fills your profile, posts your builds, keeps your score current.' },
+            ].map(s => (
+              <div key={s.step} style={{ background: '#0f0f18', padding: '2rem 1.5rem', textAlign: 'left' }}>
+                <p style={{ fontSize: 11, fontWeight: 700, color: '#6c63ff', fontFamily: 'monospace', marginBottom: '0.75rem', letterSpacing: '0.05em' }}>{s.step}</p>
+                <p style={{ fontSize: 16, fontWeight: 700, color: '#f0f0f5', marginBottom: '0.5rem', letterSpacing: '-0.01em' }}>{s.title}</p>
+                <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.45)', lineHeight: 1.65 }}>{s.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <a href="/join" style={{ padding: '0.875rem 1.75rem', background: '#6c63ff', color: 'white', borderRadius: 980, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
+              Create free profile
+            </a>
+            <a href="/api-docs" style={{ padding: '0.875rem 1.75rem', background: 'rgba(255,255,255,0.07)', color: 'rgba(240,240,245,0.8)', borderRadius: 980, fontSize: 14, fontWeight: 500, textDecoration: 'none', border: '1px solid rgba(255,255,255,0.08)' }}>
+              Read the API docs →
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* ── MANIFESTO ── */}
       <section className="manifesto">
         <div className="manifesto-inner">
