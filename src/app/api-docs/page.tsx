@@ -8,38 +8,54 @@ export const metadata: Metadata = {
 }
 
 const CODE = {
-  getMe: `curl https://shipstacked.com/api/v1/me \\
-  -H "Authorization: Bearer sk_ss_your_key_here"`,
+  getMe: `# JavaScript / Node.js — recommended for agents
+const res = await fetch('https://shipstacked.com/api/v1/me', {
+  headers: { 'Authorization': 'Bearer sk_ss_your_key_here' }
+})
+const { profile } = await res.json()
 
-  patchProfile: `curl -X PATCH https://shipstacked.com/api/v1/profile \\
-  -H "Authorization: Bearer sk_ss_your_key_here" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "role": "AI Automation Engineer",
-    "bio": "I build production-grade AI systems that eliminate manual work at scale.",
-    "location": "London, UK",
-    "availability": "freelance",
-    "primary_profession": "Developer",
-    "day_rate": "$500-1000/day",
-    "skills": [
-      { "category": "claude_use_case", "name": "Automation and workflows" },
-      { "category": "claude_use_case", "name": "Agent systems" },
-      { "category": "ai_tool", "name": "Claude Code" },
-      { "category": "framework", "name": "n8n" }
+# Terminal (must be single line — no line breaks)
+curl https://shipstacked.com/api/v1/me -H "Authorization: Bearer sk_ss_your_key_here"`,
+
+  patchProfile: `# JavaScript / Node.js
+const res = await fetch('https://shipstacked.com/api/v1/profile', {
+  method: 'PATCH',
+  headers: {
+    'Authorization': 'Bearer sk_ss_your_key_here',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    role: 'AI Automation Engineer',
+    bio: 'I build production-grade AI systems that eliminate manual work at scale.',
+    location: 'London, UK',
+    availability: 'freelance',
+    primary_profession: 'Developer',
+    day_rate: '$500-1000/day',
+    skills: [
+      { category: 'claude_use_case', name: 'Automation and workflows' },
+      { category: 'claude_use_case', name: 'Agent systems' },
+      { category: 'ai_tool', name: 'Claude Code' },
+      { category: 'framework', name: 'n8n' }
     ]
-  }'`,
+  })
+})`,
 
-  postBuild: `curl -X POST https://shipstacked.com/api/v1/builds \\
-  -H "Authorization: Bearer sk_ss_your_key_here" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "title": "AI contract review tool for a law firm",
-    "problem_solved": "Contract reviews were taking 4 hours each.",
-    "outcome": "Review time cut from 4 hours to 20 minutes. Client is productising it.",
-    "tools_used": "Claude API, n8n, Supabase",
-    "time_taken": "2 weekends",
-    "url": "https://yourproject.com"
-  }'`,
+  postBuild: `# JavaScript / Node.js
+const res = await fetch('https://shipstacked.com/api/v1/builds', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer sk_ss_your_key_here',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    title: 'AI contract review tool for a law firm',
+    problem_solved: 'Contract reviews were taking 4 hours each.',
+    outcome: 'Review time cut from 4 hours to 20 minutes. Client is productising it.',
+    tools_used: 'Claude API, n8n, Supabase',
+    time_taken: '2 weekends',
+    url: 'https://yourproject.com'
+  })
+})`,
 
   claudePrompt: `You are my ShipStacked profile manager. Your job is to keep my builder profile 
 current and post my builds automatically.
