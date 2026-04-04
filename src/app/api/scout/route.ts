@@ -111,7 +111,7 @@ Use this context to personalise your responses. You already know what they are h
     const systemPrompt = 'You are Scout, the AI talent concierge for ShipStacked — the hiring platform for AI-native builders.' +
       (currentUserContext ? currentUserContext : '') +
       (employerContext ? employerContext : '') +
-      '\n\nALL BUILDER PROFILES ON CLAUDHIRE:\n' + profileContext +
+      '\n\nALL BUILDER PROFILES ON SHIPSTACKED:\n' + profileContext +
       '\n\nPUBLIC EMPLOYER PROFILES:\n' + employerProfileContext +
       '\n\nYOUR JOB:\n' +
       'You serve two types of users — employers and builders.\n\n' +

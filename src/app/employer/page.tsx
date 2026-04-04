@@ -33,10 +33,11 @@ export default async function EmployerDashboardPage() {
     .maybeSingle()
 
   const jobIds = (jobs || []).map(j => j.id)
+  // Join profiles to get username — fixes "View profile" link that was using profile_id as URL slug (404)
   const { data: applications } = jobIds.length > 0
     ? await supabase
         .from('applications')
-        .select('*')
+        .select('*, profiles(username)')
         .in('job_id', jobIds)
         .order('created_at', { ascending: false })
     : { data: [] }

@@ -231,8 +231,8 @@ export default function EmployerDashboardClient({
                                 <p style={{ fontSize: 12, color: '#6e6e73' }}>{app.builder_email} · Applied {new Date(app.created_at).toLocaleDateString()}</p>
                               </div>
                               <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                                {app.profile_id && (
-                                  <a href={`/u/${app.profile_id}`} target="_blank"
+                                {app.profiles?.username && (
+                                  <a href={`/u/${app.profiles.username}`} target="_blank"
                                     style={{ fontSize: 12, padding: '0.3rem 0.75rem', background: '#0071e3', color: 'white', borderRadius: 980, textDecoration: 'none', fontWeight: 500 }}>
                                     View profile
                                   </a>
