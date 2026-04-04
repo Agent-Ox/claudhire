@@ -26,12 +26,6 @@ export default function MessagesPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
-    // Add class to html for full-height mobile layout
-    document.documentElement.classList.add('msgs-open')
-    return () => { document.documentElement.classList.remove('msgs-open') }
-  }, [])
-
-  useEffect(() => {
     const supabase = createClient()
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) { setUserEmail(session.user.email || ''); userEmailRef.current = session.user.email || '' }
@@ -177,7 +171,7 @@ export default function MessagesPage() {
 
       {/* ── MOBILE ── full height flex column, keyboard-safe */}
       <div className="msgs-mobile" style={{
-        height: '100svh', paddingTop: 52,
+        minHeight: '100vh', background: '#fbfbfd',
         flexDirection: 'column', background: '#fbfbfd',
         fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
       }}>
@@ -190,22 +184,34 @@ export default function MessagesPage() {
             <div style={{ flex: 1, overflow: 'hidden' }}>{convList(openConversation)}</div>
           </div>
         ) : selected ? (
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            {/* Thread header */}
-            <div style={{ padding: '0.75rem 1rem', borderBottom: '0.5px solid #e0e0e5', display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'white', flexShrink: 0 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+            {/* Sticky header */}
+            <div style={{ position: 'sticky', top: 52, zIndex: 5, background: 'white', borderBottom: '0.5px solid #e0e0e5', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <button onClick={() => setView('list')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#0071e3', fontSize: 20, padding: '0 0.25rem', lineHeight: 1 }}>←</button>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontSize: 15, fontWeight: 600, color: '#1d1d1f', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{getConvName(selected)}</p>
                 {selected.jobs?.role_title && <p style={{ fontSize: 12, color: '#0071e3', fontWeight: 500 }}>Re: {selected.jobs.role_title}</p>}
               </div>
             </div>
-            {/* Messages */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+            {/* Messages — natural scroll */}
+            <div style={{ flex: 1, padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.6rem', minHeight: 200 }}>
               {messages.map(msg => msgBubble(msg))}
               <div ref={messagesEndRef} />
             </div>
-            {/* Input */}
-            {inputBar}
+            {/* Sticky input at bottom */}
+            <div style={{ position: 'sticky', bottom: 0, background: 'white', borderTop: '0.5px solid #e0e0e5', padding: '0.625rem 0.875rem', paddingBottom: 'max(0.625rem, env(safe-area-inset-bottom))', display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
+              <textarea ref={textareaRef} value={input}
+                onChange={e => { setInput(e.target.value); e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 96) + 'px' }}
+                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}
+                placeholder="Message..."
+                rows={1}
+                style={{ flex: 1, padding: '0.55rem 0.875rem', border: 'none', borderRadius: 20, fontSize: 15, fontFamily: 'inherit', outline: 'none', resize: 'none', minHeight: 36, maxHeight: 96, background: '#f0f0f5' }}
+              />
+              <button onClick={sendMessage} disabled={!input.trim() || sending}
+                style={{ width: 36, height: 36, borderRadius: '50%', background: !input.trim() || sending ? '#d2d2d7' : '#0071e3', border: 'none', cursor: !input.trim() || sending ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </button>
+            </div>
           </div>
         ) : null}
       </div>
