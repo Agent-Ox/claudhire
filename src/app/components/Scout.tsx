@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
 type Message = {
@@ -19,6 +20,11 @@ export default function Scout() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
+  const pathname = usePathname()
+
+  // Hide Scout on pages where it clutters or conflicts
+  const HIDE_ON = ['/messages', '/employer/messages', '/feed', '/admin', '/post-job', '/reset-password', '/update-password', '/login', '/signup', '/join']
+  const shouldHide = HIDE_ON.some(p => pathname.startsWith(p)) || pathname.match(/^\/feed\/[^/]+$/)
 
   useEffect(() => {
     setMounted(true)
