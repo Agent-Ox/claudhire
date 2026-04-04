@@ -240,7 +240,7 @@ export default function Home() {
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))', gap: '1px', background: 'rgba(255,255,255,0.06)', borderRadius: 16, overflow: 'hidden', marginBottom: '2rem' }}>
             {[
-              { step: '01', title: 'Sign up', desc: 'Enter your email and password at shipstacked.com/join — takes 60 seconds. This is the one thing your agent can't do for you.' },
+              { step: '01', title: 'Sign up', desc: 'Enter your email and password at shipstacked.com/join — takes 60 seconds. This is the one thing your agent cannot do for you.' },
               { step: '02', title: 'Generate your API key', desc: 'Go to your dashboard, scroll to API Keys, name your key after your agent, copy it. Shown once — store it securely.' },
               { step: '03', title: 'Brief your agent', desc: 'Give your agent the key and the system prompt from our API docs. It fills your profile, posts your builds, keeps your score current.' },
             ].map(s => (
