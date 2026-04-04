@@ -179,9 +179,9 @@ export default function Home() {
           <span className="hero-tag-dot"></span>
           The proof-of-work platform for AI-native builders
         </div>
-        <h1>Where builders <span className="blue">prove</span> their work.<br />Where founders find builders<br />who ship.</h1>
+        <h1>Hire AI builders who<br /><span className="blue">prove</span> they ship.</h1>
         <p className="hero-sub">
-          AI-native builders post real outcomes. Founders browse verified proof of work and message directly. No CVs. No guesswork. No commissions.
+          ShipStacked is the proof-of-work platform for AI-native builders. Post real outcomes, earn your verified badge, get hired — no CVs, no guesswork, no commissions.
         </p>
         <div className="hero-actions">
           <Link href="/join" className="btn-blue">Create free builder profile</Link>
