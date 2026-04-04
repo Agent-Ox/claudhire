@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { createClient } from '@supabase/supabase-js'
+import { checkAutoVerify } from '@/lib/autoVerify'
 
 // GET — fetch feed posts (public)
 export async function GET(req: Request) {
@@ -74,6 +75,14 @@ export async function POST(req: Request) {
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  // Check auto-verification criteria after every new post
+  try {
+    await checkAutoVerify(profile.id)
+  } catch (e) {
+    console.error('Auto-verify check failed:', e)
+  }
+
   return NextResponse.json({ post })
 }
 

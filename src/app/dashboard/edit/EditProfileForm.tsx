@@ -271,6 +271,9 @@ export default function EditProfileForm({ profile, projects: initialProjects, sk
 
       setSaved(true)
       router.refresh()
+
+      // Fire-and-forget auto-verify check after every profile save
+      fetch('/api/profile/verify-check', { method: 'POST' }).catch(() => {})
     } catch (e: any) {
       setError(e.message || 'Something went wrong')
     } finally {

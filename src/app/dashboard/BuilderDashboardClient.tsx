@@ -42,6 +42,7 @@ export default function BuilderDashboardClient({
   email,
   githubData,
   velocityScore: initialScore,
+  provenPostCount,
 }: {
   profile: any
   applications: any[]
@@ -49,6 +50,7 @@ export default function BuilderDashboardClient({
   email: string
   githubData: any | null
   velocityScore: number
+  provenPostCount: number
 }) {
   const [requestSent, setRequestSent] = useState(false)
   const [requesting, setRequesting] = useState(false)
@@ -244,16 +246,20 @@ export default function BuilderDashboardClient({
                 ) : (
                   <>
                     <div style={{ fontSize: 24, marginBottom: '0.4rem' }}>○</div>
-                    <p style={{ fontSize: 14, fontWeight: 600, color: '#1d1d1f', marginBottom: '0.2rem' }}>Not yet verified</p>
-                    <p style={{ fontSize: 12, color: '#6e6e73', lineHeight: 1.5, marginBottom: '0.75rem' }}>We review your projects and GitHub activity.</p>
-                    {requestSent ? (
-                      <span style={{ fontSize: 12, color: '#1a7f37', fontWeight: 500 }}>✓ Request sent</span>
-                    ) : (
-                      <button onClick={requestVerification} disabled={requesting || velocityScore < 25}
-                        style={{ fontSize: 12, padding: '0.4rem 0.875rem', background: velocityScore >= 25 ? '#0071e3' : '#f0f0f5', color: velocityScore >= 25 ? 'white' : '#aeaeb2', border: 'none', borderRadius: 980, cursor: velocityScore >= 25 ? 'pointer' : 'not-allowed', fontFamily: 'inherit', fontWeight: 500 }}>
-                        {requesting ? 'Sending...' : velocityScore < 25 ? 'Score 25+ to request' : 'Request verification'}
-                      </button>
-                    )}
+                    <p style={{ fontSize: 14, fontWeight: 600, color: '#1d1d1f', marginBottom: '0.25rem' }}>Not yet verified</p>
+                    <p style={{ fontSize: 12, color: '#6e6e73', lineHeight: 1.5, marginBottom: '0.875rem' }}>Verification is automatic. Complete these steps:</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                      {[
+                        { label: 'Name, bio, role, location', done: !!(profile.full_name && profile.bio && profile.role && profile.location) },
+                        { label: '1 project or 3+ skills', done: !!(profile.projects?.length >= 1 || profile.skills?.length >= 3) },
+                        { label: '1 Build Feed post with outcome + link', done: provenPostCount >= 1 },
+                      ].map((item, i) => (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: 12 }}>
+                          <span style={{ color: item.done ? '#1a7f37' : '#aeaeb2', flexShrink: 0, fontWeight: 600 }}>{item.done ? '✓' : '○'}</span>
+                          <span style={{ color: item.done ? '#1d1d1f' : '#6e6e73', textDecoration: item.done ? 'none' : 'none' }}>{item.label}</span>
+                        </div>
+                      ))}
+                    </div>
                   </>
                 )}
               </div>

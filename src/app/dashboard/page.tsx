@@ -33,6 +33,16 @@ export default async function DashboardPage() {
     .eq('profile_id', profile.id)
     .maybeSingle() : { data: null }
 
+  // Count Build Feed posts with outcome + url (for auto-verify progress)
+  const { count: provenPostCount } = profile ? await supabase
+    .from('posts')
+    .select('id', { count: 'exact', head: true })
+    .eq('profile_id', profile.id)
+    .not('outcome', 'is', null)
+    .neq('outcome', '')
+    .not('url', 'is', null)
+    .neq('url', '') : { count: 0 }
+
   return (
     <BuilderDashboardClient
       profile={profile}
@@ -41,6 +51,7 @@ export default async function DashboardPage() {
       email={user.email!}
       githubData={githubData || null}
       velocityScore={profile?.velocity_score || 0}
+      provenPostCount={provenPostCount || 0}
     />
   )
 }
