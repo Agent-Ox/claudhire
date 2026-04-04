@@ -262,6 +262,23 @@ export default function BuilderDashboardClient({
                   </div>
                 </div>
               )}
+
+              {/* Low commit warning */}
+              {isGitHubConnected && githubData && githubData.commits_90d === 0 && (
+                <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '0.5px solid #e8e8ed', display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
+                  <span style={{ fontSize: 14, flexShrink: 0 }}>⚠️</span>
+                  <div>
+                    <p style={{ fontSize: 12, fontWeight: 600, color: '#bf7e00', marginBottom: '0.25rem' }}>Commits not counting</p>
+                    <p style={{ fontSize: 12, color: '#6e6e73', lineHeight: 1.6 }}>
+                      Your commits may not be linked to your GitHub account. This happens when your local git email doesn't match your GitHub email. Fix it by running these two commands in your terminal, then Re-sync:
+                    </p>
+                    <div style={{ marginTop: '0.5rem', background: '#f5f5f7', borderRadius: 8, padding: '0.5rem 0.75rem', fontFamily: 'monospace', fontSize: 11, color: '#1d1d1f', lineHeight: 1.8 }}>
+                      git config --global user.email "your@email.com"<br/>
+                      git config --global user.name "Your Name"
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Profile link */}
