@@ -53,6 +53,13 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
     .eq('profile_id', profile.id)
 
 
+  const { data: githubData } = await supabase
+    .from('github_data')
+    .select('*')
+    .eq('profile_id', profile.id)
+    .maybeSingle()
+
+
   const byCategory = (cat: string) => skills?.filter(s => s.category === cat).map(s => s.name) || []
   const initials = profile.full_name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()
   const profileUrl = 'https://shipstacked.com/u/' + profile.username
@@ -258,6 +265,71 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 {claudeSkills.map((s: string) => <span key={s} className="tag-claude">{s}</span>)}
               </div>
+            </div>
+          )}
+
+          {/* GitHub */}
+          {profile.github_connected && githubData && (
+            <div className="fade-up card" style={{ padding: '1.75rem', marginBottom: '1.5rem', animationDelay: '0.22s' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style={{ color: 'var(--text2)' }}>
+                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+                  </svg>
+                  <p className="section-label" style={{ margin: 0 }}>GitHub</p>
+                </div>
+                <a href={`https://github.com/${githubData.github_username}`} target="_blank"
+                  style={{ fontSize: 12, color: 'var(--accent2)', textDecoration: 'none', fontWeight: 500 }}>
+                  @{githubData.github_username} &rarr;
+                </a>
+              </div>
+              <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
+                <div>
+                  <p style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.02em' }}>{githubData.commits_90d}</p>
+                  <p style={{ fontSize: 11, color: 'var(--text3)', fontFamily: 'var(--mono)', letterSpacing: '0.06em' }}>COMMITS / 90D</p>
+                </div>
+                <div>
+                  <p style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.02em' }}>{githubData.repos_count}</p>
+                  <p style={{ fontSize: 11, color: 'var(--text3)', fontFamily: 'var(--mono)', letterSpacing: '0.06em' }}>PUBLIC REPOS</p>
+                </div>
+                {githubData.top_languages?.length > 0 && (
+                  <div>
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 2 }}>
+                      {githubData.top_languages.slice(0, 4).map((lang: string) => (
+                        <span key={lang} className="tag-skill" style={{ fontSize: 11 }}>{lang}</span>
+                      ))}
+                    </div>
+                    <p style={{ fontSize: 11, color: 'var(--text3)', fontFamily: 'var(--mono)', letterSpacing: '0.06em', marginTop: 4 }}>TOP LANGUAGES</p>
+                  </div>
+                )}
+              </div>
+              {githubData.contribution_data && Object.keys(githubData.contribution_data).length > 0 && (
+                <div>
+                  <p style={{ fontSize: 11, color: 'var(--text3)', fontFamily: 'var(--mono)', letterSpacing: '0.06em', marginBottom: '0.5rem' }}>LAST 12 WEEKS</p>
+                  <div style={{ display: 'flex', gap: 3, alignItems: 'flex-end', height: 28 }}>
+                    {(() => {
+                      const data = githubData.contribution_data as Record<string, number>
+                      const weeks: Record<string, number> = {}
+                      Object.entries(data).forEach(([date, count]) => {
+                        const d = new Date(date)
+                        d.setDate(d.getDate() - d.getDay())
+                        const weekKey = d.toISOString().slice(0, 10)
+                        weeks[weekKey] = (weeks[weekKey] || 0) + (count as number)
+                      })
+                      const sorted = Object.entries(weeks).sort((a, b) => a[0].localeCompare(b[0])).slice(-12)
+                      const max = Math.max(...sorted.map(([, v]) => v), 1)
+                      return sorted.map(([week, count]) => (
+                        <div key={week} title={`${count} commits`} style={{
+                          flex: 1, borderRadius: 3,
+                          height: Math.max(3, (count / max) * 28),
+                          background: count > 0 ? '#34d399' : 'var(--bg3)',
+                          opacity: count > 0 ? 0.6 + (count / max) * 0.4 : 1,
+                        }} />
+                      ))
+                    })()}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

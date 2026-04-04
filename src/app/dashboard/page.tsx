@@ -27,12 +27,20 @@ export default async function DashboardPage() {
     .order('created_at', { ascending: false })
     .limit(6)
 
+  // Fetch GitHub data if connected
+  const { data: githubData } = profile ? await supabase
+    .from('github_data')
+    .select('*')
+    .eq('profile_id', profile.id)
+    .maybeSingle() : { data: null }
+
   return (
     <BuilderDashboardClient
       profile={profile}
       applications={applications || []}
       employers={employers || []}
       email={user.email!}
+      githubData={githubData || null}
     />
   )
 }

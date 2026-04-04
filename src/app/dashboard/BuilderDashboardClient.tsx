@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ShareButtons from '@/app/u/[username]/ShareButtons'
 
 function calcScore(profile: any): { score: number, tips: string[] } {
@@ -16,7 +16,7 @@ function calcScore(profile: any): { score: number, tips: string[] } {
   if (profile.projects && profile.projects.length >= 1) score += 15; else tips.push('Add at least one project with real outcomes')
   if (profile.projects && profile.projects.length >= 3) score += 10; else if (profile.projects?.length >= 1) tips.push('Add 2 more projects to strengthen your profile')
   if (profile.skills && profile.skills.length >= 3) score += 10; else tips.push('Select your AI use cases and skills')
-  if (profile.github_url || profile.x_url || profile.linkedin_url || profile.website_url) score += 5; else tips.push('Add at least one social link')
+  if (profile.github_connected) score += 10; else tips.push('Connect GitHub — it makes your verified badge mean something')
   if (profile.primary_profession) score += 5; else tips.push('Add your primary profession')
   if (profile.seniority) score += 5; else tips.push('Add your seniority level')
   if (profile.work_type) score += 5; else tips.push('Add your work type preference')
@@ -50,18 +50,33 @@ export default function BuilderDashboardClient({
   applications,
   employers,
   email,
+  githubData,
 }: {
   profile: any
   applications: any[]
   employers: any[]
   email: string
+  githubData: any | null
 }) {
   const [requestSent, setRequestSent] = useState(false)
   const [requesting, setRequesting] = useState(false)
+  const [githubStatus, setGithubStatus] = useState<'idle' | 'just_connected' | 'error'>('idle')
 
   const profileUrl = profile ? 'https://shipstacked.com/u/' + profile.username : ''
   const { score, tips } = profile ? calcScore(profile) : { score: 0, tips: [] }
   const firstName = profile?.full_name?.split(' ')[0] || 'there'
+  const isGitHubConnected = profile?.github_connected || false
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('github') === 'connected') {
+      setGithubStatus('just_connected')
+      window.history.replaceState({}, '', '/dashboard')
+    } else if (params.get('github') === 'error') {
+      setGithubStatus('error')
+      window.history.replaceState({}, '', '/dashboard')
+    }
+  }, [])
 
   const requestVerification = async () => {
     setRequesting(true)
@@ -97,7 +112,20 @@ export default function BuilderDashboardClient({
           </div>
         ) : (
           <>
-            {/* Top grid — score + verification + profile */}
+            {/* GitHub just connected banner */}
+            {githubStatus === 'just_connected' && (
+              <div style={{ background: '#e3f3e3', border: '1px solid #b3e0b3', borderRadius: 12, padding: '0.875rem 1.25rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontSize: 16 }}>✓</span>
+                <p style={{ fontSize: 14, color: '#1a7f37', fontWeight: 500 }}>GitHub connected — your activity is now feeding your proof-of-work record.</p>
+              </div>
+            )}
+            {githubStatus === 'error' && (
+              <div style={{ background: '#fff0f0', border: '1px solid #ffd0d0', borderRadius: 12, padding: '0.875rem 1.25rem', marginBottom: '1.25rem' }}>
+                <p style={{ fontSize: 14, color: '#c00' }}>GitHub connection failed — please try again.</p>
+              </div>
+            )}
+
+            {/* Top grid — score + verification */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
 
               {/* Profile strength */}
@@ -137,7 +165,7 @@ export default function BuilderDashboardClient({
                   <>
                     <div style={{ fontSize: 28, marginBottom: '0.5rem' }}>○</div>
                     <p style={{ fontSize: 15, fontWeight: 600, color: '#1d1d1f', marginBottom: '0.3rem' }}>Not yet verified</p>
-                    <p style={{ fontSize: 12, color: '#6e6e73', lineHeight: 1.5, marginBottom: '1rem' }}>We manually review your projects. A strong profile with real outcomes gets verified faster.</p>
+                    <p style={{ fontSize: 12, color: '#6e6e73', lineHeight: 1.5, marginBottom: '1rem' }}>We review your projects and GitHub activity. Connect GitHub to strengthen your application.</p>
                     {requestSent ? (
                       <span style={{ fontSize: 13, color: '#1a7f37', fontWeight: 500 }}>✓ Request sent</span>
                     ) : (
@@ -151,6 +179,89 @@ export default function BuilderDashboardClient({
                   </>
                 )}
               </div>
+            </div>
+
+            {/* GitHub connection card */}
+            <div style={{
+              background: isGitHubConnected ? '#f0faf0' : 'white',
+              border: isGitHubConnected ? '1px solid #b3e0b3' : '1px solid #e0e0e5',
+              borderRadius: 14, padding: '1.5rem', marginBottom: '1rem',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
+                  {/* GitHub icon */}
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: isGitHubConnected ? '#1a7f37' : '#1d1d1f', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+                      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: '#1d1d1f', marginBottom: '0.2rem' }}>
+                      {isGitHubConnected ? `GitHub connected — @${profile.github_username}` : 'Connect GitHub'}
+                    </p>
+                    <p style={{ fontSize: 12, color: '#6e6e73', lineHeight: 1.5 }}>
+                      {isGitHubConnected
+                        ? `${githubData?.commits_90d ?? 0} commits in the last 90 days · ${githubData?.repos_count ?? 0} public repos · ${githubData?.top_languages?.slice(0,3).join(', ') || 'no languages detected'}`
+                        : 'Proves your builds are real. Your GitHub activity feeds your proof-of-work record and makes your verified badge credible.'}
+                    </p>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
+                  {isGitHubConnected ? (
+                    <>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: '#1a7f37', background: '#e3f3e3', padding: '0.25rem 0.6rem', borderRadius: 980 }}>
+                        ✓ Connected
+                      </span>
+                      <a href="/api/github/connect"
+                        style={{ fontSize: 12, padding: '0.4rem 0.875rem', background: '#f5f5f7', color: '#1d1d1f', borderRadius: 980, textDecoration: 'none', fontWeight: 500 }}>
+                        Re-sync
+                      </a>
+                    </>
+                  ) : (
+                    <a href="/api/github/connect"
+                      style={{ fontSize: 13, padding: '0.5rem 1.1rem', background: '#1d1d1f', color: 'white', borderRadius: 980, textDecoration: 'none', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+                        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+                      </svg>
+                      Connect GitHub
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* Mini contribution bar — only when connected and data exists */}
+              {isGitHubConnected && githubData?.contribution_data && Object.keys(githubData.contribution_data).length > 0 && (
+                <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '0.5px solid #e8e8ed' }}>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: '#aeaeb2', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '0.6rem' }}>Last 12 weeks</p>
+                  <div style={{ display: 'flex', gap: 3, alignItems: 'flex-end', height: 32 }}>
+                    {(() => {
+                      const data = githubData.contribution_data as Record<string, number>
+                      const weeks: Record<string, number> = {}
+                      // Aggregate by week
+                      Object.entries(data).forEach(([date, count]) => {
+                        const d = new Date(date)
+                        d.setDate(d.getDate() - d.getDay())
+                        const weekKey = d.toISOString().slice(0, 10)
+                        weeks[weekKey] = (weeks[weekKey] || 0) + count
+                      })
+                      const sorted = Object.entries(weeks).sort((a, b) => a[0].localeCompare(b[0])).slice(-12)
+                      const max = Math.max(...sorted.map(([, v]) => v), 1)
+                      return sorted.map(([week, count]) => (
+                        <div
+                          key={week}
+                          title={`${count} commits`}
+                          style={{
+                            flex: 1, borderRadius: 3,
+                            height: Math.max(4, (count / max) * 32),
+                            background: count > 0 ? '#1a7f37' : '#e0e0e5',
+                            opacity: count > 0 ? 0.7 + (count / max) * 0.3 : 1,
+                          }}
+                        />
+                      ))
+                    })()}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Profile link */}
