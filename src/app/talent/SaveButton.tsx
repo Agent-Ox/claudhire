@@ -5,9 +5,11 @@ import { useState } from 'react'
 export function SaveButton({
   profileId,
   initialSaved = false,
+  onToggle,
 }: {
   profileId: string
   initialSaved?: boolean
+  onToggle?: (profileId: string, saved: boolean) => void
 }) {
   const [saved, setSaved] = useState(initialSaved)
   const [loading, setLoading] = useState(false)
@@ -16,7 +18,9 @@ export function SaveButton({
     e.preventDefault()
     e.stopPropagation()
     if (loading) return
-    setSaved(prev => !prev) // optimistic
+    const next = !saved
+    setSaved(next) // optimistic
+    onToggle?.(profileId, next) // tell parent immediately
     setLoading(true)
     try {
       await fetch('/api/saved-profiles', {
@@ -25,7 +29,8 @@ export function SaveButton({
         body: JSON.stringify({ profile_id: profileId }),
       })
     } catch {
-      setSaved(prev => !prev) // revert on error
+      setSaved(!next) // revert on error
+      onToggle?.(profileId, !next)
     } finally {
       setLoading(false)
     }

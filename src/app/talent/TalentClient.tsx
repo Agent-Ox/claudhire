@@ -7,10 +7,11 @@ function vColor(score: number) {
   return score >= 75 ? '#1a7f37' : score >= 50 ? '#0071e3' : score >= 25 ? '#bf7e00' : '#6e6e73'
 }
 
-function ProfileCard({ profile, isPaidEmployer, isSaved }: {
+function ProfileCard({ profile, isPaidEmployer, isSaved, onToggleSave }: {
   profile: any
   isPaidEmployer: boolean
   isSaved: boolean
+  onToggleSave: (profileId: string, saved: boolean) => void
 }) {
   const initials = profile.full_name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
   const claudeSkills = profile.skills?.filter((s: any) => s.category === 'claude_use_case').slice(0, 3) || []
@@ -18,7 +19,13 @@ function ProfileCard({ profile, isPaidEmployer, isSaved }: {
 
   return (
     <a href={`/u/${profile.username}`} className={profile.verified ? 'talent-card talent-card-verified' : 'talent-card'}>
-      {isPaidEmployer && <SaveButton profileId={profile.id} initialSaved={isSaved} />}
+      {isPaidEmployer && (
+        <SaveButton
+          profileId={profile.id}
+          initialSaved={isSaved}
+          onToggle={onToggleSave}
+        />
+      )}
 
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.875rem', width: '100%', minWidth: 0, boxSizing: 'border-box', paddingRight: isPaidEmployer ? '2rem' : 0 }}>
         <div style={{ width: 48, height: 48, borderRadius: '50%', flexShrink: 0, background: profile.verified ? 'linear-gradient(135deg, #e8f1fd, #d0e4fb)' : '#f0f0f5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 700, color: profile.verified ? '#0071e3' : '#6e6e73', border: profile.verified ? '2px solid rgba(0,113,227,0.2)' : 'none', overflow: 'hidden' }}>
@@ -72,7 +79,7 @@ function ProfileCard({ profile, isPaidEmployer, isSaved }: {
 
 export default function TalentClient({
   profiles,
-  savedIds,
+  savedIds: initialSavedIds,
   isPaidEmployer,
   isTeaser,
   verifiedCount,
@@ -88,6 +95,14 @@ export default function TalentClient({
   user: any
 }) {
   const [tab, setTab] = useState<'all' | 'shortlist'>('all')
+  // savedIds lives in state so toggling a heart updates the shortlist tab instantly
+  const [savedIds, setSavedIds] = useState<string[]>(initialSavedIds)
+
+  const handleToggleSave = (profileId: string, saved: boolean) => {
+    setSavedIds(prev =>
+      saved ? [...prev, profileId] : prev.filter(id => id !== profileId)
+    )
+  }
 
   const shortlisted = profiles.filter(p => savedIds.includes(p.id))
   const displayProfiles = tab === 'shortlist' ? shortlisted : profiles
@@ -96,19 +111,12 @@ export default function TalentClient({
     <button
       onClick={() => setTab(t)}
       style={{
-        padding: '0.5rem 1.1rem',
-        borderRadius: 980,
-        border: 'none',
-        cursor: 'pointer',
-        fontFamily: 'inherit',
-        fontSize: 14,
+        padding: '0.5rem 1.1rem', borderRadius: 980, border: 'none',
+        cursor: 'pointer', fontFamily: 'inherit', fontSize: 14,
         fontWeight: tab === t ? 600 : 400,
         background: tab === t ? '#1d1d1f' : '#f0f0f5',
         color: tab === t ? 'white' : '#6e6e73',
-        transition: 'all 0.15s',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.4rem',
+        transition: 'all 0.15s', display: 'flex', alignItems: 'center', gap: '0.4rem',
       }}
     >
       {label}
@@ -170,7 +178,7 @@ export default function TalentClient({
         </div>
       )}
 
-      {/* Tabs — paid employers only */}
+      {/* Tabs */}
       {isPaidEmployer && (
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
           {tabBtn('all', 'All builders', profiles.length)}
@@ -191,9 +199,8 @@ export default function TalentClient({
       )}
 
       {/* Grid */}
-      {(tab === 'all' || shortlisted.length > 0) && (
+      {(tab === 'all' || shortlisted.length > 0) && displayProfiles.length > 0 && (
         <>
-          {/* Verified divider — all tab only */}
           {tab === 'all' && verifiedCount > 0 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
               <span style={{ fontSize: 12, fontWeight: 600, color: '#0071e3', letterSpacing: '0.05em', textTransform: 'uppercase' }}>✓ Verified builders</span>
@@ -217,6 +224,7 @@ export default function TalentClient({
                     profile={profile}
                     isPaidEmployer={isPaidEmployer}
                     isSaved={savedIds.includes(profile.id)}
+                    onToggleSave={handleToggleSave}
                   />
                 </React.Fragment>
               )
@@ -225,7 +233,7 @@ export default function TalentClient({
         </>
       )}
 
-      {/* Paywall for non-paying users */}
+      {/* Paywall */}
       {isTeaser && (
         <div style={{ marginTop: '2.5rem', textAlign: 'center', padding: '3rem 2rem', position: 'relative' }}>
           <div style={{ position: 'absolute', top: -80, left: 0, right: 0, height: 120, background: 'linear-gradient(180deg, transparent 0%, #fbfbfd 100%)', pointerEvents: 'none' }} />
