@@ -63,6 +63,7 @@ export default async function TalentPage() {
           color: inherit;
           transition: transform 0.2s ease, box-shadow 0.2s ease;
           position: relative;
+          overflow: hidden;
         }
         .talent-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
         .talent-card-verified { border-color: rgba(0,113,227,0.2); }
@@ -146,11 +147,11 @@ export default async function TalentPage() {
                         <SaveButton profileId={profile.id} profileName={profile.full_name} />
                       )}
 
-                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.875rem', paddingRight: isPaidEmployer ? '2.25rem' : 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.875rem', width: '100%', minWidth: 0, boxSizing: 'border-box', paddingRight: isPaidEmployer ? '2rem' : 0 }}>
                         <div style={{ width: 48, height: 48, borderRadius: '50%', flexShrink: 0, background: profile.verified ? 'linear-gradient(135deg, #e8f1fd, #d0e4fb)' : '#f0f0f5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 700, color: profile.verified ? '#0071e3' : '#6e6e73', border: profile.verified ? '2px solid rgba(0,113,227,0.2)' : 'none', overflow: 'hidden' }}>
                           {profile.avatar_url ? <img src={profile.avatar_url} alt={profile.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : initials}
                         </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '0.15rem' }}>
                             <span style={{ fontSize: 15, fontWeight: 700, color: '#1d1d1f', letterSpacing: '-0.01em' }}>{profile.full_name}</span>
                             {profile.verified && <span style={{ fontSize: 10, fontWeight: 700, color: '#0071e3', background: '#e8f1fd', padding: '0.15rem 0.45rem', borderRadius: 980 }}>✓ Verified</span>}
