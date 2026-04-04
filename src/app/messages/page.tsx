@@ -149,7 +149,7 @@ export default function MessagesPage() {
           {selected?.jobs?.role_title && <p style={{ fontSize: 12, color: '#0071e3', fontWeight: 500 }}>Re: {selected.jobs.role_title}</p>}
         </div>
       </div>
-      <div style={{ flex: 1, overflowY: 'auto', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', overscrollBehavior: 'contain' }}>
         {messages.map(msg => {
           const isMe = msg.sender_email === userEmail
           return (
@@ -181,7 +181,7 @@ export default function MessagesPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#fbfbfd', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
-      <div style={{ maxWidth: 900, margin: '0 auto', padding: '4rem 1.5rem 2rem' }}>
+      <div className="msg-page-wrap" style={{ maxWidth: 900, margin: '0 auto', padding: '4rem 1.5rem 2rem' }}>
         {/* Desktop: show both panels. Mobile: show list OR thread */}
         <div style={{ marginBottom: '1.5rem' }}>
           <p style={{ fontSize: 12, fontWeight: 600, color: '#0071e3', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '0.3rem' }}>Messages</p>
@@ -192,8 +192,11 @@ export default function MessagesPage() {
         <style>{`
           @media (max-width: 640px) {
             .msg-desktop { display: none !important; }
-            .msg-mobile-list { display: ${showThread ? 'none' : 'block'} !important; height: calc(100vh - 200px); }
-            .msg-mobile-thread { display: ${showThread ? 'block' : 'none'} !important; height: calc(100vh - 200px); }
+            .msg-mobile-list { display: ${showThread ? 'none' : 'block'} !important; height: calc(100dvh - 200px); }
+            .msg-mobile-thread { display: ${showThread ? 'block' : 'none'} !important; height: calc(100dvh - 200px); }
+          }
+          @media (max-width: 640px) {
+            .msg-page-wrap { padding-top: 4.5rem !important; padding-bottom: 0.5rem !important; }
           }
           @media (min-width: 641px) {
             .msg-mobile-list { display: none !important; }
