@@ -34,7 +34,7 @@ async function fetchGitHubData(accessToken: string) {
     .map(([lang]) => lang)
 
   const eventsRes = await fetch(
-    `https://api.github.com/users/${user.login}/events?per_page=100`,
+    `https://api.github.com/user/events?per_page=100`,
     { headers }
   )
 
