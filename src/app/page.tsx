@@ -71,7 +71,7 @@ export default function Home() {
     const supabase = createClient()
     supabase.from('profiles').select('*, skills(*)').eq('published', true)
       .order('created_at', { ascending: false }).limit(6)
-      .then(({ data }) => { if (data?.length >= 6) setRealProfiles(data) })
+      .then(({ data }) => { if ((data?.length ?? 0) >= 6) setRealProfiles(data ?? []) })
   }, [])
 
   const showRealProfiles = realProfiles.length >= 6
