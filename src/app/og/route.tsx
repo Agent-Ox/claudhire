@@ -28,7 +28,7 @@ export async function GET(req: Request) {
             <span style={{ fontSize: 52, fontWeight: 700, color: 'rgba(240,240,245,0.95)', letterSpacing: '-0.03em', marginBottom: 12 }}>{name || 'Company'}</span>
             {location && <span style={{ fontSize: 24, color: 'rgba(240,240,245,0.5)' }}>📍 {location}</span>}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 24 }}>
             <span style={{ fontSize: 18, color: 'rgba(167,139,250,0.8)' }}>shipstacked.com</span>
             <span style={{ fontSize: 16, color: '#34d399' }}>Hiring on ShipStacked</span>
           </div>
@@ -43,7 +43,7 @@ export async function GET(req: Request) {
     return new ImageResponse(
       (
         <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#0a0a0f', padding: '60px', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '50%', background: 'radial-gradient(ellipse at 50% 0%, rgba(26,127,55,0.2) 0%, transparent 60%)', display: 'flex' }} />
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '50%', background: 'rgba(26,127,55,0.15)', display: 'flex' }} />
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <span style={{ fontSize: 28, fontWeight: 700, color: 'rgba(240,240,245,0.95)', letterSpacing: '-0.02em' }}>ShipStacked<span style={{ color: '#6c63ff' }}>.</span></span>
           </div>
@@ -52,7 +52,7 @@ export async function GET(req: Request) {
             <div style={{ display: 'inline-flex', background: 'rgba(26,127,55,0.2)', border: '1px solid rgba(26,127,55,0.4)', borderRadius: 12, padding: '8px 20px', marginBottom: 28 }}>
               <span style={{ fontSize: 16, fontWeight: 600, color: '#34d399', letterSpacing: '0.05em' }}>NOW HIRING</span>
             </div>
-            <span style={{ fontSize: name.length > 30 ? 42 : 54, fontWeight: 700, color: 'rgba(240,240,245,0.95)', letterSpacing: '-0.03em', marginBottom: 16, lineHeight: '1.1' }}>{name || 'Open Role'}</span>
+            <span style={{ fontSize: 48, fontWeight: 700, color: 'rgba(240,240,245,0.95)', letterSpacing: '-0.03em', marginBottom: 16, lineHeight: '1.1' }}>{name || 'Open Role'}</span>
             {location && <span style={{ fontSize: 26, color: 'rgba(240,240,245,0.5)' }}>{location}</span>}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 24 }}>
