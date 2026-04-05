@@ -17,9 +17,10 @@ export async function GET(req: Request) {
       (
         <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#0a0a0f', padding: '60px', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '50%', background: 'radial-gradient(ellipse at 30% 0%, rgba(0,113,227,0.25) 0%, transparent 60%), radial-gradient(ellipse at 80% 0%, rgba(108,99,255,0.15) 0%, transparent 60%)', display: 'flex' }} />
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             <span style={{ fontSize: 28, fontWeight: 700, color: 'rgba(240,240,245,0.95)', letterSpacing: '-0.02em' }}>ShipStacked<span style={{ color: '#6c63ff' }}>.</span></span>
           </div>
+          <div style={{ flex: 1 }} />
           <div style={{ display: 'flex', flexDirection: 'column', marginBottom: 48 }}>
             <div style={{ width: 80, height: 80, borderRadius: 18, background: 'linear-gradient(135deg, #0071e3, #0055b3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 700, color: 'white', marginBottom: 24 }}>
               {initials}
@@ -43,14 +44,15 @@ export async function GET(req: Request) {
       (
         <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#0a0a0f', padding: '60px', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '50%', background: 'radial-gradient(ellipse at 50% 0%, rgba(26,127,55,0.2) 0%, transparent 60%)', display: 'flex' }} />
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             <span style={{ fontSize: 28, fontWeight: 700, color: 'rgba(240,240,245,0.95)', letterSpacing: '-0.02em' }}>ShipStacked<span style={{ color: '#6c63ff' }}>.</span></span>
           </div>
+          <div style={{ flex: 1 }} />
           <div style={{ display: 'flex', flexDirection: 'column', marginBottom: 48 }}>
             <div style={{ display: 'inline-flex', background: 'rgba(26,127,55,0.2)', border: '1px solid rgba(26,127,55,0.4)', borderRadius: 12, padding: '8px 20px', marginBottom: 28 }}>
               <span style={{ fontSize: 16, fontWeight: 600, color: '#34d399', letterSpacing: '0.05em' }}>NOW HIRING</span>
             </div>
-            <span style={{ fontSize: name.length > 30 ? 42 : 54, fontWeight: 700, color: 'rgba(240,240,245,0.95)', letterSpacing: '-0.03em', marginBottom: 16, lineHeight: 1.1 }}>{name || 'Open Role'}</span>
+            <span style={{ fontSize: name.length > 30 ? 42 : 54, fontWeight: 700, color: 'rgba(240,240,245,0.95)', letterSpacing: '-0.03em', marginBottom: 16, lineHeight: '1.1' }}>{name || 'Open Role'}</span>
             {location && <span style={{ fontSize: 26, color: 'rgba(240,240,245,0.5)' }}>{location}</span>}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 24 }}>
@@ -93,9 +95,10 @@ export async function GET(req: Request) {
       (
         <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#0a0a0f', padding: '60px', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '50%', background: 'radial-gradient(ellipse at 20% 0%, rgba(108,99,255,0.3) 0%, transparent 60%), radial-gradient(ellipse at 80% 0%, rgba(167,139,250,0.2) 0%, transparent 60%)', display: 'flex' }} />
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             <span style={{ fontSize: 28, fontWeight: 700, color: 'rgba(240,240,245,0.95)', letterSpacing: '-0.02em' }}>ShipStacked<span style={{ color: '#6c63ff' }}>.</span></span>
           </div>
+          <div style={{ flex: 1 }} />
           <div style={{ display: 'flex', flexDirection: 'column', marginBottom: 48 }}>
             <div style={{ width: 80, height: 80, borderRadius: 40, background: 'linear-gradient(135deg, #6c63ff, #a78bfa)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 700, color: 'white', marginBottom: 24 }}>
               {builderName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
