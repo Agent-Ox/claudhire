@@ -234,10 +234,10 @@ export default async function LeaderboardPage() {
           <div style={{ marginTop: '3rem', padding: '1.5rem', background: 'white', border: '1px solid #e0e0e5', borderRadius: 16, textAlign: 'center' }}>
             <p style={{ fontSize: 15, fontWeight: 600, color: '#1d1d1f', marginBottom: '0.4rem' }}>Ready to hire?</p>
             <p style={{ fontSize: 13, color: '#6e6e73', marginBottom: '1.25rem', lineHeight: 1.5 }}>
-              Browse the full directory and message any builder directly — $199/month flat, no placement fees.
+              Browse the full directory and message any builder directly on-platform.
             </p>
             <a href="/talent" style={{ display: 'inline-block', padding: '0.65rem 1.5rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
-              Browse all builders →
+              Browse the talent directory →
             </a>
           </div>
         )}

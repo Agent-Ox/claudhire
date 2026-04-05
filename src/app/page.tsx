@@ -176,14 +176,6 @@ export default function Home() {
         .cta-section h2 { font-size: clamp(2.2rem, 5vw, 3.5rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.08; margin-bottom: 1rem; }
         .cta-section p { font-size: 1rem; color: var(--text2); margin-bottom: 2.5rem; font-weight: 300; }
 
-        /* Footer */
-        footer { background: var(--bg2); border-top: 0.5px solid var(--border-light); padding: 2.5rem 1.5rem; }
-        .footer-inner { max-width: 960px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
-        .footer-logo { font-size: 0.95rem; font-weight: 700; color: var(--text); text-decoration: none; letter-spacing: -0.02em; }
-        .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
-        .footer-links a { font-size: 0.78rem; color: var(--text2); text-decoration: none; }
-        .footer-links a:hover { color: var(--text); }
-        .footer-copy { font-size: 0.75rem; color: var(--text3); }
 
         /* Responsive */
         @media (max-width: 768px) {
@@ -465,23 +457,6 @@ export default function Home() {
         </p>
       </section>
 
-      {/* ── FOOTER ── */}
-      <footer>
-        <div className="footer-inner">
-          <a href="/" className="footer-logo">ShipStacked<span style={{ color: 'var(--accent)' }}>.</span></a>
-          <div className="footer-links">
-            <a href="#how">How it works</a>
-            <a href="#builders">Community</a>
-            <a href="#pricing">Hire talent</a>
-            <Link href="/feed">Build Feed</Link>
-            <Link href="/join">Join</Link>
-            <Link href="/api-docs">Builder API</Link>
-            <Link href="/terms">Terms</Link>
-            <Link href="/privacy">Privacy</Link>
-          </div>
-          <p className="footer-copy">© 2026 ShipStacked. All rights reserved.</p>
-        </div>
-      </footer>
     </>
   )
 }
