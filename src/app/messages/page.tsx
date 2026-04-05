@@ -20,37 +20,6 @@ function timeAgo(date: string) {
   return d.toLocaleDateString([], { day: 'numeric', month: 'short' }) + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
-// iOS Safari keyboard fix — Telegram --vh approach
-// visualViewport.height shrinks when keyboard opens; window.innerHeight does NOT.
-// We set --vh on every resize so calc(var(--vh,1vh)*100) tracks the true visible height.
-function useViewportHeight() {
-  useEffect(() => {
-    function setVh() {
-      const h = window.visualViewport ? window.visualViewport.height : window.innerHeight
-      document.documentElement.style.setProperty('--vh', h * 0.01 + 'px')
-    }
-    setVh()
-    let debounce: ReturnType<typeof setTimeout>
-    function onResize() {
-      clearTimeout(debounce)
-      debounce = setTimeout(setVh, 16)
-    }
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', onResize)
-      window.visualViewport.addEventListener('scroll', onResize)
-    }
-    window.addEventListener('resize', onResize)
-    return () => {
-      clearTimeout(debounce)
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', onResize)
-        window.visualViewport.removeEventListener('scroll', onResize)
-      }
-      window.removeEventListener('resize', onResize)
-    }
-  }, [])
-}
-
 export default function MessagesPage() {
   const [conversations, setConversations] = useState<any[]>([])
   const [selected, setSelected] = useState<any>(null)
@@ -64,9 +33,6 @@ export default function MessagesPage() {
   const selectedRef = useRef<any>(null)
   const userEmailRef = useRef<string>('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-
-  // Apply --vh fix
-  useViewportHeight()
 
   useEffect(() => {
     const supabase = createClient()
@@ -122,6 +88,8 @@ export default function MessagesPage() {
     const text = input.trim()
     setInput('')
     if (textareaRef.current) { textareaRef.current.style.height = 'auto' }
+    // Scroll to bottom after send on mobile
+    setTimeout(() => window.scrollTo({ top: document.body.scrollHeight }), 50)
     const res = await fetch('/api/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -189,7 +157,7 @@ export default function MessagesPage() {
       <style>{`
         @media (max-width: 640px) {
           .msgs-desktop { display: none !important; }
-          .msgs-mobile { display: flex !important; }
+          .msgs-mobile { display: block !important; }
         }
         @media (min-width: 641px) {
           .msgs-mobile { display: none !important; }
@@ -198,49 +166,43 @@ export default function MessagesPage() {
       `}</style>
 
       {/* ── MOBILE ──
-          Key fix: use calc(var(--vh,1vh)*100 - 52px) for height, position:fixed.
-          --vh is set by useViewportHeight() and tracks visualViewport.height on iOS.
-          This means when the keyboard opens and visual viewport shrinks, --vh updates
-          and the container shrinks with it, keeping the input bar above the keyboard.
-          position:fixed (not absolute) anchors to the visual viewport, not layout viewport.
+          Natural document flow. NO position:fixed. NO --vh. NO visualViewport.
+          Input bar uses position:sticky bottom:0 — browser handles keyboard natively.
+          font-size:16px on textarea prevents iOS auto-zoom.
+          window.scrollTo after send keeps user at bottom.
       */}
       <div className="msgs-mobile" style={{
-        position: 'fixed',
-        top: 52,
-        left: 0,
-        right: 0,
-        height: 'calc(var(--vh, 1vh) * 100 - 52px)',
         background: '#fbfbfd',
-        display: 'flex',
-        flexDirection: 'column',
         fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
-        overflow: 'hidden',
+        minHeight: 'calc(100vh - 52px)',
       }}>
         {view === 'list' ? (
-          <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', padding: '1rem' }}>
+          <div style={{ padding: '1rem' }}>
             <div style={{ marginBottom: '1rem' }}>
               <p style={{ fontSize: 12, fontWeight: 600, color: '#0071e3', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '0.2rem' }}>Messages</p>
               <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.03em', color: '#1d1d1f' }}>Your inbox</h1>
             </div>
-            <div style={{ flex: 1, overflow: 'hidden' }}>{convList(openConversation)}</div>
+            <div style={{ height: 'calc(100vh - 160px)' }}>{convList(openConversation)}</div>
           </div>
         ) : selected ? (
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'white' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', background: 'white', minHeight: 'calc(100vh - 52px)' }}>
             {/* Header */}
-            <div style={{ background: 'white', borderBottom: '0.5px solid #e0e0e5', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
+            <div style={{ background: 'white', borderBottom: '0.5px solid #e0e0e5', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', position: 'sticky', top: 52, zIndex: 10 }}>
               <button onClick={() => setView('list')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#0071e3', fontSize: 20, padding: '0 0.25rem', lineHeight: 1 }}>←</button>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontSize: 15, fontWeight: 600, color: '#1d1d1f', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{getConvName(selected)}</p>
                 {selected.jobs?.role_title && <p style={{ fontSize: 12, color: '#0071e3', fontWeight: 500 }}>Re: {selected.jobs.role_title}</p>}
               </div>
             </div>
-            {/* Messages — flex-1 scrollable */}
-            <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' } as any}>
+            {/* Messages — natural scroll */}
+            <div style={{ flex: 1, padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.6rem', paddingBottom: '0.5rem' }}>
               {messages.map(msg => msgBubble(msg))}
               <div ref={messagesEndRef} />
             </div>
-            {/* Input bar — flexShrink:0 so it never gets squashed, sits above keyboard */}
+            {/* Input bar — sticky to bottom, browser pushes it up with keyboard */}
             <div style={{
+              position: 'sticky',
+              bottom: 0,
               background: 'white',
               borderTop: '0.5px solid #e0e0e5',
               padding: '0.625rem 0.875rem',
@@ -248,7 +210,6 @@ export default function MessagesPage() {
               display: 'flex',
               gap: '0.5rem',
               alignItems: 'flex-end',
-              flexShrink: 0,
             }}>
               <textarea ref={textareaRef} value={input}
                 onChange={e => { setInput(e.target.value); e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 96) + 'px' }}
@@ -266,7 +227,7 @@ export default function MessagesPage() {
         ) : null}
       </div>
 
-      {/* ── DESKTOP ── unchanged, works correctly */}
+      {/* ── DESKTOP ── unchanged */}
       <div className="msgs-desktop" style={{ minHeight: '100vh', background: '#fbfbfd', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
         <div style={{ maxWidth: 900, margin: '0 auto', padding: '4rem 1.5rem 2rem' }}>
           <div style={{ marginBottom: '1.5rem' }}>
@@ -275,7 +236,6 @@ export default function MessagesPage() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '1rem', height: 'calc(100vh - 220px)', minHeight: 500 }}>
             {convList(openConversation)}
-            {/* Desktop thread */}
             <div style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
               {!selected ? (
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', color: '#aeaeb2' }}>
