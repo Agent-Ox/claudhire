@@ -56,6 +56,7 @@ export default function EmployerDashboardClient({
   const [error, setError] = useState('')
   const [uploadingLogo, setUploadingLogo] = useState(false)
   const [deletingJobId, setDeletingJobId] = useState<string | null>(null)
+  const [togglingJobId, setTogglingJobId] = useState<string | null>(null)
   const [jobList, setJobList] = useState<any[]>(jobs)
   const [expandedJobId, setExpandedJobId] = useState<string | null>(null)
   const logoInputRef = useRef<HTMLInputElement>(null)
@@ -146,6 +147,20 @@ export default function EmployerDashboardClient({
     }
   }
 
+  const handleToggleJob = async (jobId: string, currentStatus: string) => {
+    setTogglingJobId(jobId)
+    const newStatus = currentStatus === 'active' ? 'paused' : 'active'
+    try {
+      const supabase = createClient()
+      await supabase.from('jobs').update({ status: newStatus }).eq('id', jobId).eq('employer_email', email)
+      setJobList(prev => prev.map(j => j.id === jobId ? { ...j, status: newStatus } : j))
+    } catch (e: any) {
+      setError(e.message)
+    } finally {
+      setTogglingJobId(null)
+    }
+  }
+
   const getJobApplications = (jobId: string) => applications.filter(a => a.job_id === jobId)
 
   return (
@@ -221,37 +236,47 @@ export default function EmployerDashboardClient({
             <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1d1d1f', letterSpacing: '-0.02em', marginBottom: '0.3rem' }}>Post a job</h3>
             <p style={{ fontSize: 13, color: '#6e6e73', lineHeight: 1.5 }}>List a role and let builders apply directly.</p>
           </a>
-          {jobList.length > 0 ? (
-            <a href={`/jobs`} style={{ display: 'block', background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.5rem', textDecoration: 'none' }}>
-              <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6e6e73', marginBottom: '0.5rem' }}>Active listings</p>
-              <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1d1d1f', letterSpacing: '-0.02em', marginBottom: '0.3rem' }}>{jobList.length} job{jobList.length !== 1 ? 's' : ''}</h3>
-              <p style={{ fontSize: 13, color: '#0071e3', lineHeight: 1.5, fontWeight: 500 }}>{jobList[0].role_title} →</p>
-            </a>
-          ) : (
-            <div style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.5rem' }}>
-              <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6e6e73', marginBottom: '0.5rem' }}>Active listings</p>
-              <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1d1d1f', letterSpacing: '-0.02em', marginBottom: '0.3rem' }}>0 jobs</h3>
-              <p style={{ fontSize: 13, color: '#6e6e73', lineHeight: 1.5 }}>No active listings yet.</p>
-            </div>
-          )}
         </div>
 
-        {jobList.length > 0 && (
-          <div style={{ marginBottom: '2.5rem' }}>
-            <h2 style={{ fontSize: 16, fontWeight: 600, color: '#1d1d1f', marginBottom: '1rem', letterSpacing: '-0.01em' }}>Your job listings</h2>
+        {/* Your job listings — merged section */}
+        <div style={{ marginBottom: '2.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+            <h2 style={{ fontSize: 16, fontWeight: 600, color: '#1d1d1f', letterSpacing: '-0.01em' }}>
+              Your listings {jobList.length > 0 && <span style={{ fontSize: 13, fontWeight: 400, color: '#6e6e73' }}>({jobList.length})</span>}
+            </h2>
+            <a href="/post-job" style={{ fontSize: 13, color: '#0071e3', textDecoration: 'none', fontWeight: 500 }}>+ Post a job</a>
+          </div>
+
+          {jobList.length === 0 ? (
+            <div style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '2rem', textAlign: 'center' }}>
+              <p style={{ fontSize: 14, color: '#6e6e73', marginBottom: '1rem' }}>No listings yet. Post a role and let builders apply directly.</p>
+              <a href="/post-job" style={{ fontSize: 13, padding: '0.5rem 1.25rem', background: '#0071e3', color: 'white', borderRadius: 980, textDecoration: 'none', fontWeight: 500 }}>Post a job →</a>
+            </div>
+          ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {jobList.map((job: any) => {
                 const expires = new Date(job.expires_at)
                 const daysLeft = Math.max(0, Math.ceil((expires.getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
                 const jobApps = getJobApplications(job.id)
                 const isExpanded = expandedJobId === job.id
+                const isActive = job.status === 'active'
+                const isPaused = job.status === 'paused'
+                const isToggling = togglingJobId === job.id
+
                 return (
-                  <div key={job.id} style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 12, overflow: 'hidden' }}>
-                    <div style={{ padding: '1.25rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <div style={{ flex: 1 }}>
-                        <p style={{ fontSize: 15, fontWeight: 600, color: '#1d1d1f', marginBottom: '0.2rem' }}>{job.role_title}</p>
-                        <p style={{ fontSize: 13, color: '#6e6e73' }}>
-                          {job.location} · {daysLeft} days left
+                  <div key={job.id} style={{ background: 'white', border: '1px solid', borderColor: isPaused ? '#e0e0e5' : '#e0e0e5', borderRadius: 12, overflow: 'hidden', opacity: isPaused ? 0.75 : 1, transition: 'opacity 0.2s' }}>
+                    <div style={{ padding: '1.25rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.2rem' }}>
+                          <p style={{ fontSize: 15, fontWeight: 600, color: '#1d1d1f', margin: 0 }}>{job.role_title}</p>
+                          <span style={{ fontSize: 11, padding: '0.15rem 0.5rem', borderRadius: 980, fontWeight: 600,
+                            background: isPaused ? '#f0f0f5' : daysLeft <= 7 ? '#fff3e0' : '#e3f3e3',
+                            color: isPaused ? '#6e6e73' : daysLeft <= 7 ? '#e65100' : '#1a7f37' }}>
+                            {isPaused ? 'Paused' : daysLeft <= 7 ? `${daysLeft}d left` : 'Active'}
+                          </span>
+                        </div>
+                        <p style={{ fontSize: 13, color: '#6e6e73', margin: 0 }}>
+                          {job.location} · {job.employment_type}
                           {jobApps.length > 0 && (
                             <span style={{ marginLeft: 8, background: '#e8f0fe', color: '#1a56db', borderRadius: 10, padding: '0.1rem 0.5rem', fontSize: 12, fontWeight: 500 }}>
                               {jobApps.length} applicant{jobApps.length !== 1 ? 's' : ''}
@@ -259,22 +284,33 @@ export default function EmployerDashboardClient({
                           )}
                         </p>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <span style={{ fontSize: 12, padding: '0.3rem 0.75rem', background: daysLeft <= 7 ? '#fff3e0' : '#e3f3e3', color: daysLeft <= 7 ? '#e65100' : '#1a7f37', borderRadius: 980, fontWeight: 500 }}>
-                          {daysLeft <= 7 ? `${daysLeft}d left` : 'Active'}
-                        </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        {/* View live */}
+                        <a href={`/jobs/${job.id}`} target="_blank"
+                          style={{ fontSize: 12, padding: '0.3rem 0.75rem', background: '#f5f5f7', color: '#1d1d1f', borderRadius: 980, textDecoration: 'none', fontWeight: 500 }}>
+                          View live →
+                        </a>
+                        {/* Applicants toggle */}
                         {jobApps.length > 0 && (
                           <button onClick={() => setExpandedJobId(isExpanded ? null : job.id)}
-                            style={{ fontSize: 12, padding: '0.3rem 0.75rem', background: '#f5f5f7', color: '#1d1d1f', border: 'none', borderRadius: 980, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500 }}>
-                            {isExpanded ? 'Hide' : 'View'} applicants
+                            style={{ fontSize: 12, padding: '0.3rem 0.75rem', background: '#e8f0fe', color: '#1a56db', border: 'none', borderRadius: 980, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500 }}>
+                            {isExpanded ? 'Hide' : `${jobApps.length} applicant${jobApps.length !== 1 ? 's' : ''}`}
                           </button>
                         )}
+                        {/* Edit */}
                         <a href={`/post-job?edit=${job.id}`}
                           style={{ fontSize: 12, padding: '0.3rem 0.75rem', background: '#f5f5f7', color: '#1d1d1f', borderRadius: 980, textDecoration: 'none', fontWeight: 500 }}>
                           Edit
                         </a>
+                        {/* Pause / Activate */}
+                        <button onClick={() => handleToggleJob(job.id, job.status)} disabled={isToggling}
+                          style={{ fontSize: 12, padding: '0.3rem 0.75rem', background: isPaused ? '#e3f3e3' : '#f5f5f7', color: isPaused ? '#1a7f37' : '#3d3d3f', border: '1px solid', borderColor: isPaused ? '#b3e0b3' : '#e0e0e5', borderRadius: 980, cursor: isToggling ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontWeight: 500, opacity: isToggling ? 0.5 : 1 }}>
+                          {isToggling ? '...' : isPaused ? 'Activate' : 'Pause'}
+                        </button>
+                        {/* Delete — demoted, text only */}
                         <button onClick={() => handleDeleteJob(job.id)} disabled={deletingJobId === job.id}
-                          style={{ fontSize: 12, padding: '0.3rem 0.75rem', background: 'white', color: '#c00', border: '1px solid #ffd0d0', borderRadius: 980, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500, opacity: deletingJobId === job.id ? 0.5 : 1 }}>
+                          style={{ fontSize: 12, padding: '0.3rem 0.5rem', background: 'none', color: '#aeaeb2', border: 'none', borderRadius: 980, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500, opacity: deletingJobId === job.id ? 0.5 : 1 }}
+                          title="Delete listing">
                           {deletingJobId === job.id ? '...' : 'Delete'}
                         </button>
                       </div>
@@ -313,8 +349,8 @@ export default function EmployerDashboardClient({
                 )
               })}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         <div style={{ borderTop: '0.5px solid #e0e0e5', paddingTop: '2rem', marginBottom: '2.5rem' }}>
           <div style={{ marginBottom: '0.5rem' }}>

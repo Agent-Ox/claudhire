@@ -30,6 +30,31 @@ function buildLiShareUrl(post: any) {
   return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://shipstacked.com/feed/${post.id}`)}`
 }
 
+function NativeShareButton({ postId, title, builderName }: { postId: string; title: string; builderName: string }) {
+  const [copied, setCopied] = useState(false)
+  const url = `https://shipstacked.com/feed/${postId}`
+
+  async function handleShare() {
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try { await navigator.share({ title: `${title} — ${builderName}`, text: `Check out this build on ShipStacked: ${title}`, url }) } catch {}
+    } else {
+      navigator.clipboard.writeText(url)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }
+
+  return (
+    <button onClick={handleShare} title="Share"
+      style={{ width: 30, height: 30, borderRadius: '50%', background: copied ? '#e3f3e3' : '#f0f0f5', border: '1px solid', borderColor: copied ? '#b3e0b3' : '#e0e0e5', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: copied ? '#1a7f37' : '#6e6e73', flexShrink: 0 }}>
+      {copied
+        ? <span style={{ fontSize: 11, fontWeight: 700 }}>✓</span>
+        : <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+      }
+    </button>
+  )
+}
+
 function PostCard({ post, onReact, onDelete, currentUserProfileId }: {
   post: any
   onReact: (postId: string, emoji: string) => void
@@ -99,6 +124,7 @@ function PostCard({ post, onReact, onDelete, currentUserProfileId }: {
               <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
             </svg>
           </a>
+          <NativeShareButton postId={post.id} title={post.title} builderName={profile?.full_name || ''} />
           {isOwner && (
             <button onClick={handleDelete} disabled={deleting}
               style={{ width: 30, height: 30, borderRadius: '50%', background: '#fff0f0', border: '1px solid #ffd0d0', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', opacity: deleting ? 0.5 : 1 }}
