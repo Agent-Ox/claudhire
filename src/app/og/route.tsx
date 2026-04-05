@@ -5,12 +5,69 @@ export const runtime = 'edge'
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
-  const username = searchParams.get('username')
+  const type = searchParams.get('type')       // 'company' | 'job' | null
+  const username = searchParams.get('username') // builder profile
+  const name = searchParams.get('name') || ''   // company name OR job title
+  const location = searchParams.get('location') || '' // company location OR company name for jobs
 
-  let name = 'ShipStacked Builder'
-  let role = 'AI-native builder'
+  // ── Company profile ──
+  if (type === 'company') {
+    const initials = name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase() || 'CO'
+    return new ImageResponse(
+      (
+        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#0a0a0f', padding: '60px', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '50%', background: 'radial-gradient(ellipse at 30% 0%, rgba(0,113,227,0.25) 0%, transparent 60%), radial-gradient(ellipse at 80% 0%, rgba(108,99,255,0.15) 0%, transparent 60%)', display: 'flex' }} />
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 'auto' }}>
+            <span style={{ fontSize: 28, fontWeight: 700, color: 'rgba(240,240,245,0.95)', letterSpacing: '-0.02em' }}>ShipStacked<span style={{ color: '#6c63ff' }}>.</span></span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', marginBottom: 48 }}>
+            <div style={{ width: 80, height: 80, borderRadius: 18, background: 'linear-gradient(135deg, #0071e3, #0055b3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 700, color: 'white', marginBottom: 24 }}>
+              {initials}
+            </div>
+            <span style={{ fontSize: 52, fontWeight: 700, color: 'rgba(240,240,245,0.95)', letterSpacing: '-0.03em', marginBottom: 12 }}>{name || 'Company'}</span>
+            {location && <span style={{ fontSize: 24, color: 'rgba(240,240,245,0.5)' }}>📍 {location}</span>}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 24 }}>
+            <span style={{ fontSize: 18, color: 'rgba(167,139,250,0.8)' }}>shipstacked.com</span>
+            <span style={{ fontSize: 16, color: '#34d399' }}>Hiring on ShipStacked</span>
+          </div>
+        </div>
+      ),
+      { width: 1200, height: 630 }
+    )
+  }
+
+  // ── Job listing ──
+  if (type === 'job') {
+    return new ImageResponse(
+      (
+        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#0a0a0f', padding: '60px', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '50%', background: 'radial-gradient(ellipse at 50% 0%, rgba(26,127,55,0.2) 0%, transparent 60%)', display: 'flex' }} />
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 'auto' }}>
+            <span style={{ fontSize: 28, fontWeight: 700, color: 'rgba(240,240,245,0.95)', letterSpacing: '-0.02em' }}>ShipStacked<span style={{ color: '#6c63ff' }}>.</span></span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', marginBottom: 48 }}>
+            <div style={{ display: 'inline-flex', background: 'rgba(26,127,55,0.2)', border: '1px solid rgba(26,127,55,0.4)', borderRadius: 12, padding: '8px 20px', marginBottom: 28, width: 'fit-content' }}>
+              <span style={{ fontSize: 16, fontWeight: 600, color: '#34d399', letterSpacing: '0.05em' }}>NOW HIRING</span>
+            </div>
+            <span style={{ fontSize: name.length > 30 ? 42 : 54, fontWeight: 700, color: 'rgba(240,240,245,0.95)', letterSpacing: '-0.03em', marginBottom: 16, lineHeight: 1.1 }}>{name || 'Open Role'}</span>
+            {location && <span style={{ fontSize: 26, color: 'rgba(240,240,245,0.5)' }}>{location}</span>}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 24 }}>
+            <span style={{ fontSize: 18, color: 'rgba(167,139,250,0.8)' }}>shipstacked.com/jobs</span>
+            <span style={{ fontSize: 16, color: 'rgba(240,240,245,0.3)' }}>AI-native roles</span>
+          </div>
+        </div>
+      ),
+      { width: 1200, height: 630 }
+    )
+  }
+
+  // ── Builder profile (username param) ──
+  let builderName = 'ShipStacked Builder'
+  let builderRole = 'AI-native builder'
   let verified = false
-  let location = ''
+  let builderLocation = ''
 
   if (username) {
     try {
@@ -21,103 +78,56 @@ export async function GET(req: Request) {
         .eq('username', username)
         .eq('published', true)
         .maybeSingle()
-
       if (profile) {
-        name = profile.full_name || name
-        role = profile.role || role
+        builderName = profile.full_name || builderName
+        builderRole = profile.role || builderRole
         verified = profile.verified || false
-        location = profile.location || ''
+        builderLocation = profile.location || ''
       }
     } catch {}
   }
 
+  // Builder card (with username) or default ShipStacked card (no params)
+  if (username) {
+    return new ImageResponse(
+      (
+        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#0a0a0f', padding: '60px', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '50%', background: 'radial-gradient(ellipse at 20% 0%, rgba(108,99,255,0.3) 0%, transparent 60%), radial-gradient(ellipse at 80% 0%, rgba(167,139,250,0.2) 0%, transparent 60%)', display: 'flex' }} />
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 'auto' }}>
+            <span style={{ fontSize: 28, fontWeight: 700, color: 'rgba(240,240,245,0.95)', letterSpacing: '-0.02em' }}>ShipStacked<span style={{ color: '#6c63ff' }}>.</span></span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', marginBottom: 48 }}>
+            <div style={{ width: 80, height: 80, borderRadius: 40, background: 'linear-gradient(135deg, #6c63ff, #a78bfa)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 700, color: 'white', marginBottom: 24 }}>
+              {builderName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
+              <span style={{ fontSize: 52, fontWeight: 700, color: 'rgba(240,240,245,0.95)', letterSpacing: '-0.03em' }}>{builderName}</span>
+              {verified && (
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#34d399', background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)', padding: '4px 14px', borderRadius: 20, letterSpacing: '0.06em' }}>VERIFIED</span>
+              )}
+            </div>
+            <span style={{ fontSize: 26, color: 'rgba(240,240,245,0.6)', marginBottom: 8 }}>{builderRole}</span>
+            {builderLocation && <span style={{ fontSize: 20, color: 'rgba(240,240,245,0.4)' }}>{builderLocation}</span>}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 24 }}>
+            <span style={{ fontSize: 18, color: 'rgba(167,139,250,0.8)' }}>shipstacked.com</span>
+            <span style={{ fontSize: 16, color: 'rgba(240,240,245,0.3)' }}>The home for AI-native talent</span>
+          </div>
+        </div>
+      ),
+      { width: 1200, height: 630 }
+    )
+  }
+
+  // ── Default ShipStacked OG (no params) ──
   return new ImageResponse(
     (
-      <div
-        style={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          background: '#0a0a0f',
-          padding: '60px',
-          fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
-        }}
-      >
-        {/* Purple gradient mesh */}
-        <div style={{
-          position: 'absolute',
-          top: 0, left: 0, right: 0, height: '50%',
-          background: 'radial-gradient(ellipse at 20% 0%, rgba(108,99,255,0.3) 0%, transparent 60%), radial-gradient(ellipse at 80% 0%, rgba(167,139,250,0.2) 0%, transparent 60%)',
-          display: 'flex',
-        }} />
-
-        {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 'auto' }}>
-          <span style={{ fontSize: 28, fontWeight: 700, color: 'rgba(240,240,245,0.95)', letterSpacing: '-0.02em' }}>
-            ShipStacked<span style={{ color: '#6c63ff' }}>.</span>
-          </span>
-        </div>
-
-        {/* Profile info */}
-        <div style={{ display: 'flex', flexDirection: 'column', marginBottom: 48 }}>
-          {/* Avatar circle */}
-          <div style={{
-            width: 80, height: 80, borderRadius: 40,
-            background: 'linear-gradient(135deg, #6c63ff, #a78bfa)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 28, fontWeight: 700, color: 'white',
-            marginBottom: 24,
-          }}>
-            {name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
-            <span style={{ fontSize: 52, fontWeight: 700, color: 'rgba(240,240,245,0.95)', letterSpacing: '-0.03em' }}>
-              {name}
-            </span>
-            {verified && (
-              <span style={{
-                fontSize: 14, fontWeight: 700, color: '#34d399',
-                background: 'rgba(52,211,153,0.15)',
-                border: '1px solid rgba(52,211,153,0.3)',
-                padding: '4px 14px', borderRadius: 20,
-                letterSpacing: '0.06em',
-              }}>
-                VERIFIED
-              </span>
-            )}
-          </div>
-
-          <span style={{ fontSize: 26, color: 'rgba(240,240,245,0.6)', marginBottom: 8 }}>
-            {role}
-          </span>
-
-          {location && (
-            <span style={{ fontSize: 20, color: 'rgba(240,240,245,0.4)' }}>
-              {location}
-            </span>
-          )}
-        </div>
-
-        {/* Bottom bar */}
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          borderTop: '1px solid rgba(255,255,255,0.08)',
-          paddingTop: 24,
-        }}>
-          <span style={{ fontSize: 18, color: 'rgba(167,139,250,0.8)' }}>
-            shipstacked.com
-          </span>
-          <span style={{ fontSize: 16, color: 'rgba(240,240,245,0.3)' }}>
-            The home for AI-native talent
-          </span>
-        </div>
+      <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0a0a0f', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'radial-gradient(ellipse at 50% 30%, rgba(108,99,255,0.25) 0%, transparent 60%)', display: 'flex' }} />
+        <span style={{ fontSize: 72, fontWeight: 700, color: 'rgba(240,240,245,0.95)', letterSpacing: '-0.04em', marginBottom: 24 }}>ShipStacked<span style={{ color: '#6c63ff' }}>.</span></span>
+        <span style={{ fontSize: 28, color: 'rgba(240,240,245,0.5)', fontWeight: 300 }}>The proof-of-work platform for AI-native builders</span>
       </div>
     ),
-    {
-      width: 1200,
-      height: 630,
-    }
+    { width: 1200, height: 630 }
   )
 }
