@@ -182,6 +182,15 @@ export default function AgentOnboarding() {
           </button>
         </div>
 
+        {/* Photo note */}
+        <div style={{ background: '#f5f5f7', border: '1px solid #e8e8ed', borderRadius: 12, padding: '1rem 1.25rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+          <span style={{ fontSize: 18, flexShrink: 0 }}>📸</span>
+          <div>
+            <p style={{ fontSize: 13, fontWeight: 600, color: '#1d1d1f', marginBottom: '0.2rem' }}>Profile photo</p>
+            <p style={{ fontSize: 13, color: '#6e6e73', lineHeight: 1.6 }}>Your agent will handle everything else. Add a profile photo from your dashboard once your profile is live — or give your agent a hosted image URL and it will upload it automatically using <code style={{ fontFamily: 'monospace', fontSize: 12, background: '#e8e8ed', padding: '0.1rem 0.3rem', borderRadius: 4 }}>POST /api/v1/avatar</code>.</p>
+          </div>
+        </div>
+
         {/* Footer links */}
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <a href="/api-docs" style={{ fontSize: 13, padding: '0.5rem 1.25rem', background: '#0071e3', color: 'white', borderRadius: 980, textDecoration: 'none', fontWeight: 500 }}>

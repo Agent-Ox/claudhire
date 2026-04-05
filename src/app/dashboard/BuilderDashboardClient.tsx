@@ -43,6 +43,7 @@ export default function BuilderDashboardClient({
   githubData,
   velocityScore: initialScore,
   provenPostCount,
+  agentMode = false,
 }: {
   profile: any
   applications: any[]
@@ -51,6 +52,7 @@ export default function BuilderDashboardClient({
   githubData: any | null
   velocityScore: number
   provenPostCount: number
+  agentMode?: boolean
 }) {
   const [requestSent, setRequestSent] = useState(false)
   const [requesting, setRequesting] = useState(false)
@@ -281,6 +283,22 @@ export default function BuilderDashboardClient({
                 <a href={"/u/" + profile.username} style={{ padding: '0.5rem 1rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 13, fontWeight: 500, textDecoration: 'none' }}>View live</a>
               </div>
             </div>
+
+            {/* Photo nudge — show if profile has no avatar */}
+            {!profile.avatar_url && (
+              <div style={{ background: '#fffbea', border: '1px solid #fde68a', borderRadius: 14, padding: '1rem 1.25rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{ fontSize: 20, flexShrink: 0 }}>📸</span>
+                  <div>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: '#92400e', marginBottom: '0.1rem' }}>Add a profile photo</p>
+                    <p style={{ fontSize: 12, color: '#a16207', lineHeight: 1.5 }}>Profiles with photos get more employer attention. Takes 10 seconds.</p>
+                  </div>
+                </div>
+                <a href=/dashboard/edit style={{ fontSize: 13, padding: '0.4rem 0.875rem', background: '#f59e0b', color: 'white', borderRadius: 980, textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0 }}>
+                  Add photo →
+                </a>
+              </div>
+            )}
 
             {/* Build Feed */}
             <div style={{ marginBottom: '1rem' }}>
