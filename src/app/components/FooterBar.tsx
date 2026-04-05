@@ -58,6 +58,7 @@ export default function FooterBar() {
           <a href={hireHref} style={linkStyle}>Hire talent</a>
           <Link href="/feed" style={linkStyle}>Build Feed</Link>
           <Link href="/leaderboard" style={linkStyle}>Leaderboard</Link>
+          <Link href="/jobs" style={linkStyle}>Jobs</Link>
           <Link href="/join" style={linkStyle}>Join</Link>
           <Link href="/api-docs" style={linkStyle}>Builder API</Link>
           <Link href="/terms" style={linkStyle}>Terms</Link>
