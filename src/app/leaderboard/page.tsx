@@ -52,6 +52,20 @@ export default async function LeaderboardPage() {
           </p>
         </div>
 
+        <style>{`
+          .lb-row {
+            display: flex; align-items: center; gap: 1rem;
+            background: white; border: 1px solid #e0e0e5; border-radius: 16px;
+            padding: 1rem 1.25rem; text-decoration: none; color: inherit;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+          }
+          .lb-row:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+          .lb-gold   { border-color: rgba(255,199,0,0.4); box-shadow: 0 2px 12px rgba(255,199,0,0.12); }
+          .lb-silver { border-color: rgba(180,180,190,0.4); }
+          .lb-bronze { border-color: rgba(180,120,60,0.3); }
+          .lb-gold:hover { box-shadow: 0 6px 20px rgba(255,199,0,0.2); }
+        `}</style>
+
         {/* List */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {top.map((builder: any, i: number) => {
@@ -64,17 +78,7 @@ export default async function LeaderboardPage() {
               <a
                 key={builder.id}
                 href={`/u/${builder.username}`}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '1rem',
-                  background: 'white', border: '1px solid',
-                  borderColor: i === 0 ? 'rgba(255,199,0,0.4)' : i === 1 ? 'rgba(180,180,190,0.4)' : i === 2 ? 'rgba(180,120,60,0.3)' : '#e0e0e5',
-                  borderRadius: 16, padding: '1rem 1.25rem',
-                  textDecoration: 'none', color: 'inherit',
-                  transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-                  boxShadow: i === 0 ? '0 2px 12px rgba(255,199,0,0.12)' : 'none',
-                }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px rgba(0,0,0,0.08)' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = ''; (e.currentTarget as HTMLElement).style.boxShadow = i === 0 ? '0 2px 12px rgba(255,199,0,0.12)' : 'none' }}
+                className={i === 0 ? 'lb-row lb-gold' : i === 1 ? 'lb-row lb-silver' : i === 2 ? 'lb-row lb-bronze' : 'lb-row'}
               >
                 {/* Rank */}
                 <div style={{ width: 32, textAlign: 'center', flexShrink: 0 }}>
