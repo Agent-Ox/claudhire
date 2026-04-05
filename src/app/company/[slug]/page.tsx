@@ -1,4 +1,5 @@
 import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { createClient } from '@supabase/supabase-js'
 import { notFound } from 'next/navigation'
 import { getResolvedUser } from '@/lib/user'
 import Link from 'next/link'
@@ -52,7 +53,11 @@ export default async function CompanyProfilePage({ params }: { params: Promise<{
   // Fetch which jobs this builder has already applied to
   let appliedJobIds: string[] = []
   if (isBuilder && resolvedUser) {
-    const { data: applications } = await supabase
+    const admin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+    const { data: applications } = await admin
       .from('applications')
       .select('job_id')
       .eq('builder_email', resolvedUser.email)
