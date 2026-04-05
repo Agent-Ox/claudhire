@@ -77,7 +77,7 @@ export default function AgentOnboarding() {
                   value={fullName}
                   onChange={e => setFullName(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter' && fullName.trim()) { (document.getElementById('get-started-btn') as HTMLButtonElement)?.click() } }}
-                  placeholder="Maya Okonkwo"
+                  placeholder="Your full name (e.g. Jenny Peterson)"
                   style={{ flex: 1, minWidth: 200, padding: '0.6rem 1rem', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 980, fontSize: 14, fontFamily: 'inherit', outline: 'none', color: '#f0f0f5' }}
                 />
                 <button id="get-started-btn" disabled={!fullName.trim() || keysLoading} onClick={async () => {
