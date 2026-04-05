@@ -155,14 +155,54 @@ export default function EmployerDashboardClient({
           <p style={{ fontSize: 15, color: '#6e6e73' }}>Full Access · active<span style={{ margin: '0 0.5rem', color: '#d2d2d7' }}>·</span>Renews {renewsString}</p>
         </div>
 
-        <a href="/talent" style={{ display: 'block', background: '#0071e3', borderRadius: 18, padding: '2rem 2.5rem', textDecoration: 'none', marginBottom: '1rem' }}>
+        {!hasProfile && (
+          <div style={{ background: 'linear-gradient(135deg, #f0f7ff, #e8f4fd)', border: '1px solid #b8d9f8', borderRadius: 16, padding: '1.5rem 1.75rem', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: 200 }}>
+                <p style={{ fontSize: 12, fontWeight: 700, color: '#0071e3', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '0.4rem' }}>Getting started</p>
+                <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1d1d1f', letterSpacing: '-0.01em', marginBottom: '0.5rem' }}>Welcome to ShipStacked.</h3>
+                <p style={{ fontSize: 14, color: '#3d3d3f', lineHeight: 1.65, marginBottom: '0.75rem' }}>
+                  You have full access to the builder directory. To get started: browse talent, message builders you like, and set up your company profile so builders know who is reaching out.
+                </p>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <a href="/talent" style={{ fontSize: 13, padding: '0.5rem 1rem', background: '#0071e3', color: 'white', borderRadius: 980, textDecoration: 'none', fontWeight: 600 }}>Browse builders →</a>
+                  <a href="#company-form" style={{ fontSize: 13, padding: '0.5rem 1rem', background: 'white', color: '#0071e3', border: '1px solid #b8d9f8', borderRadius: 980, textDecoration: 'none', fontWeight: 500 }}>Set up company profile</a>
+                </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flexShrink: 0 }}>
+                {[
+                  { n: '01', t: 'Browse the directory', done: false },
+                  { n: '02', t: 'Message a builder', done: false },
+                  { n: '03', t: 'Set up your company profile', done: false },
+                ].map(s => (
+                  <div key={s.n} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 13, color: '#3d3d3f' }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#0071e3', fontFamily: 'monospace', width: 20 }}>{s.n}</span>
+                    {s.t}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+                <a href="/talent" style={{ display: 'block', background: '#0071e3', borderRadius: 18, padding: '2rem 2.5rem', textDecoration: 'none', marginBottom: '1rem' }}>
           <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: '0.5rem' }}>Core product</p>
           <h2 style={{ fontSize: 26, fontWeight: 700, color: 'white', letterSpacing: '-0.02em', marginBottom: '0.4rem' }}>Search talent</h2>
           <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.8)', marginBottom: '1.5rem' }}>Browse and contact verified AI-native builders directly.</p>
           <span style={{ display: 'inline-block', background: 'white', color: '#0071e3', padding: '0.6rem 1.25rem', borderRadius: 980, fontSize: 14, fontWeight: 600 }}>Browse talent →</span>
         </a>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px,100%), 1fr))', gap: '1rem', marginBottom: '2.5rem' }}>
+          <a href="/talent" style={{ display: 'block', background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.5rem', textDecoration: 'none' }}>
+            <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6e6e73', marginBottom: '0.5rem' }}>Directory</p>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1d1d1f', letterSpacing: '-0.02em', marginBottom: '0.3rem' }}>Browse talent</h3>
+            <p style={{ fontSize: 13, color: '#6e6e73', lineHeight: 1.5 }}>Find verified AI-native builders and message them directly.</p>
+          </a>
+          <a href="/employer/messages" style={{ display: 'block', background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.5rem', textDecoration: 'none' }}>
+            <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6e6e73', marginBottom: '0.5rem' }}>Conversations</p>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1d1d1f', letterSpacing: '-0.02em', marginBottom: '0.3rem' }}>Messages</h3>
+            <p style={{ fontSize: 13, color: '#6e6e73', lineHeight: 1.5 }}>Your conversations with builders.</p>
+          </a>
           <a href="/post-job" style={{ display: 'block', background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.5rem', textDecoration: 'none' }}>
             <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6e6e73', marginBottom: '0.5rem' }}>Hiring</p>
             <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1d1d1f', letterSpacing: '-0.02em', marginBottom: '0.3rem' }}>Post a job</h3>
