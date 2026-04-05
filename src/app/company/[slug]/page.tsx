@@ -49,6 +49,16 @@ export default async function CompanyProfilePage({ params }: { params: Promise<{
     .gt('expires_at', new Date().toISOString())
     .order('created_at', { ascending: false })
 
+  // Fetch which jobs this builder has already applied to
+  let appliedJobIds: string[] = []
+  if (isBuilder && resolvedUser) {
+    const { data: applications } = await supabase
+      .from('applications')
+      .select('job_id')
+      .eq('builder_email', resolvedUser.email)
+    appliedJobIds = applications?.map((a: any) => a.job_id) || []
+  }
+
   const initials = company.company_name
     .split(' ')
     .map((w: string) => w[0])
@@ -163,7 +173,7 @@ export default async function CompanyProfilePage({ params }: { params: Promise<{
                       ))}
                     </div>
                   )}
-                  {isBuilder && <ApplyButton jobId={job.id} jobTitle={job.role_title} companyName={company.company_name} />}
+                  {isBuilder && <ApplyButton jobId={job.id} jobTitle={job.role_title} companyName={company.company_name} alreadyApplied={appliedJobIds.includes(job.id)} />}
                   {isVisitor && (
                     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                       <a href={'/login?next=/company/' + slug}
