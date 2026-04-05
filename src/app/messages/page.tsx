@@ -9,18 +9,46 @@ function timeAgo(date: string) {
   const seconds = Math.floor((now.getTime() - d.getTime()) / 1000)
   if (seconds < 60) return 'just now'
   if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago'
-  // Same day — show clock time in local timezone
   if (d.toDateString() === now.toDateString()) {
     return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   }
-  // Yesterday
   const yesterday = new Date(now)
   yesterday.setDate(yesterday.getDate() - 1)
   if (d.toDateString() === yesterday.toDateString()) {
     return 'Yesterday ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   }
-  // Older — show date + time
   return d.toLocaleDateString([], { day: 'numeric', month: 'short' }) + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
+
+// iOS Safari keyboard fix — Telegram --vh approach
+// visualViewport.height shrinks when keyboard opens; window.innerHeight does NOT.
+// We set --vh on every resize so calc(var(--vh,1vh)*100) tracks the true visible height.
+function useViewportHeight() {
+  useEffect(() => {
+    function setVh() {
+      const h = window.visualViewport ? window.visualViewport.height : window.innerHeight
+      document.documentElement.style.setProperty('--vh', h * 0.01 + 'px')
+    }
+    setVh()
+    let debounce: ReturnType<typeof setTimeout>
+    function onResize() {
+      clearTimeout(debounce)
+      debounce = setTimeout(setVh, 16)
+    }
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', onResize)
+      window.visualViewport.addEventListener('scroll', onResize)
+    }
+    window.addEventListener('resize', onResize)
+    return () => {
+      clearTimeout(debounce)
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', onResize)
+        window.visualViewport.removeEventListener('scroll', onResize)
+      }
+      window.removeEventListener('resize', onResize)
+    }
+  }, [])
 }
 
 export default function MessagesPage() {
@@ -37,8 +65,8 @@ export default function MessagesPage() {
   const userEmailRef = useRef<string>('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  useEffect(() => {
-  }, [])
+  // Apply --vh fix
+  useViewportHeight()
 
   useEffect(() => {
     const supabase = createClient()
@@ -62,11 +90,10 @@ export default function MessagesPage() {
     return () => { supabase.removeChannel(channel) }
   }, [])
 
-
   useEffect(() => { selectedRef.current = selected }, [selected])
   useEffect(() => { userEmailRef.current = userEmail }, [userEmail])
   useEffect(() => {
-    setTimeout(() => { messagesEndRef.current?.scrollIntoView({ behavior: window.innerWidth <= 640 ? 'auto' : 'smooth' }) }, 80)
+    setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
   }, [messages])
 
   const loadConversations = async () => {
@@ -95,10 +122,6 @@ export default function MessagesPage() {
     const text = input.trim()
     setInput('')
     if (textareaRef.current) { textareaRef.current.style.height = 'auto' }
-    // Scroll to bottom on mobile after send
-    if (window.innerWidth <= 640) {
-      setTimeout(() => window.scrollTo({ top: document.body.scrollHeight }), 50)
-    }
     const res = await fetch('/api/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -128,22 +151,6 @@ export default function MessagesPage() {
       </div>
     )
   }
-
-  const inputBar = (
-    <div style={{ borderTop: '0.5px solid #e0e0e5', background: 'white', padding: '0.625rem 0.875rem', paddingBottom: 'max(0.625rem, env(safe-area-inset-bottom))', display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
-      <textarea ref={textareaRef} value={input}
-        onChange={e => { setInput(e.target.value); e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 96) + 'px' }}
-        onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}
-        placeholder="Message..."
-        rows={1}
-        style={{ flex: 1, padding: '0.55rem 0.875rem', border: 'none', borderRadius: 20, fontSize: 16, fontFamily: 'inherit', outline: 'none', resize: 'none', minHeight: 36, maxHeight: 96, background: '#f0f0f5' }}
-      />
-      <button onClick={sendMessage} disabled={!input.trim() || sending}
-        style={{ width: 36, height: 36, borderRadius: '50%', background: !input.trim() || sending ? '#d2d2d7' : '#0071e3', border: 'none', cursor: !input.trim() || sending ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginRight: 4 }}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-      </button>
-    </div>
-  )
 
   const convList = (onSelect: (c: any) => void) => (
     <div style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -190,10 +197,22 @@ export default function MessagesPage() {
         }
       `}</style>
 
-      {/* ── MOBILE ── full height flex column, keyboard-safe */}
+      {/* ── MOBILE ──
+          Key fix: use calc(var(--vh,1vh)*100 - 52px) for height, position:fixed.
+          --vh is set by useViewportHeight() and tracks visualViewport.height on iOS.
+          This means when the keyboard opens and visual viewport shrinks, --vh updates
+          and the container shrinks with it, keeping the input bar above the keyboard.
+          position:fixed (not absolute) anchors to the visual viewport, not layout viewport.
+      */}
       <div className="msgs-mobile" style={{
-        position: 'absolute', top: 52, left: 0, right: 0, bottom: 0,
-        background: '#fbfbfd', display: 'flex', flexDirection: 'column',
+        position: 'fixed',
+        top: 52,
+        left: 0,
+        right: 0,
+        height: 'calc(var(--vh, 1vh) * 100 - 52px)',
+        background: '#fbfbfd',
+        display: 'flex',
+        flexDirection: 'column',
         fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
         overflow: 'hidden',
       }}>
@@ -215,13 +234,22 @@ export default function MessagesPage() {
                 {selected.jobs?.role_title && <p style={{ fontSize: 12, color: '#0071e3', fontWeight: 500 }}>Re: {selected.jobs.role_title}</p>}
               </div>
             </div>
-            {/* Messages — scrollable flex-1 */}
+            {/* Messages — flex-1 scrollable */}
             <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' } as any}>
               {messages.map(msg => msgBubble(msg))}
               <div ref={messagesEndRef} />
             </div>
-            {/* Input — at bottom of flex column, keyboard pushes it up via the absolute container shrinking */}
-            <div style={{ background: 'white', borderTop: '0.5px solid #e0e0e5', padding: '0.625rem 0.875rem', paddingBottom: 'max(0.625rem, env(safe-area-inset-bottom))', display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexShrink: 0 }}>
+            {/* Input bar — flexShrink:0 so it never gets squashed, sits above keyboard */}
+            <div style={{
+              background: 'white',
+              borderTop: '0.5px solid #e0e0e5',
+              padding: '0.625rem 0.875rem',
+              paddingBottom: 'max(0.625rem, env(safe-area-inset-bottom))',
+              display: 'flex',
+              gap: '0.5rem',
+              alignItems: 'flex-end',
+              flexShrink: 0,
+            }}>
               <textarea ref={textareaRef} value={input}
                 onChange={e => { setInput(e.target.value); e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 96) + 'px' }}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}
@@ -238,7 +266,7 @@ export default function MessagesPage() {
         ) : null}
       </div>
 
-      {/* ── DESKTOP ── normal scrolling layout with split pane */}
+      {/* ── DESKTOP ── unchanged, works correctly */}
       <div className="msgs-desktop" style={{ minHeight: '100vh', background: '#fbfbfd', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
         <div style={{ maxWidth: 900, margin: '0 auto', padding: '4rem 1.5rem 2rem' }}>
           <div style={{ marginBottom: '1.5rem' }}>
