@@ -66,7 +66,7 @@ export default function MessagesPage() {
   useEffect(() => { selectedRef.current = selected }, [selected])
   useEffect(() => { userEmailRef.current = userEmail }, [userEmail])
   useEffect(() => {
-    setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
+    setTimeout(() => { messagesEndRef.current?.scrollIntoView({ behavior: window.innerWidth <= 640 ? 'auto' : 'smooth' }) }, 80)
   }, [messages])
 
   const loadConversations = async () => {
@@ -95,6 +95,10 @@ export default function MessagesPage() {
     const text = input.trim()
     setInput('')
     if (textareaRef.current) { textareaRef.current.style.height = 'auto' }
+    // Scroll to bottom on mobile after send
+    if (window.innerWidth <= 640) {
+      setTimeout(() => window.scrollTo({ top: document.body.scrollHeight }), 50)
+    }
     const res = await fetch('/api/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
