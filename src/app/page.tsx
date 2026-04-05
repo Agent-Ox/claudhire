@@ -476,6 +476,8 @@ export default function Home() {
             <Link href="/feed">Build Feed</Link>
             <Link href="/join">Join</Link>
             <Link href="/api-docs">Builder API</Link>
+            <Link href="/terms">Terms</Link>
+            <Link href="/privacy">Privacy</Link>
           </div>
           <p className="footer-copy">© 2026 ShipStacked. All rights reserved.</p>
         </div>

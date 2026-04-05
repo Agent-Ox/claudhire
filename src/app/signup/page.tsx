@@ -224,7 +224,7 @@ function SignupForm() {
         )}
 
         <p style={{ fontSize: 11, color: '#aeaeb2', textAlign: 'center', marginTop: '1rem', lineHeight: 1.5 }}>
-          By continuing you agree to our terms of service.
+          By continuing you agree to our <a href='/terms' style={{ color: '#0071e3', textDecoration: 'none' }}>Terms of Service</a> and <a href='/privacy' style={{ color: '#0071e3', textDecoration: 'none' }}>Privacy Policy</a>.
         </p>
       </div>
     </div>
