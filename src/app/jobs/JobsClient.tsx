@@ -3,7 +3,12 @@
 import { useState } from 'react'
 import Link from 'next/link'
 
-function ApplyButton({ job, alreadyApplied }: { job: any; alreadyApplied: boolean }) {
+function JobCard({ job, isBuilder, isLoggedOut, alreadyApplied }: {
+  job: any
+  isBuilder: boolean
+  isLoggedOut: boolean
+  alreadyApplied: boolean
+}) {
   const [state, setState] = useState<'idle' | 'loading' | 'done' | 'error'>(alreadyApplied ? 'done' : 'idle')
   const [errorMsg, setErrorMsg] = useState('')
 
@@ -29,33 +34,79 @@ function ApplyButton({ job, alreadyApplied }: { job: any; alreadyApplied: boolea
     }
   }
 
-  if (state === 'done') {
-    return (
-      <span style={{ fontSize: 13, fontWeight: 600, color: '#1a7f37', background: '#e3f3e3', padding: '0.5rem 1.25rem', borderRadius: 980 }}>
-        Applied ✓
-      </span>
-    )
-  }
-
-  if (state === 'error') {
-    return (
-      <span style={{ fontSize: 12, color: '#c0392b' }}>{errorMsg}</span>
-    )
-  }
+  const justApplied = state === 'done' && !alreadyApplied
 
   return (
-    <button
-      onClick={handleApply}
-      disabled={state === 'loading'}
-      style={{
-        padding: '0.5rem 1.25rem', background: state === 'loading' ? '#6e6e73' : '#0071e3',
-        color: 'white', borderRadius: 980, fontSize: 13, fontWeight: 500,
-        border: 'none', cursor: state === 'loading' ? 'not-allowed' : 'pointer',
-        fontFamily: 'inherit',
-      }}
-    >
-      {state === 'loading' ? 'Applying...' : 'Apply →'}
-    </button>
+    <div style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.75rem' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', marginBottom: '0.75rem' }}>
+        <div>
+          <h2 style={{ fontSize: 17, fontWeight: 600, color: '#1d1d1f', letterSpacing: '-0.02em', margin: '0 0 0.2rem' }}>{job.role_title}</h2>
+          <p style={{ fontSize: 14, color: '#6e6e73', margin: 0 }}>{job.company_name} · {job.location} · {job.employment_type}</p>
+        </div>
+        {job.salary_range && (
+          <span style={{ fontSize: 13, fontWeight: 500, color: '#1a7f37', background: '#e3f3e3', padding: '0.3rem 0.75rem', borderRadius: 980, whiteSpace: 'nowrap', flexShrink: 0 }}>
+            {job.salary_range}
+          </span>
+        )}
+      </div>
+
+      <p style={{ fontSize: 14, color: '#3d3d3f', lineHeight: 1.6, marginBottom: '1rem', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+        {job.description}
+      </p>
+
+      {job.skills && job.skills.length > 0 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: '1.25rem' }}>
+          {job.skills.slice(0, 6).map((skill: string) => (
+            <span key={skill} style={{ fontSize: 12, padding: '0.25rem 0.6rem', background: '#f0f0f5', borderRadius: 980, color: '#3d3d3f', fontWeight: 500 }}>
+              {skill}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <span style={{ fontSize: 12, color: '#aeaeb2' }}>
+          Posted {new Date(job.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+        </span>
+
+        {isBuilder && state === 'done' && (
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#1a7f37', background: '#e3f3e3', padding: '0.5rem 1.25rem', borderRadius: 980 }}>
+            Applied ✓
+          </span>
+        )}
+        {isBuilder && state === 'loading' && (
+          <button disabled style={{ padding: '0.5rem 1.25rem', background: '#6e6e73', color: 'white', borderRadius: 980, fontSize: 13, fontWeight: 500, border: 'none', fontFamily: 'inherit', cursor: 'not-allowed' }}>
+            Applying...
+          </button>
+        )}
+        {isBuilder && state === 'idle' && (
+          <button onClick={handleApply} style={{ padding: '0.5rem 1.25rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 13, fontWeight: 500, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+            Apply →
+          </button>
+        )}
+        {isBuilder && state === 'error' && (
+          <span style={{ fontSize: 12, color: '#c0392b' }}>{errorMsg}</span>
+        )}
+        {isLoggedOut && (
+          <Link href="/login" style={{ padding: '0.5rem 1.25rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 13, fontWeight: 500, textDecoration: 'none' }}>
+            Sign in to apply →
+          </Link>
+        )}
+        {/* Employer/admin — no action */}
+      </div>
+
+      {/* Inline success notification — only shows the moment they apply, not on page load */}
+      {isBuilder && justApplied && (
+        <div style={{ marginTop: '1rem', padding: '0.875rem 1rem', background: '#e3f3e3', border: '1px solid #b3e0b3', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <p style={{ fontSize: 13, color: '#1a7f37', fontWeight: 500, margin: 0 }}>
+            ✓ Application sent — {job.company_name} will see your message in their ShipStacked inbox.
+          </p>
+          <Link href="/messages" style={{ fontSize: 13, fontWeight: 600, color: '#1a7f37', textDecoration: 'underline', whiteSpace: 'nowrap' }}>
+            View messages →
+          </Link>
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -96,77 +147,38 @@ export default function JobsClient({
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {jobs.map((job: any) => (
-              <div key={job.id} style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.75rem' }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', marginBottom: '0.75rem' }}>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.2rem' }}>
-                      <h2 style={{ fontSize: 17, fontWeight: 600, color: '#1d1d1f', letterSpacing: '-0.02em', margin: 0 }}>{job.role_title}</h2>
-                    </div>
-                    <p style={{ fontSize: 14, color: '#6e6e73' }}>{job.company_name} · {job.location} · {job.employment_type}</p>
-                  </div>
-                  {job.salary_range && (
-                    <span style={{ fontSize: 13, fontWeight: 500, color: '#1a7f37', background: '#e3f3e3', padding: '0.3rem 0.75rem', borderRadius: 980, whiteSpace: 'nowrap', flexShrink: 0 }}>
-                      {job.salary_range}
-                    </span>
-                  )}
-                </div>
-
-                <p style={{ fontSize: 14, color: '#3d3d3f', lineHeight: 1.6, marginBottom: '1rem', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                  {job.description}
-                </p>
-
-                {job.skills && job.skills.length > 0 && (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: '1.25rem' }}>
-                    {job.skills.slice(0, 6).map((skill: string) => (
-                      <span key={skill} style={{ fontSize: 12, padding: '0.25rem 0.6rem', background: '#f0f0f5', borderRadius: 980, color: '#3d3d3f', fontWeight: 500 }}>
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  <span style={{ fontSize: 12, color: '#aeaeb2' }}>
-                    Posted {new Date(job.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                  </span>
-
-                  {/* Role-based action */}
-                  {isBuilder && (
-                    <ApplyButton job={job} alreadyApplied={appliedJobIds.includes(job.id)} />
-                  )}
-                  {isLoggedOut && (
-                    <Link href="/login" style={{ padding: '0.5rem 1.25rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 13, fontWeight: 500, textDecoration: 'none' }}>
-                      Sign in to apply →
-                    </Link>
-                  )}
-                  {/* Employer/admin — no action button */}
-                </div>
-              </div>
+              <JobCard
+                key={job.id}
+                job={job}
+                isBuilder={isBuilder}
+                isLoggedOut={isLoggedOut}
+                alreadyApplied={appliedJobIds.includes(job.id)}
+              />
             ))}
           </div>
         )}
 
-        {/* Builder CTA — only for logged-out */}
+        {/* Logged-out — two CTAs: builder and employer */}
         {isLoggedOut && (
-          <div style={{ marginTop: '3rem', padding: '2rem', background: '#f0f5ff', borderRadius: 14, textAlign: 'center' }}>
-            <p style={{ fontSize: 14, fontWeight: 600, color: '#1d1d1f', marginBottom: '0.4rem' }}>Are you an AI-native builder?</p>
-            <p style={{ fontSize: 13, color: '#6e6e73', marginBottom: '1rem' }}>Create a free profile and get discovered by companies hiring right now.</p>
-            <Link href="/join" style={{ padding: '0.65rem 1.25rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 13, fontWeight: 500, textDecoration: 'none' }}>
-              Create free profile →
-            </Link>
-          </div>
-        )}
-
-        {/* Builder — after applying, prompt to check messages */}
-        {isBuilder && (
-          <div style={{ marginTop: '3rem', padding: '1.5rem', background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
-            <div>
-              <p style={{ fontSize: 14, fontWeight: 600, color: '#1d1d1f', marginBottom: '0.2rem' }}>Applied to a role?</p>
-              <p style={{ fontSize: 13, color: '#6e6e73' }}>Your application opens a message thread directly with the employer.</p>
+          <div style={{ marginTop: '3rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ padding: '1.5rem', background: '#f0f5ff', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 600, color: '#1d1d1f', marginBottom: '0.2rem' }}>Are you an AI-native builder?</p>
+                <p style={{ fontSize: 13, color: '#6e6e73', margin: 0 }}>Create a free profile and get discovered by companies hiring right now.</p>
+              </div>
+              <Link href="/join" style={{ padding: '0.6rem 1.25rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 13, fontWeight: 500, textDecoration: 'none', flexShrink: 0 }}>
+                Create free profile →
+              </Link>
             </div>
-            <Link href="/messages" style={{ padding: '0.6rem 1.25rem', background: '#f5f5f7', color: '#1d1d1f', borderRadius: 980, fontSize: 13, fontWeight: 500, textDecoration: 'none', flexShrink: 0 }}>
-              View messages →
-            </Link>
+            <div style={{ padding: '1.5rem', background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 600, color: '#1d1d1f', marginBottom: '0.2rem' }}>Are you hiring?</p>
+                <p style={{ fontSize: 13, color: '#6e6e73', margin: 0 }}>Browse the talent directory and post roles to reach AI-native builders.</p>
+              </div>
+              <Link href="/talent" style={{ padding: '0.6rem 1.25rem', background: '#f5f5f7', color: '#1d1d1f', borderRadius: 980, fontSize: 13, fontWeight: 500, textDecoration: 'none', flexShrink: 0, border: '1px solid #e0e0e5' }}>
+                Get started →
+              </Link>
+            </div>
           </div>
         )}
 
@@ -175,7 +187,7 @@ export default function JobsClient({
           <div style={{ marginTop: '3rem', padding: '1.5rem', background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
             <div>
               <p style={{ fontSize: 14, fontWeight: 600, color: '#1d1d1f', marginBottom: '0.2rem' }}>Hiring AI-native talent?</p>
-              <p style={{ fontSize: 13, color: '#6e6e73' }}>Post a role and receive applications directly in your ShipStacked inbox.</p>
+              <p style={{ fontSize: 13, color: '#6e6e73', margin: 0 }}>Post a role and receive applications directly in your ShipStacked inbox.</p>
             </div>
             <Link href="/post-job" style={{ padding: '0.6rem 1.25rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 13, fontWeight: 600, textDecoration: 'none', flexShrink: 0 }}>
               Post a job →
