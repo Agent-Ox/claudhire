@@ -47,7 +47,7 @@ export async function GET(req: Request) {
             <span style={{ fontSize: 28, fontWeight: 700, color: 'rgba(240,240,245,0.95)', letterSpacing: '-0.02em' }}>ShipStacked<span style={{ color: '#6c63ff' }}>.</span></span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', marginBottom: 48 }}>
-            <div style={{ display: 'inline-flex', background: 'rgba(26,127,55,0.2)', border: '1px solid rgba(26,127,55,0.4)', borderRadius: 12, padding: '8px 20px', marginBottom: 28, width: 'fit-content' }}>
+            <div style={{ display: 'inline-flex', background: 'rgba(26,127,55,0.2)', border: '1px solid rgba(26,127,55,0.4)', borderRadius: 12, padding: '8px 20px', marginBottom: 28 }}>
               <span style={{ fontSize: 16, fontWeight: 600, color: '#34d399', letterSpacing: '0.05em' }}>NOW HIRING</span>
             </div>
             <span style={{ fontSize: name.length > 30 ? 42 : 54, fontWeight: 700, color: 'rgba(240,240,245,0.95)', letterSpacing: '-0.03em', marginBottom: 16, lineHeight: 1.1 }}>{name || 'Open Role'}</span>
