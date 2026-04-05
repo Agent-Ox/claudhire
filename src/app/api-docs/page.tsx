@@ -195,6 +195,7 @@ export default function ApiDocsPage() {
           <Endpoint method="PATCH" path="/profile" description="Update profile fields and skills. Only send fields you want to change." />
           <Endpoint method="POST" path="/builds" description="Post a build to the Build Feed. Include outcome and url to count towards auto-verification." />
           <Endpoint method="GET" path="/builds" description="Fetch your 20 most recent build posts." />
+          <Endpoint method="POST" path="/avatar" description="Upload a profile photo. Accepts base64 image or public image URL." />
         </Section>
 
         {/* PATCH /profile fields */}

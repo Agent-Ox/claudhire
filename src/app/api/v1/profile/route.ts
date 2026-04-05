@@ -7,7 +7,6 @@ const admin = () => createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-// Allowed profile fields an agent can update
 const ALLOWED_FIELDS = [
   'full_name', 'role', 'bio', 'about', 'location', 'availability',
   'primary_profession', 'seniority', 'work_type', 'day_rate', 'timezone',
@@ -30,48 +29,49 @@ export async function PATCH(req: Request) {
     return apiError(400, 'Invalid JSON body')
   }
 
+  // Track everything that was updated for the response
+  const fieldsUpdated: string[] = []
+
+  // Scalar profile fields
   const updates: Record<string, any> = {}
   for (const field of ALLOWED_FIELDS) {
     if (body[field] !== undefined) updates[field] = body[field]
   }
 
-  // Update profile fields
   if (Object.keys(updates).length > 0) {
     const { error } = await db
       .from('profiles')
       .update(updates)
       .eq('id', profile.id)
     if (error) return apiError(500, 'Failed to update profile', error.message)
+    fieldsUpdated.push(...Object.keys(updates))
   }
 
-  // Handle skills array if provided
-  // Format: [{ category: 'claude_use_case', name: 'Automation and workflows' }, ...]
+  // Skills
   if (Array.isArray(body.skills)) {
     const validSkills = body.skills.filter((s: any) =>
       s.name && typeof s.name === 'string' &&
       s.category && SKILL_CATEGORIES.includes(s.category)
     )
-
     if (validSkills.length > 0) {
-      // Delete existing skills and re-insert
       await db.from('skills').delete().eq('profile_id', profile.id)
-      await db.from('skills').insert(
+      const { error } = await db.from('skills').insert(
         validSkills.map((s: any) => ({
           profile_id: profile.id,
           category: s.category,
           name: s.name,
         }))
       )
+      if (!error) fieldsUpdated.push(`skills (${validSkills.length})`)
     }
   }
 
-  // Handle projects array if provided
-  // Format: [{ title, description, prompt_approach, outcome, project_url }]
+  // Projects
   if (Array.isArray(body.projects)) {
     const validProjects = body.projects.filter((p: any) => p.title && typeof p.title === 'string')
     if (validProjects.length > 0) {
       await db.from('projects').delete().eq('profile_id', profile.id)
-      await db.from('projects').insert(
+      const { error } = await db.from('projects').insert(
         validProjects.map((p: any, i: number) => ({
           profile_id: profile.id,
           title: p.title,
@@ -82,13 +82,13 @@ export async function PATCH(req: Request) {
           display_order: i,
         }))
       )
+      if (!error) fieldsUpdated.push(`projects (${validProjects.length})`)
     }
   }
 
-  // Fire auto-verify check
+  // Auto-verify check
   const nowVerified = await checkAutoVerify(profile.id)
 
-  // Fetch updated profile to return
   const { data: updated } = await db
     .from('profiles')
     .select('username, full_name, role, bio, verified, published, velocity_score')
@@ -97,7 +97,7 @@ export async function PATCH(req: Request) {
 
   return apiOk({
     updated: true,
-    fields_updated: Object.keys(updates),
+    fields_updated: fieldsUpdated,
     profile: updated,
     verified: nowVerified,
     profile_url: `https://shipstacked.com/u/${updated?.username}`,
