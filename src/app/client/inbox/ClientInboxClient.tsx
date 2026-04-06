@@ -24,8 +24,37 @@ export default function ClientInboxClient({ userEmail, userName }: { userEmail: 
   const [view, setView] = useState<'list' | 'thread'>('list')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const selectedRef = useRef<any>(null)
+  const userEmailRef = useRef<string>(userEmail)
 
-  useEffect(() => { loadConversations() }, [])
+  useEffect(() => {
+    userEmailRef.current = userEmail
+  }, [userEmail])
+
+  useEffect(() => {
+    selectedRef.current = selected
+  }, [selected])
+
+  useEffect(() => {
+    loadConversations()
+    const supabase = createClient()
+    const channel = supabase
+      .channel('client-inbox-messages')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
+        const newMsg = payload.new as any
+        if (newMsg.sender_email === userEmailRef.current) return
+        if (selectedRef.current && newMsg.conversation_id === selectedRef.current.id) {
+          setMessages(prev => prev.some(m => m.id === newMsg.id) ? prev : [...prev, newMsg])
+          setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
+        }
+        setConversations(prev => prev.map(c =>
+          c.id === newMsg.conversation_id
+            ? { ...c, last_message_at: newMsg.created_at }
+            : c
+        ))
+      })
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+  }, [])
 
   const loadConversations = async () => {
     const supabase = createClient()
