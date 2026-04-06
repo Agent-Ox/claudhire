@@ -103,7 +103,7 @@ export async function POST(req: Request) {
     const { data: magicLinkData } = await admin.auth.admin.generateLink({
       type: 'magiclink',
       email,
-      options: { redirectTo: `${siteUrl}/client/inbox` }
+      options: { redirectTo: `${siteUrl}/auth/callback?redirect_to=/client/inbox` }
     })
     const magicLink = magicLinkData?.properties?.action_link || `${siteUrl}/client/inbox`
 
