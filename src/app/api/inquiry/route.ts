@@ -38,14 +38,16 @@ export async function POST(req: Request) {
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shipstacked.com'
 
-    // Check if client account already exists
+    // Check if account already exists
     const { data: existingUser } = await admin.auth.admin.listUsers()
-    const existingClient = existingUser?.users?.find(u => u.email === email)
+    const existingAccount = existingUser?.users?.find(u => u.email === email)
 
     let clientUserId: string
+    let existingRole: string | null = null
 
-    if (existingClient) {
-      clientUserId = existingClient.id
+    if (existingAccount) {
+      clientUserId = existingAccount.id
+      existingRole = existingAccount.user_metadata?.role || null
     } else {
       // Create lightweight client account
       const { data: newUser, error: createError } = await admin.auth.admin.createUser({
@@ -99,13 +101,14 @@ export async function POST(req: Request) {
       status: 'pending',
     })
 
-    // Generate magic link for client to access their inbox
+    // Generate magic link — destination depends on existing role
+    const inboxPath = existingRole === 'employer' ? '/employer/messages' : existingRole === 'builder' ? '/messages' : '/client/inbox'
     const { data: magicLinkData } = await admin.auth.admin.generateLink({
       type: 'magiclink',
       email,
-      options: { redirectTo: `${siteUrl}/auth/callback?redirect_to=/client/inbox` }
+      options: { redirectTo: `${siteUrl}/auth/callback?redirect_to=${inboxPath}` }
     })
-    const magicLink = magicLinkData?.properties?.action_link || `${siteUrl}/client/inbox`
+    const magicLink = magicLinkData?.properties?.action_link || `${siteUrl}${inboxPath}`
 
     // Notify builder — lands in their ShipStacked messages
     await resend.emails.send({
@@ -131,7 +134,8 @@ export async function POST(req: Request) {
       `
     })
 
-    // Confirm to client with magic link to check replies
+    // Confirm to sender with magic link to check replies
+    const isExistingMember = existingRole === 'builder' || existingRole === 'employer'
     await resend.emails.send({
       from: 'ShipStacked <hello@shipstacked.com>',
       to: email,
@@ -143,11 +147,11 @@ export async function POST(req: Request) {
             Your enquiry about <em>"${post?.title || 'this build'}"</em> has been sent to ${builder.full_name}. They'll reply directly on ShipStacked.
           </p>
           <p style="color: #6e6e73; font-size: 14px; line-height: 1.6; margin-bottom: 1.5rem;">
-            We'll email you when they reply. You can also check the conversation anytime using the link below — no password needed.
+            We'll email you when they reply. You can also check the conversation anytime using the link below${isExistingMember ? '' : ' — no password needed'}.
           </p>
           <a href="${magicLink}"
             style="display: inline-block; padding: 0.75rem 1.5rem; background: #0071e3; color: white; border-radius: 20px; text-decoration: none; font-size: 14px; font-weight: 500; margin-bottom: 1.5rem;">
-            Check for a reply →
+            ${isExistingMember ? 'View in your inbox →' : 'Check for a reply →'}
           </a>
           <hr style="border: none; border-top: 1px solid #e0e0e5; margin: 1.5rem 0;" />
           <p style="color: #aeaeb2; font-size: 12px;">ShipStacked — The proof-of-work platform for AI-native builders.</p>
