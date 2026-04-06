@@ -1,4 +1,6 @@
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+const fs = require('fs')
+
+const content = `import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { createClient } from '@supabase/supabase-js'
 import { notFound } from 'next/navigation'
 import { getResolvedUser } from '@/lib/user'
@@ -18,10 +20,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   if (!data) return { title: 'Company not found' }
 
-  const title = `${data.company_name} — Hiring on ShipStacked`
-  const description = data.about?.slice(0, 160) || `${data.company_name} is hiring AI-native builders on ShipStacked.`
-  const url = `https://shipstacked.com/company/${slug}`
-  const ogImage = `https://shipstacked.com/og?type=company&name=${encodeURIComponent(data.company_name)}&location=${encodeURIComponent(data.location || '')}`
+  const title = \`\${data.company_name} — Hiring on ShipStacked\`
+  const description = data.about?.slice(0, 160) || \`\${data.company_name} is hiring AI-native builders on ShipStacked.\`
+  const url = \`https://shipstacked.com/company/\${slug}\`
+  const ogImage = \`https://shipstacked.com/og?type=company&name=\${encodeURIComponent(data.company_name)}&location=\${encodeURIComponent(data.location || '')}\`
   return {
     title,
     description,
@@ -78,7 +80,7 @@ export default async function CompanyProfilePage({ params }: { params: Promise<{
     '@type': 'Organization',
     name: company.company_name,
     description: company.about || undefined,
-    url: company.website_url || `https://shipstacked.com/company/${slug}`,
+    url: company.website_url || \`https://shipstacked.com/company/\${slug}\`,
     ...(company.location && { address: { '@type': 'PostalAddress', addressLocality: company.location } }),
     ...(company.linkedin_url && { sameAs: [company.linkedin_url] }),
   }
@@ -86,7 +88,7 @@ export default async function CompanyProfilePage({ params }: { params: Promise<{
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <style>{`
+      <style>{\`
         .company-job-card { transition: border-color 0.2s, box-shadow 0.2s; }
         .company-job-card:hover { border-color: rgba(0,113,227,0.3) !important; box-shadow: 0 4px 16px rgba(0,113,227,0.06); }
         .company-link-btn { transition: all 0.15s; }
@@ -95,7 +97,7 @@ export default async function CompanyProfilePage({ params }: { params: Promise<{
           .company-hero { flex-direction: column !important; }
           .company-hero-logo { width: 72px !important; height: 72px !important; }
         }
-      `}</style>
+      \`}</style>
 
       <div style={{ minHeight: '100vh', background: '#fbfbfd', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
 
@@ -163,7 +165,7 @@ export default async function CompanyProfilePage({ params }: { params: Promise<{
                   </a>
                 )}
                 {company.x_url && (
-                  <a href={company.x_url.startsWith('http') ? company.x_url : `https://x.com/${company.x_url.replace('@', '')}`} target="_blank" className="company-link-btn"
+                  <a href={company.x_url.startsWith('http') ? company.x_url : \`https://x.com/\${company.x_url.replace('@', '')}\`} target="_blank" className="company-link-btn"
                     style={{ fontSize: 12, fontWeight: 500, color: '#3d3d3f', background: 'white', border: '1px solid #e0e0e5', borderRadius: 980, padding: '0.35rem 0.875rem', textDecoration: 'none' }}>
                     X →
                   </a>
@@ -194,7 +196,7 @@ export default async function CompanyProfilePage({ params }: { params: Promise<{
           <div style={{ marginBottom: '2rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
               <h2 style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.02em', color: '#1d1d1f' }}>
-                Open roles {jobs && jobs.length > 0 ? `(${jobs.length})` : ''}
+                Open roles {jobs && jobs.length > 0 ? \`(\${jobs.length})\` : ''}
               </h2>
               {jobs && jobs.length > 0 && (
                 <Link href="/jobs" style={{ fontSize: 13, color: '#0071e3', textDecoration: 'none', fontWeight: 500 }}>
@@ -212,7 +214,7 @@ export default async function CompanyProfilePage({ params }: { params: Promise<{
                   <div key={job.id} className="company-job-card" style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.5rem' }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', marginBottom: '0.5rem' }}>
                       <div>
-                        <Link href={`/jobs/${job.id}`} style={{ textDecoration: 'none' }}>
+                        <Link href={\`/jobs/\${job.id}\`} style={{ textDecoration: 'none' }}>
                           <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1d1d1f', letterSpacing: '-0.01em', marginBottom: '0.2rem' }}>{job.role_title}</h3>
                         </Link>
                         <p style={{ fontSize: 13, color: '#6e6e73' }}>{job.location} · {job.employment_type}</p>
@@ -223,7 +225,7 @@ export default async function CompanyProfilePage({ params }: { params: Promise<{
                             {job.salary_range}
                           </span>
                         )}
-                        <Link href={`/jobs/${job.id}`}
+                        <Link href={\`/jobs/\${job.id}\`}
                           style={{ fontSize: 12, color: '#6e6e73', textDecoration: 'none', background: '#f5f5f7', padding: '0.3rem 0.75rem', borderRadius: 980, whiteSpace: 'nowrap' }}>
                           View →
                         </Link>
@@ -281,3 +283,9 @@ export default async function CompanyProfilePage({ params }: { params: Promise<{
     </>
   )
 }
+`
+
+fs.writeFileSync('src/app/company/[slug]/page.tsx', content)
+console.log('Written:', fs.statSync('src/app/company/[slug]/page.tsx').size, 'bytes')
+console.log('Has accent bar:', content.includes('linear-gradient(90deg'))
+console.log('Has what_they_build first:', content.indexOf('what_they_build') < content.indexOf('company.about'))
