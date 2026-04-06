@@ -9,6 +9,7 @@ const NO_FOOTER = [
   '/employer',
   '/messages',
   '/join',
+  '/employers',
   '/login',
   '/signup',
   '/set-password',
