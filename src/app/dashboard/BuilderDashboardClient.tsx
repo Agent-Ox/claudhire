@@ -35,6 +35,27 @@ function VelocityRing({ score }: { score: number }) {
   )
 }
 
+function MessagesCard() {
+  const [unread, setUnread] = useState(0)
+  useEffect(() => {
+    fetch('/api/messages/unread').then(r => r.json()).then(({ unread }) => setUnread(unread || 0)).catch(() => {})
+  }, [])
+  return (
+    <div style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.25rem 1.5rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+      <div>
+        <p style={{ fontSize: 12, fontWeight: 600, color: '#6e6e73', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '0.3rem' }}>Messages</p>
+        <p style={{ fontSize: 14, color: '#1d1d1f' }}>
+          Your conversations with clients and employers.
+          {unread > 0 && <span style={{ marginLeft: '0.5rem', fontSize: 12, fontWeight: 700, background: '#0071e3', color: 'white', borderRadius: 980, padding: '0.1rem 0.5rem' }}>{unread} unread</span>}
+        </p>
+      </div>
+      <a href="/messages" style={{ padding: '0.5rem 1rem', background: '#f5f5f7', color: '#1d1d1f', borderRadius: 980, fontSize: 13, fontWeight: 500, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+        Open messages →
+      </a>
+    </div>
+  )
+}
+
 export default function BuilderDashboardClient({
   profile,
   applications,
@@ -294,6 +315,9 @@ export default function BuilderDashboardClient({
                 <a href={"/u/" + profile.username} style={{ padding: '0.5rem 1rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 13, fontWeight: 500, textDecoration: 'none' }}>View live</a>
               </div>
             </div>
+
+            {/* Messages card */}
+            <MessagesCard />
 
             {/* Photo nudge — show if profile has no avatar */}
             {!profile.avatar_url && (
