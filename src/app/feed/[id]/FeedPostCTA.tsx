@@ -124,7 +124,7 @@ export default function FeedPostCTA({
           href="/#pricing"
           style={{ display: 'inline-block', padding: '0.7rem 1.25rem', background: '#1d1d1f', color: 'white', borderRadius: 980, fontSize: 14, fontWeight: 500, textDecoration: 'none' }}
         >
-          See employer plans →
+          See employer plans &#8594;
         </a>
       </div>
 
