@@ -123,7 +123,7 @@ export default function FeedPostCTA({
         <p style={{ fontSize: 13, color: '#6e6e73', lineHeight: 1.6, marginBottom: '1rem' }}>
           Search verified AI builders, message them directly, and post roles. $199/month.
         </p>
-        <a href="/#pricing" style={{ display: 'inline-block', padding: '0.7rem 1.25rem', background: '#1d1d1f', color: 'white', borderRadius: 980, fontSize: 14, fontWeight: 500, textDecoration: 'none' }}>See employer plans</a>
+        <a href="/employers" style={{ display: 'inline-block', padding: '0.7rem 1.25rem', background: '#1d1d1f', color: 'white', borderRadius: 980, fontSize: 14, fontWeight: 500, textDecoration: 'none' }}>See employer plans</a>
       </div>
 
     </div>
