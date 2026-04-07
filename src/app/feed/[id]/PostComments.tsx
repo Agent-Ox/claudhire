@@ -116,6 +116,7 @@ export default function PostComments({ postId, isLoggedIn }: { postId: string, i
               </div>
             )
           })
+          </>
         )}
       </div>
 
