@@ -211,7 +211,7 @@ export default function JobDetailClient({
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               {/* X */}
-              <a href={`https://x.com/intent/tweet?text=${encodeURIComponent(`${job.role_title} at ${job.anonymous ? 'a company' : job.company_name} — apply on ShipStacked\n\n${shareUrl}\n#shipstacked #hiring`)}`}
+              <a href={`https://x.com/intent/tweet?text=${encodeURIComponent(`~/ship → ${job.role_title}${job.day_rate ? ` · ${job.day_rate}` : ''}${job.location ? ` · ${job.location}` : ''}\n\nProof-of-work hiring for the vibe coding generation.\n\n${shareUrl}\n\n#shipstacked #hiring #AIjobs #vibecoding`)}`}
                 target="_blank" rel="noopener noreferrer"
                 style={{ width: 32, height: 32, borderRadius: '50%', background: '#1d1d1f', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
                 title="Share on X">
