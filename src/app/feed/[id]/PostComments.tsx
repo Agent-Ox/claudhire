@@ -21,14 +21,28 @@ export default function PostComments({ postId, isLoggedIn }: { postId: string, i
   const [error, setError] = useState('')
   const [replyTo, setReplyTo] = useState<string | null>(null)
   const [showAll, setShowAll] = useState(false)
+  const [likedIds, setLikedIds] = useState<string[]>([])
+  const [likeCounts, setLikeCounts] = useState<Record<string, number>>({})
   const PREVIEW_COUNT = 5
 
   useEffect(() => {
     fetch('/api/comments?post_id=' + postId)
       .then(r => r.json())
-      .then(({ comments }) => setComments(comments || []))
+      .then(({ comments }) => {
+        setComments(comments || [])
+        const counts: Record<string, number> = {}
+        ;(comments || []).forEach((c: any) => { counts[c.id] = c.likes_count || 0 })
+        setLikeCounts(counts)
+      })
       .catch(() => {})
       .finally(() => setLoading(false))
+
+    if (isLoggedIn) {
+      fetch('/api/comments/likes?post_id=' + postId)
+        .then(r => r.json())
+        .then(({ liked_ids }) => setLikedIds(liked_ids || []))
+        .catch(() => {})
+    }
 
     const supabase = createClient()
     const channel = supabase
@@ -59,6 +73,20 @@ export default function PostComments({ postId, isLoggedIn }: { postId: string, i
       else { setInput(''); setReplyTo(null) }
     } catch { setError('Something went wrong.') }
     finally { setSending(false) }
+  }
+
+  const toggleLike = async (commentId: string) => {
+    if (!isLoggedIn) return
+    const res = await fetch('/api/comments/likes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ comment_id: commentId }),
+    })
+    if (res.ok) {
+      const { liked, likes_count } = await res.json()
+      setLikedIds(prev => liked ? [...prev, commentId] : prev.filter(id => id !== commentId))
+      setLikeCounts(prev => ({ ...prev, [commentId]: likes_count }))
+    }
   }
 
   const displayComments = showAll ? comments : comments.slice(-PREVIEW_COUNT)
@@ -110,6 +138,9 @@ export default function PostComments({ postId, isLoggedIn }: { postId: string, i
                       {rl && <span style={{ fontSize: 10, fontWeight: 600, color: rl.color, background: rl.bg, padding: '0.1rem 0.4rem', borderRadius: 980 }}>{rl.label}</span>}
                       <span style={{ fontSize: 12, color: '#aeaeb2' }}>{timeAgo(c.created_at)}</span>
                       {isLoggedIn && <button onClick={() => { setReplyTo(c.author_name); setInput('@' + c.author_name + ' ') }} style={{ fontSize: 11, color: '#0071e3', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0, fontWeight: 500 }}>Reply</button>}
+                      <button onClick={() => toggleLike(c.id)} style={{ fontSize: 11, background: 'none', border: 'none', cursor: isLoggedIn ? 'pointer' : 'default', fontFamily: 'inherit', padding: 0, color: likedIds.includes(c.id) ? '#0071e3' : '#aeaeb2', fontWeight: likedIds.includes(c.id) ? 600 : 400, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                        ♥ {likeCounts[c.id] > 0 ? likeCounts[c.id] : ''}
+                      </button>
                     </div>
                     <p style={{ fontSize: 14, color: '#3d3d3f', lineHeight: 1.6 }}>{c.content}</p>
                   </div>
