@@ -20,6 +20,8 @@ export default function PostComments({ postId, isLoggedIn }: { postId: string, i
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [replyTo, setReplyTo] = useState<string | null>(null)
+  const [showAll, setShowAll] = useState(false)
+  const PREVIEW_COUNT = 5
 
   useEffect(() => {
     fetch('/api/comments?post_id=' + postId)
@@ -59,6 +61,9 @@ export default function PostComments({ postId, isLoggedIn }: { postId: string, i
     finally { setSending(false) }
   }
 
+  const displayComments = showAll ? comments : comments.slice(-PREVIEW_COUNT)
+  const hiddenCount = comments.length - PREVIEW_COUNT
+
   const getRoleLabel = (role: string) => {
     if (role === 'employer') return { label: 'Employer', color: '#0071e3', bg: '#e8f1fd' }
     if (role === 'builder') return { label: 'Builder', color: '#1a7f37', bg: '#e3f3e3' }
@@ -81,7 +86,14 @@ export default function PostComments({ postId, isLoggedIn }: { postId: string, i
             No comments yet. {isLoggedIn ? 'Be the first.' : 'Sign in to comment.'}
           </p>
         ) : (
-          comments.map((c: any) => {
+          <>
+            {!showAll && hiddenCount > 0 && (
+              <button onClick={() => setShowAll(true)}
+                style={{ fontSize: 13, color: '#0071e3', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500, padding: '0.25rem 0', marginBottom: '0.5rem', display: 'block' }}>
+                Show {hiddenCount} earlier comment{hiddenCount !== 1 ? 's' : ''}
+              </button>
+            )}
+            {displayComments.map((c: any) => {
             const rl = getRoleLabel(c.author_role)
             const initials = c.author_name?.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() || '?'
             return (
