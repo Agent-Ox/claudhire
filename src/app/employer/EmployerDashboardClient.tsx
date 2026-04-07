@@ -99,6 +99,7 @@ export default function EmployerDashboardClient({
       setError('Logo upload failed: ' + e.message)
     } finally {
       setUploadingLogo(false)
+      if (logoInputRef.current) logoInputRef.current.value = ''
     }
   }
 
