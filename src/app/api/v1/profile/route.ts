@@ -1,3 +1,4 @@
+import { rateLimit } from '@/lib/rateLimit'
 import { authenticateApiKey, apiError, apiOk } from '@/lib/apiAuth'
 import { createClient } from '@supabase/supabase-js'
 import { checkAutoVerify } from '@/lib/autoVerify'
@@ -18,6 +19,9 @@ const SKILL_CATEGORIES = ['claude_use_case', 'language', 'framework', 'ai_tool',
 export async function PATCH(req: Request) {
   const auth = await authenticateApiKey(req)
   if (!auth.ok) return apiError(auth.status, auth.error)
+
+  const rl = await rateLimit(auth.auth.keyId)
+  if (!rl.success) return apiError(429, 'Rate limit exceeded. Max 60 requests per minute.')
 
   const { profile } = auth.auth
   const db = admin()
