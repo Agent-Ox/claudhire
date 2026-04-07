@@ -4,7 +4,7 @@ import Stripe from 'stripe'
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 const PRICES = {
-  full_access: 'price_1TIBUCE3cjWtx7BryE30mxxK',
+  full_access: 'price_1TJhIzE3cjWtx7BrDkZxLavC',
 }
 
 export async function POST(req: Request) {
