@@ -114,7 +114,7 @@ export default function JobDetailClient({
               <span style={{ fontSize: 12, padding: '0.2rem 0.6rem', background: '#f0f0f5', borderRadius: 980, color: '#3d3d3f', fontWeight: 500 }}>{job.timezone}</span>
             )}
             {job.day_rate && (
-              <span style={{ fontSize: 12, padding: '0.2rem 0.6rem', background: '#f0f0f5', borderRadius: 980, color: '#3d3d3f', fontWeight: 500 }}>{job.day_rate}/day</span>
+              <span style={{ fontSize: 12, padding: '0.2rem 0.6rem', background: '#f0f0f5', borderRadius: 980, color: '#3d3d3f', fontWeight: 500 }}>{job.day_rate}</span>
             )}
             {isActive && daysLeft <= 7 && daysLeft > 0 && (
               <span style={{ fontSize: 12, padding: '0.2rem 0.6rem', background: '#fff3cd', borderRadius: 980, color: '#bf7e00', fontWeight: 600 }}>
