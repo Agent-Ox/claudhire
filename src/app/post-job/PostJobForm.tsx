@@ -115,7 +115,23 @@ export default function PostJobForm({ employerEmail, jobId, initialData }: {
           .from('jobs').insert([{ employer_email: employerEmail, ...payload, status: 'active', expires_at: expires.toISOString() }])
           .select('id').single()
         if (insertError) throw insertError
-        if (inserted?.id) setNewJobId(inserted.id)
+        if (inserted?.id) {
+          setNewJobId(inserted.id)
+          // Fire X auto-post — fire and forget
+          fetch('/api/jobs/xpost', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: inserted.id,
+              role_title: roleTitle,
+              company_name: anonymous ? 'A ShipStacked employer' : companyName,
+              location,
+              day_rate: dayRate,
+              salary_range: salaryRange,
+              job_type: employmentType,
+            })
+          }).catch(() => {})
+        }
       }
       setDone(true)
     } catch (e: any) {
