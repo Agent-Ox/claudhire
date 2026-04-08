@@ -53,10 +53,10 @@ export async function checkAutoVerify(profileId: string): Promise<boolean> {
 
   if ((provenPostCount || 0) < 1) return false
 
-  // All criteria met — verify the profile
+  // All criteria met — verify and publish the profile
   await supabase
     .from('profiles')
-    .update({ verified: true })
+    .update({ verified: true, published: true })
     .eq('id', profileId)
 
   // Send congratulations email
