@@ -29,6 +29,16 @@ you.</p>
       `
     })
 
+    // Add to Builders segment
+    try {
+      const contact = await resend.contacts.create({ email, firstName: name?.split(' ')[0] || '', lastName: name?.split(' ').slice(1).join(' ') || '' })
+      if (contact.data?.id && process.env.RESEND_SEGMENT_BUILDERS) {
+        await resend.contacts.segments.add({ contactId: contact.data.id, segmentId: process.env.RESEND_SEGMENT_BUILDERS })
+      }
+    } catch (e) {
+      console.error('Resend audience error:', e)
+    }
+
     return NextResponse.json({ success: true })
   } catch (error) {
     return NextResponse.json({ error: 'Failed to send email' }, { status: 500 })

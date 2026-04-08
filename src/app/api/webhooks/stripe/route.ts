@@ -107,6 +107,17 @@ export async function POST(req: Request) {
     } catch (e) {
       console.error('Failed to send welcome email:', e)
     }
+
+    // Add to Employers segment
+    try {
+      const resendForAudience = new Resend(process.env.RESEND_API_KEY)
+      const contact = await resendForAudience.contacts.create({ email })
+      if (contact.data?.id && process.env.RESEND_SEGMENT_EMPLOYERS) {
+        await resendForAudience.contacts.segments.add({ contactId: contact.data.id, segmentId: process.env.RESEND_SEGMENT_EMPLOYERS })
+      }
+    } catch (e) {
+      console.error('Resend audience error:', e)
+    }
   }
 
   return NextResponse.json({ received: true })

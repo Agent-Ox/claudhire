@@ -159,6 +159,19 @@ export async function POST(req: Request) {
       `
     })
 
+    // Add to Clients segment (only new client accounts)
+    if (!existingAccount) {
+      try {
+        const resendForAudience = new Resend(process.env.RESEND_API_KEY)
+        const contact = await resendForAudience.contacts.create({ email, firstName: name?.split(' ')[0] || '', lastName: name?.split(' ').slice(1).join(' ') || '' })
+        if (contact.data?.id && process.env.RESEND_SEGMENT_CLIENTS) {
+          await resendForAudience.contacts.segments.add({ contactId: contact.data.id, segmentId: process.env.RESEND_SEGMENT_CLIENTS })
+        }
+      } catch (e) {
+        console.error('Resend audience error:', e)
+      }
+    }
+
     return NextResponse.json({ success: true, conversation_id: conv.id })
 
   } catch (err: any) {
