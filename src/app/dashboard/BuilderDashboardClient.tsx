@@ -287,15 +287,19 @@ export default function BuilderDashboardClient({
                     <div style={{ fontSize: 24, marginBottom: '0.4rem' }}>○</div>
                     <p style={{ fontSize: 14, fontWeight: 600, color: '#1d1d1f', marginBottom: '0.25rem' }}>Not yet verified</p>
                     <p style={{ fontSize: 12, color: '#6e6e73', lineHeight: 1.5, marginBottom: '0.875rem' }}>Verification is automatic. Complete these steps:</p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                       {[
-                        { label: 'Name, bio, role, location', done: !!(profile.full_name && profile.bio && profile.role && profile.location) },
-                        { label: '1 project or 3+ skills', done: !!(profile.projects?.length >= 1 || profile.skills?.length >= 3) },
-                        { label: '1 Build Feed post with outcome + link', done: provenPostCount >= 1 },
+                        { label: 'Name, bio, role, location', done: !!(profile.full_name && profile.bio && profile.role && profile.location), href: '/dashboard/edit' },
+                        { label: '1 project or 3+ skills', done: !!(profile.projects?.length >= 1 || profile.skills?.length >= 3), href: '/dashboard/edit' },
+                        { label: '1 Build Feed post with outcome + link', done: provenPostCount >= 1, href: '#build-feed' },
                       ].map((item, i) => (
                         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: 12 }}>
                           <span style={{ color: item.done ? '#1a7f37' : '#aeaeb2', flexShrink: 0, fontWeight: 600 }}>{item.done ? '✓' : '○'}</span>
-                          <span style={{ color: item.done ? '#1d1d1f' : '#6e6e73', textDecoration: item.done ? 'none' : 'none' }}>{item.label}</span>
+                          {item.done ? (
+                            <span style={{ color: '#1d1d1f' }}>{item.label}</span>
+                          ) : (
+                            <a href={item.href} style={{ color: '#0071e3', textDecoration: 'none', fontWeight: 500 }}>{item.label} →</a>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -336,7 +340,7 @@ export default function BuilderDashboardClient({
             )}
 
             {/* Build Feed */}
-            <div style={{ marginBottom: '1rem' }}>
+            <div id="build-feed" style={{ marginBottom: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                 <p style={{ fontSize: 12, fontWeight: 600, color: '#6e6e73', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Build Feed</p>
                 <a href="/feed" style={{ fontSize: 12, color: '#0071e3', textDecoration: 'none', fontWeight: 500 }}>View feed →</a>
