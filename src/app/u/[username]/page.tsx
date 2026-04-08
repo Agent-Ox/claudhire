@@ -431,7 +431,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
           {/* Share */}
           <div className="fade-up card" style={{ padding: '1.75rem', marginBottom: '1.5rem', animationDelay: '0.35s' }}>
             <p className="section-label">Share this profile</p>
-            <ShareButtons name={profile.full_name} url={profileUrl} role={profile.primary_profession || profile.role} verified={profile.verified} velocityScore={profile.velocity_score} />
+            <ShareButtons name={profile.full_name} url={profileUrl} role={profile.role || profile.primary_profession} verified={profile.verified} velocityScore={profile.velocity_score} />
           </div>
 
           {/* Role-aware CTA */}
