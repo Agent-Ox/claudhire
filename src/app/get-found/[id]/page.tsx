@@ -50,28 +50,7 @@ export default async function GetFoundPage({ params }: { params: Promise<{ id: s
         .job-link:hover { color: #0071e3 !important; }
       `}</style>
 
-      {/* Nav */}
-      <nav style={{ padding: '1.5rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <a href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <div style={{ width: 32, height: 32, background: '#0f0f18', borderRadius: 8, border: '1px solid #1e1e2e', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <div style={{ background: '#161622', height: 10, display: 'flex', alignItems: 'center', paddingLeft: 4, gap: 3 }}>
-              <div style={{ width: 4, height: 4, borderRadius: '50%', background: '#ff5f57' }} />
-              <div style={{ width: 4, height: 4, borderRadius: '50%', background: '#febc2e' }} />
-              <div style={{ width: 4, height: 4, borderRadius: '50%', background: '#28c840' }} />
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', padding: '2px 4px', flex: 1 }}>
-              <span style={{ fontFamily: 'monospace', fontSize: 9, fontWeight: 700, color: '#6c63ff' }}>~/</span>
-              <span style={{ fontFamily: 'monospace', fontSize: 9, fontWeight: 700, color: '#0071e3' }}>ship</span>
-            </div>
-          </div>
-          <span style={{ fontSize: 17, fontWeight: 700, color: '#f0f0f5', letterSpacing: '-0.02em' }}>
-            ShipStacked<span style={{ color: '#0071e3' }}>.</span>
-          </span>
-        </a>
-        <a href="/signup" style={{ fontSize: 13, fontWeight: 600, color: '#f0f0f5', background: '#0071e3', padding: '0.5rem 1.25rem', borderRadius: 980, textDecoration: 'none' }}>
-          Create free profile →
-        </a>
-      </nav>
+
 
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '4rem 2rem' }}>
 
