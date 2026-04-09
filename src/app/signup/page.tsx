@@ -115,7 +115,7 @@ function SignupForm() {
                   </div>
                   <div>
                     <p style={{ fontSize: 16, fontWeight: 700, color: '#1d1d1f', letterSpacing: '-0.01em' }}>Set up myself</p>
-                    <p style={{ fontSize: 12, color: '#6e6e73' }}>5-step guided profile builder. Takes about 5 minutes.</p>
+                    <p style={{ fontSize: 12, color: '#6e6e73' }}>2-step profile builder. Live in under 2 minutes.</p>
                   </div>
                   <span style={{ marginLeft: 'auto', fontSize: 16, color: '#6e6e73' }}>→</span>
                 </div>
