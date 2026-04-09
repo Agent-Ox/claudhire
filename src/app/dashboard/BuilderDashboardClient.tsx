@@ -339,6 +339,54 @@ export default function BuilderDashboardClient({
               </div>
             )}
 
+            {/* Day rate nudge */}
+            {!profile.day_rate && (
+              <div style={{ background: '#f0f7ff', border: '1px solid #bfdbfe', borderRadius: 14, padding: '1rem 1.25rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{ fontSize: 20, flexShrink: 0 }}>💰</span>
+                  <div>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: '#1e40af', marginBottom: '0.1rem' }}>Set your day rate</p>
+                    <p style={{ fontSize: 12, color: '#3b82f6', lineHeight: 1.5 }}>Employers filter by budget. Let them know what you charge.</p>
+                  </div>
+                </div>
+                <a href="/dashboard/edit" style={{ fontSize: 13, padding: '0.4rem 0.875rem', background: '#0071e3', color: 'white', borderRadius: 980, textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0 }}>
+                  Set rate →
+                </a>
+              </div>
+            )}
+
+            {/* About nudge */}
+            {!profile.about && (
+              <div style={{ background: '#f5f3ff', border: '1px solid #ddd6fe', borderRadius: 14, padding: '1rem 1.25rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{ fontSize: 20, flexShrink: 0 }}>✍️</span>
+                  <div>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: '#5b21b6', marginBottom: '0.1rem' }}>Tell your story</p>
+                    <p style={{ fontSize: 12, color: '#7c3aed', lineHeight: 1.5 }}>Your bio is one line. The About section is your full sell to employers.</p>
+                  </div>
+                </div>
+                <a href="/dashboard/edit" style={{ fontSize: 13, padding: '0.4rem 0.875rem', background: '#6c63ff', color: 'white', borderRadius: 980, textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0 }}>
+                  Add story →
+                </a>
+              </div>
+            )}
+
+            {/* Build Feed post nudge — only if no proven post yet */}
+            {provenPostCount === 0 && (
+              <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 14, padding: '1rem 1.25rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{ fontSize: 20, flexShrink: 0 }}>🚀</span>
+                  <div>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: '#14532d', marginBottom: '0.1rem' }}>Post your first build</p>
+                    <p style={{ fontSize: 12, color: '#16a34a', lineHeight: 1.5 }}>One real project with an outcome unlocks your verified badge and boosts your score.</p>
+                  </div>
+                </div>
+                <a href="#build-feed" style={{ fontSize: 13, padding: '0.4rem 0.875rem', background: '#1a7f37', color: 'white', borderRadius: 980, textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0 }}>
+                  Post a build →
+                </a>
+              </div>
+            )}
+
             {/* Build Feed */}
             <div id="build-feed" style={{ marginBottom: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
