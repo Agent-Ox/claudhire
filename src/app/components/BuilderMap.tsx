@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { geoMercator, geoPath } from 'd3-geo'
+import { geoEqualEarth, geoPath } from 'd3-geo'
 import { feature } from 'topojson-client'
 
 interface Country {
@@ -22,12 +22,13 @@ interface GeoData {
 // World TopoJSON from Natural Earth, hosted on GitHub (unpkg CDN reliable fallback)
 const WORLD_TOPO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'
 
-// Mercator projection fitted to 1000x500 viewBox, slight vertical crop to de-emphasise polar distortion
-function useProjection() {
-  return geoMercator()
-    .scale(115)
-    .center([10, 15])
-    .translate([500, 240])
+// Equal Earth projection — shows full world cleanly without polar distortion
+function makeProjection(features: any) {
+  const proj = geoEqualEarth()
+  if (features && features.length) {
+    proj.fitSize([1000, 500], { type: 'FeatureCollection', features })
+  }
+  return proj
 }
 
 export default function BuilderMap() {
@@ -54,7 +55,7 @@ export default function BuilderMap() {
 
   if (!data || data.countries.length === 0) return null
 
-  const projection = useProjection()
+  const projection = makeProjection(geoFeatures)
   const pathGen = geoPath(projection)
   const maxCount = Math.max(...data.countries.map(c => c.count))
 
