@@ -309,8 +309,8 @@ export default function EmployersPage() {
               return (
                 <Link key={i} href={`/u/${profile.username}`} className="profile-card" style={{ display: 'block', textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}>
                   <div className="profile-top">
-                    <div className={`avatar ${isReal ? '' : avClass}`}>
-                      {isReal && profile.avatar_url
+                    <div className="avatar">
+                      {profile.avatar_url
                         ? <img src={profile.avatar_url} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         : initials}
                     </div>
