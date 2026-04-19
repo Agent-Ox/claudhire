@@ -48,7 +48,9 @@ export default function BuilderMap() {
       .then(r => r.json())
       .then(topo => {
         const geo: any = feature(topo, topo.objects.countries)
-        setGeoFeatures(geo.features || [])
+        // Exclude Antarctica (id '010') so the rest of the world can fit properly
+        const filtered = (geo.features || []).filter((f: any) => f.id !== '010')
+        setGeoFeatures(filtered)
       })
       .catch(() => {})
   }, [])
