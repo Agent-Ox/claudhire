@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import BuilderMap from '../components/BuilderMap'
 
 import { useState, useEffect } from 'react'
 
@@ -241,6 +242,9 @@ export default function EmployersPage() {
           </div>
         </div>
       </section>
+
+      {/* ── BUILDER MAP ── */}
+      <BuilderMap />
 
       {/* LIVE BUILD FEED */}
       <section className="section" style={{ background: '#fbfbfd', paddingTop: '3rem' }}>

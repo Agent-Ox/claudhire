@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase'
+import BuilderMap from './components/BuilderMap'
 
 async function goToCheckout() {
   const res = await fetch('/api/checkout', {
@@ -320,6 +321,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ── BUILDER MAP ── */}
+      <BuilderMap />
 
       {/* ── HOW IT WORKS ── */}
       <section className="section" id="how">
