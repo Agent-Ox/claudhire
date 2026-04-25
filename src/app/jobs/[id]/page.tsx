@@ -78,7 +78,54 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
     companySlug = ep?.slug || null
   }
 
+  // JobPosting JSON-LD for Google Jobs
+  const employmentTypeMap: Record<string, string> = {
+    'full-time': 'FULL_TIME',
+    'part-time': 'PART_TIME',
+    'contract': 'CONTRACTOR',
+    'freelance': 'CONTRACTOR',
+  }
+  const jobLd: any = {
+    '@context': 'https://schema.org',
+    '@type': 'JobPosting',
+    title: job.role_title,
+    description: `<p>${(job.description || '').replace(/\n/g, '</p><p>')}</p>${job.requirements ? `<h3>Requirements</h3><p>${job.requirements.replace(/\n/g, '</p><p>')}</p>` : ''}`,
+    datePosted: job.created_at,
+    validThrough: job.expires_at,
+    employmentType: employmentTypeMap[job.employment_type] || 'FULL_TIME',
+    hiringOrganization: {
+      '@type': 'Organization',
+      name: job.anonymous ? 'A ShipStacked employer' : (job.company_name || 'ShipStacked employer'),
+      sameAs: companySlug ? `https://shipstacked.com/company/${companySlug}` : 'https://shipstacked.com',
+    },
+    directApply: false,
+    url: `https://shipstacked.com/jobs/${id}`,
+  }
+  // Location handling — Remote vs On-site
+  if (job.location === 'Remote') {
+    jobLd.jobLocationType = 'TELECOMMUTE'
+    jobLd.applicantLocationRequirements = { '@type': 'Country', name: 'Worldwide' }
+  } else if (job.location) {
+    jobLd.jobLocation = { '@type': 'Place', address: { '@type': 'PostalAddress', addressLocality: job.location } }
+  }
+  // Salary handling
+  if (job.day_rate) {
+    jobLd.baseSalary = {
+      '@type': 'MonetaryAmount',
+      currency: 'USD',
+      value: { '@type': 'QuantitativeValue', value: job.day_rate, unitText: 'DAY' },
+    }
+  } else if (job.salary_range) {
+    jobLd.baseSalary = {
+      '@type': 'MonetaryAmount',
+      currency: 'USD',
+      value: { '@type': 'QuantitativeValue', value: job.salary_range, unitText: 'YEAR' },
+    }
+  }
+
   return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jobLd) }} />
     <JobDetailClient
       job={job}
       role={role}
@@ -87,5 +134,6 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
       companySlug={companySlug}
       siteUrl={process.env.NEXT_PUBLIC_SITE_URL || 'https://shipstacked.com'}
     />
+    </>
   )
 }

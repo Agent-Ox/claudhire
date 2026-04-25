@@ -51,9 +51,26 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const orgLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'ShipStacked',
+    alternateName: 'ShipStacked.',
+    url: 'https://shipstacked.com',
+    logo: 'https://shipstacked.com/icon.svg',
+    description: 'Proof-of-work hiring platform for AI-native builders. Find verified developers, prompt engineers, and AI automation specialists.',
+    foundingDate: '2026-04',
+    founder: { '@type': 'Person', name: 'Thomas Oxlee' },
+    sameAs: [
+      'https://x.com/ShipStacked',
+      'https://www.linkedin.com/company/shipstacked',
+    ],
+  }
+
   return (
     <html lang="en">
       <body>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd) }} />
         <NavBar />
         <div style={{ paddingTop: 52 }}>{children}</div>
         <FooterBar />
