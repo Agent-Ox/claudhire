@@ -32,14 +32,14 @@ export const metadata: Metadata = {
     url: 'https://shipstacked.com',
     title: 'ShipStacked — The proof-of-work platform for AI-native builders',
     description: 'The hiring platform for AI-native builders. Find verified developers, prompt engineers, and AI automation specialists who prove their skills with real projects.',
-    images: [{ url: '/og-default.svg', width: 1200, height: 630, alt: 'ShipStacked' }],
+    images: [{ url: '/og?v=2', width: 1200, height: 630, alt: 'ShipStacked' }],
   },
   twitter: {
     card: 'summary_large_image',
     site: '@ShipStacked',
     title: 'ShipStacked — The proof-of-work platform for AI-native builders',
     description: 'The hiring platform for AI-native builders. Verified skills. Real projects. Free to prove you can build.',
-    images: ['/og-default.svg'],
+    images: ['/og?v=2'],
   },
   robots: {
     index: true,
