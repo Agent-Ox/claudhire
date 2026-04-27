@@ -96,7 +96,7 @@ export default function OutreachQueueClient() {
     try {
       const res = await fetch('/api/admin/candidates/draft', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json; charset=utf-8' },
         body: JSON.stringify({ candidate_id: candidate.id, force_new: forceNew }),
       })
       const data = await res.json()
@@ -120,7 +120,7 @@ export default function OutreachQueueClient() {
     try {
       await fetch('/api/admin/candidates/log', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json; charset=utf-8' },
         body: JSON.stringify({ candidate_id: candidate.id, action, ...payload }),
       })
     } catch (e) {
