@@ -10,7 +10,7 @@ export default function AdminActions() {
     setNudging(true)
     setNudgeResult(null)
     try {
-      const res = await fetch('/api/hire/nudge', {
+      const res = await fetch('/api/hire-confirm/nudge', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-cron-secret': 'shipstacked_cron_2026' },
         body: JSON.stringify({})

@@ -63,8 +63,8 @@ export async function POST(req: Request) {
 
     if (!confirmation) continue
 
-    const builderLink = `${siteUrl}/api/hire/confirm?id=${confirmation.id}&role=builder`
-    const employerLink = `${siteUrl}/api/hire/confirm?id=${confirmation.id}&role=employer`
+    const builderLink = `${siteUrl}/api/hire-confirm?id=${confirmation.id}&role=builder`
+    const employerLink = `${siteUrl}/api/hire-confirm?id=${confirmation.id}&role=employer`
 
     // Email to builder
     await resend.emails.send({

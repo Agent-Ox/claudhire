@@ -8,7 +8,7 @@ export async function GET(req: Request) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shipstacked.com'
 
   if (!id || !role) {
-    return NextResponse.redirect(siteUrl + '/hire/confirmed?status=invalid')
+    return NextResponse.redirect(siteUrl + '/hire-confirm?status=invalid')
   }
 
   const admin = createClient(
@@ -23,7 +23,7 @@ export async function GET(req: Request) {
     .maybeSingle()
 
   if (!confirmation) {
-    return NextResponse.redirect(siteUrl + '/hire/confirmed?status=invalid')
+    return NextResponse.redirect(siteUrl + '/hire-confirm?status=invalid')
   }
 
   const update: any = {}
@@ -58,8 +58,8 @@ export async function GET(req: Request) {
         .eq('email', confirmation.builder_email)
     }
 
-    return NextResponse.redirect(siteUrl + '/hire/confirmed?status=complete')
+    return NextResponse.redirect(siteUrl + '/hire-confirm?status=complete')
   }
 
-  return NextResponse.redirect(siteUrl + '/hire/confirmed?status=waiting')
+  return NextResponse.redirect(siteUrl + '/hire-confirm?status=waiting')
 }

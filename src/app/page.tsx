@@ -21,7 +21,7 @@ export default function Home() {
   const [hireCount, setHireCount] = useState<number | null>(null)
 
   useEffect(() => {
-    fetch('/api/hire/count')
+    fetch('/api/hire-confirm/count')
       .then(r => r.json())
       .then(({ count }) => setHireCount(count))
       .catch(() => {})
