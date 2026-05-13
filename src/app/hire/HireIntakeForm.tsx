@@ -81,7 +81,10 @@ const s = {
   fieldset: {
     border: 'none',
     padding: 0,
-    margin: 0,
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
   } as React.CSSProperties,
   legend: {
     display: 'block',
@@ -102,7 +105,9 @@ const s = {
     alignItems: 'center',
     gap: '0.625rem',
     padding: '0.7rem 0.875rem',
-    border: '1px solid #d4d4d8',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: '#d4d4d8',
     borderRadius: 10,
     fontSize: 14,
     color: '#1d1d1f',
