@@ -34,6 +34,7 @@ export default function NavBar() {
     // Builder-first nav — no $199 pricing link visible to a browsing builder
     if (isHomepage && !navUser) {
       return [
+        { label: 'Atlas', href: '/atlas' },
         { label: 'How it works', href: '#how' },
         { label: 'Build Feed', href: '/feed' },
         { label: 'Jobs', href: '/jobs' },
@@ -55,6 +56,7 @@ export default function NavBar() {
     if (navUser?.role === 'employer') {
       if (pathname.startsWith('/employer')) {
         return [
+          { label: 'Atlas', href: '/atlas' },
           { label: 'Browse talent', href: '/talent' },
           { label: 'Jobs', href: '/jobs' },
           { label: 'Leaderboard', href: '/leaderboard' },
@@ -63,6 +65,7 @@ export default function NavBar() {
       }
       if (pathname.startsWith('/talent') || pathname.startsWith('/post-job')) {
         return [
+          { label: 'Atlas', href: '/atlas' },
           { label: 'Jobs', href: '/jobs' },
           { label: 'Leaderboard', href: '/leaderboard' },
           { label: 'Dashboard', href: '/employer' },
@@ -70,6 +73,7 @@ export default function NavBar() {
       }
       // All other employer pages (including /leaderboard)
       return [
+        { label: 'Atlas', href: '/atlas' },
         { label: 'Browse talent', href: '/talent' },
         { label: 'Jobs', href: '/jobs' },
         { label: 'Leaderboard', href: '/leaderboard' },
@@ -83,6 +87,7 @@ export default function NavBar() {
     }
     if (pathname.startsWith('/dashboard')) {
       return [
+        { label: 'Atlas', href: '/atlas' },
         { label: 'Build Feed', href: '/feed' },
         { label: 'Jobs', href: '/jobs' },
         { label: 'Leaderboard', href: '/leaderboard' },
@@ -94,15 +99,20 @@ export default function NavBar() {
     }
     if (pathname.startsWith('/feed')) {
       return [
+        { label: 'Atlas', href: '/atlas' },
         { label: 'Dashboard', href: '/dashboard' },
         { label: 'Build Feed', href: '/feed' },
       ]
     }
     if (pathname.startsWith('/jobs')) {
-      return [{ label: 'Dashboard', href: '/dashboard' }]
+      return [
+        { label: 'Atlas', href: '/atlas' },
+        { label: 'Dashboard', href: '/dashboard' },
+      ]
     }
     if (pathname.startsWith('/u/') || pathname.startsWith('/company/')) {
       return [
+        { label: 'Atlas', href: '/atlas' },
         { label: 'Dashboard', href: '/dashboard' },
         { label: 'Build Feed', href: '/feed' },
       ]
@@ -110,6 +120,7 @@ export default function NavBar() {
     // Homepage logged in as builder
     if (isHomepage && navUser?.role === 'builder') {
       return [
+        { label: 'Atlas', href: '/atlas' },
         { label: 'Dashboard', href: '/dashboard' },
         { label: 'Build Feed', href: '/feed' },
         { label: 'Jobs', href: '/jobs' },

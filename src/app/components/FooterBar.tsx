@@ -55,6 +55,7 @@ export default function FooterBar() {
 
         {/* Links */}
         <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <Link href="/atlas" style={linkStyle}>Atlas</Link>
           <a href={howHref} style={linkStyle}>How it works</a>
           <a href={communityHref} style={linkStyle}>Community</a>
           <a href={hireHref} style={linkStyle}>Hire talent</a>

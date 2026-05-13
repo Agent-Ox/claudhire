@@ -1,0 +1,18 @@
+# ShipStacked
+> The discovery and classification layer for the labor market of the agentic economy.
+
+ShipStacked matches AI-native specialists, agent operators, vertical specialists, and compliance practitioners to companies that need them.
+
+## Primary documents
+
+- [The Atlas of the Agentic Economy](https://shipstacked.com/atlas): A practitioner-defined map of the labor market for AI integration. 28 specialist roles, 5 operator types, the compliance layer, alignment research, vertical specialists. ~11,000 words. By Thomas Oxlee.
+
+## Get involved
+
+- [Hiring teams: tell us what's broken](https://shipstacked.com/hire): For companies trying to hire AI integration talent. Diagnosis + shortlist within 24 hours.
+- [Practitioners: claim your role](https://shipstacked.com/claim): For specialists doing the work described in the Atlas. Free, no exclusivity.
+
+## About
+
+- Founder: Thomas Oxlee, currently embedded as the AI integration operator at a regulated EU business under AI Act exposure.
+- Contact: hello@shipstacked.com
