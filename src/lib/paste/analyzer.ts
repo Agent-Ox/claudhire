@@ -19,6 +19,9 @@ import type { ClassifierSource } from '@/lib/paste/sources';
 import type { ClassifierMetadata } from '@/lib/paste/classifier';
 import { extractGitHub } from '@/services/extractors/github';
 import { extractGeneric } from '@/services/extractors/generic';
+import { extractLovable } from '@/services/extractors/lovable';
+import { extractBolt } from '@/services/extractors/bolt';
+import { extractV0 } from '@/services/extractors/v0';
 
 export interface ExtractorInput {
   url: URL;
@@ -49,11 +52,13 @@ export async function analyzePastedUrl(input: AnalyzeInput): Promise<AnalyzeResp
     switch (input.source) {
       case 'github':
         return await extractGitHub(extractorInput);
-      // Part A only ships github + generic. Everything else falls through
-      // to generic — which uses the metadata the classifier already pulled.
       case 'lovable':
+        return await extractLovable(extractorInput);
       case 'bolt':
+        return await extractBolt(extractorInput);
       case 'v0':
+        return await extractV0(extractorInput);
+      // Part C will add: replit, vercel, netlify, mcp_server.
       case 'replit':
       case 'vercel':
       case 'netlify':
