@@ -12,9 +12,9 @@ import StickyAtlasCTA from './StickyAtlasCTA'
 
 const TITLE = 'The Atlas of the Agentic Economy | ShipStacked'
 const DESCRIPTION =
-  'A practitioner-defined map of the labor market for AI integration. 28 specialist roles, 5 operator types, the compliance layer, alignment research, vertical specialists. By Thomas Oxlee.'
+  'A practitioner-defined map of the labor market for AI integration. 28 specialist roles, 5 operator types, the compliance layer, alignment research, vertical specialists, the practitioner layer. By Thomas Oxlee.'
 const CANONICAL = 'https://shipstacked.com/atlas'
-const PUBLISHED = '2026-05-13'
+const PUBLISHED = '2026-05-15'
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -41,7 +41,7 @@ function buildJsonLd(wordCount: number) {
     '@type': 'Article',
     headline: 'The Atlas of the Agentic Economy',
     alternativeHeadline:
-      "v0.3 — A practitioner's map of the labor market that didn't have a name yesterday",
+      "v0.4 — A practitioner's map of the labor market that didn't have a name yesterday",
     author: {
       '@type': 'Person',
       name: 'Thomas Oxlee',
@@ -562,7 +562,7 @@ const components: Components = {
 }
 
 export default async function AtlasPage() {
-  const markdownPath = path.join(process.cwd(), 'src/content/atlas-v03.md')
+  const markdownPath = path.join(process.cwd(), 'src/content/atlas-v04.md')
   const raw = await fs.readFile(markdownPath, 'utf-8')
   const stripped = stripFrontMatter(raw)
   const toc = extractToc(stripped)
@@ -583,7 +583,7 @@ export default async function AtlasPage() {
         <div style={s.heroInner}>
           <div style={s.eyebrow}>
             <span style={s.eyebrowDot} aria-hidden="true" />
-            <span>Version 0.3 — Practitioner-defined</span>
+            <span>Version 0.4 — Practitioner-defined</span>
           </div>
           <h1 style={s.h1}>The Atlas of the Agentic Economy</h1>
           <p style={s.subhead}>
@@ -594,7 +594,7 @@ export default async function AtlasPage() {
             Founder, ShipStacked. Currently embedded as the AI integration operator at a regulated EU business under AI Act exposure.
           </p>
           <p style={s.bylineMeta}>
-            Published May 13, 2026 · {wordCount.toLocaleString()} words · ~30 min read
+            Published May 15, 2026 · {wordCount.toLocaleString()} words · ~{Math.round(wordCount / 250)} min read
           </p>
           <div style={s.ctaRow}>
             <Link href="/hire" style={s.ctaOutlineDark}>Tell me what&apos;s broken →</Link>
@@ -693,7 +693,7 @@ export default async function AtlasPage() {
             <Link href="/claim" style={s.ctaOutline}>Claim your role →</Link>
           </div>
           <p style={s.versionNote}>
-            This is v0.3. It will be wrong in places. Tell me where —{' '}
+            This is v0.4. It will be wrong in places. Tell me where —{' '}
             <a href="mailto:hello@shipstacked.com" style={s.versionLink}>hello@shipstacked.com</a>
           </p>
         </div>
