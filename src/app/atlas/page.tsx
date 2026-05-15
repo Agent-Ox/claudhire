@@ -15,7 +15,6 @@ const DESCRIPTION =
   'A practitioner-defined map of the labor market for AI integration. 28 specialist roles, 5 operator types, the compliance layer, alignment research, vertical specialists. By Thomas Oxlee.'
 const CANONICAL = 'https://shipstacked.com/atlas'
 const PUBLISHED = '2026-05-13'
-const WORD_COUNT = 11335
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -36,38 +35,44 @@ export const metadata: Metadata = {
   },
 }
 
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'Article',
-  headline: 'The Atlas of the Agentic Economy',
-  alternativeHeadline:
-    "v0.3 — A practitioner's map of the labor market that didn't have a name yesterday",
-  author: {
-    '@type': 'Person',
-    name: 'Thomas Oxlee',
-    description:
-      'Founder of ShipStacked. Currently embedded as the AI integration operator at a regulated EU business under AI Act exposure.',
-  },
-  publisher: {
-    '@type': 'Organization',
-    name: 'ShipStacked',
-    url: 'https://shipstacked.com',
-  },
-  datePublished: PUBLISHED,
-  dateModified: PUBLISHED,
-  url: CANONICAL,
-  mainEntityOfPage: { '@type': 'WebPage', '@id': CANONICAL },
-  wordCount: WORD_COUNT,
-  inLanguage: 'en',
+function buildJsonLd(wordCount: number) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: 'The Atlas of the Agentic Economy',
+    alternativeHeadline:
+      "v0.3 — A practitioner's map of the labor market that didn't have a name yesterday",
+    author: {
+      '@type': 'Person',
+      name: 'Thomas Oxlee',
+      description:
+        'Founder of ShipStacked. Currently embedded as the AI integration operator at a regulated EU business under AI Act exposure.',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'ShipStacked',
+      url: 'https://shipstacked.com',
+    },
+    datePublished: PUBLISHED,
+    dateModified: PUBLISHED,
+    url: CANONICAL,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': CANONICAL },
+    wordCount,
+    inLanguage: 'en',
+  }
 }
 
-type TocEntry = { text: string; slug: string; children: TocEntry[] }
+type TocEntry = { text: string; slug: string; level: 1 | 2 | 3; children: TocEntry[] }
 
 // Walk all heading lines in document order through a single slugger so emitted
 // slugs match what rehype-slug produces (including dedup suffixes like -1).
+// H1s become top-level Part entries; H2s nest under their preceding H1 (or sit
+// at the top level if they appear before any H1, e.g. Foreword); H3s nest
+// under their preceding H2.
 function extractToc(md: string): TocEntry[] {
   const slugger = new GithubSlugger()
   const out: TocEntry[] = []
+  let currentH1: TocEntry | null = null
   let currentH2: TocEntry | null = null
   for (const line of md.split('\n')) {
     const m = line.match(/^(#{1,6})\s+(.+?)\s*#*\s*$/)
@@ -75,14 +80,46 @@ function extractToc(md: string): TocEntry[] {
     const level = m[1].length
     const text = m[2].trim()
     const slug = slugger.slug(text)
-    if (level === 2) {
-      currentH2 = { text, slug, children: [] }
-      out.push(currentH2)
+    if (level === 1) {
+      currentH1 = { text, slug, level: 1, children: [] }
+      out.push(currentH1)
+      currentH2 = null
+    } else if (level === 2) {
+      currentH2 = { text, slug, level: 2, children: [] }
+      if (currentH1) currentH1.children.push(currentH2)
+      else out.push(currentH2)
     } else if (level === 3 && currentH2) {
-      currentH2.children.push({ text, slug, children: [] })
+      currentH2.children.push({ text, slug, level: 3, children: [] })
     }
   }
   return out
+}
+
+// Strip the leading title block (H1 + subtitle/byline lines, terminated by the
+// first horizontal rule) so the hero is the single source of truth for those.
+// Safe-fails to the unmodified input if the document does not start with an H1.
+function stripFrontMatter(md: string): string {
+  const lines = md.split('\n')
+  if (!lines[0]?.startsWith('# ')) return md
+  let i = 0
+  while (i < lines.length && lines[i].trim() !== '---') i++
+  if (i >= lines.length) return md
+  i++
+  while (i < lines.length && lines[i].trim() === '') i++
+  return lines.slice(i).join('\n')
+}
+
+// Self-updating word count. Strips fenced + inline code, image alts, link
+// URLs, and common markdown punctuation, then splits on whitespace.
+function countWords(md: string): number {
+  return md
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`[^`]+`/g, ' ')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/[#>*_~`|]/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean).length
 }
 
 const s = {
@@ -217,6 +254,25 @@ const s = {
     marginBottom: '0.4rem',
     lineHeight: 1.4,
   } as React.CSSProperties,
+  tocPartItem: {
+    marginTop: '0.9rem',
+    marginBottom: '0.5rem',
+    paddingTop: '0.6rem',
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid' as const,
+    borderTopColor: '#e8e8ed',
+    lineHeight: 1.3,
+  } as React.CSSProperties,
+  tocPartLink: {
+    color: '#1d1d1f',
+    textDecoration: 'none',
+    fontSize: 12,
+    fontWeight: 700,
+    letterSpacing: '0.02em',
+    textTransform: 'uppercase' as const,
+    display: 'block',
+    marginBottom: '0.4rem',
+  } as React.CSSProperties,
   tocLink: {
     color: '#3d3d3f',
     textDecoration: 'none',
@@ -241,6 +297,20 @@ const s = {
   } as React.CSSProperties,
 
   // Markdown content
+  mdH1: {
+    fontSize: 'clamp(2rem, 4.2vw, 2.625rem)',
+    fontWeight: 800,
+    letterSpacing: '-0.03em',
+    color: '#0a0a0f',
+    lineHeight: 1.1,
+    marginTop: 'clamp(5rem, 8vw, 6.5rem)',
+    marginBottom: '1.5rem',
+    paddingBottom: '0.75rem',
+    borderBottomWidth: '2px',
+    borderBottomStyle: 'solid' as const,
+    borderBottomColor: '#0071e3',
+    scrollMarginTop: '5rem',
+  } as React.CSSProperties,
   mdH2: {
     fontSize: 'clamp(1.5rem, 3vw, 1.875rem)',
     fontWeight: 700,
@@ -441,12 +511,14 @@ const RESPONSIVE_CSS = `
   border-radius: 6px;
   z-index: 200;
 }
+.atlas-content h1 > a,
 .atlas-content h2 > a,
 .atlas-content h3 > a,
 .atlas-content h4 > a {
   color: inherit;
   text-decoration: none;
 }
+.atlas-content h1 > a:hover,
 .atlas-content h2 > a:hover,
 .atlas-content h3 > a:hover,
 .atlas-content h4 > a:hover {
@@ -454,7 +526,7 @@ const RESPONSIVE_CSS = `
   text-decoration-color: #0071e3;
   text-underline-offset: 4px;
 }
-.atlas-content a:not(h2 > a):not(h3 > a):not(h4 > a):hover {
+.atlas-content a:not(h1 > a):not(h2 > a):not(h3 > a):not(h4 > a):hover {
   text-decoration: underline;
 }
 .atlas-toc-link:hover {
@@ -463,7 +535,7 @@ const RESPONSIVE_CSS = `
 `
 
 const components: Components = {
-  h1: () => null,
+  h1: ({ id, children }) => <h1 id={id} style={s.mdH1}>{children}</h1>,
   h2: ({ id, children }) => <h2 id={id} style={s.mdH2}>{children}</h2>,
   h3: ({ id, children }) => <h3 id={id} style={s.mdH3}>{children}</h3>,
   h4: ({ id, children }) => <h4 id={id} style={s.mdH4}>{children}</h4>,
@@ -492,17 +564,10 @@ const components: Components = {
 export default async function AtlasPage() {
   const markdownPath = path.join(process.cwd(), 'src/content/atlas-v03.md')
   const raw = await fs.readFile(markdownPath, 'utf-8')
-
-  // Strip leading H1 to avoid duplicating the hero. Drop the heading line plus
-  // immediately following blank line if present.
-  const lines = raw.split('\n')
-  let stripped = raw
-  if (lines[0]?.startsWith('# THE SHIPSTACKED')) {
-    const dropCount = lines[1]?.trim() === '' ? 2 : 1
-    stripped = lines.slice(dropCount).join('\n')
-  }
-
+  const stripped = stripFrontMatter(raw)
   const toc = extractToc(stripped)
+  const wordCount = countWords(stripped)
+  const jsonLd = buildJsonLd(wordCount)
 
   return (
     <main style={s.page}>
@@ -529,7 +594,7 @@ export default async function AtlasPage() {
             Founder, ShipStacked. Currently embedded as the AI integration operator at a regulated EU business under AI Act exposure.
           </p>
           <p style={s.bylineMeta}>
-            Published May 13, 2026 · {WORD_COUNT.toLocaleString()} words · ~30 min read
+            Published May 13, 2026 · {wordCount.toLocaleString()} words · ~30 min read
           </p>
           <div style={s.ctaRow}>
             <Link href="/hire" style={s.ctaOutlineDark}>Tell me what&apos;s broken →</Link>
@@ -546,24 +611,57 @@ export default async function AtlasPage() {
             <nav id="atlas-toc" aria-label="Table of contents">
               <div style={s.tocLabel}>On this page</div>
               <ul style={s.tocList}>
-                {toc.map((h2) => (
-                  <li key={h2.slug} style={s.tocItem}>
-                    <a href={`#${h2.slug}`} className="atlas-toc-link" style={s.tocLink}>
-                      {h2.text}
-                    </a>
-                    {h2.children.length > 0 && (
-                      <ul style={s.tocSubList}>
-                        {h2.children.map((h3) => (
-                          <li key={h3.slug} style={s.tocSubItem}>
-                            <a href={`#${h3.slug}`} className="atlas-toc-link" style={s.tocSubLink}>
-                              {h3.text}
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </li>
-                ))}
+                {toc.map((entry) => {
+                  if (entry.level === 1) {
+                    return (
+                      <li key={entry.slug} style={s.tocPartItem}>
+                        <a href={`#${entry.slug}`} className="atlas-toc-link" style={s.tocPartLink}>
+                          {entry.text}
+                        </a>
+                        {entry.children.length > 0 && (
+                          <ul style={s.tocList}>
+                            {entry.children.map((h2) => (
+                              <li key={h2.slug} style={s.tocItem}>
+                                <a href={`#${h2.slug}`} className="atlas-toc-link" style={s.tocLink}>
+                                  {h2.text}
+                                </a>
+                                {h2.children.length > 0 && (
+                                  <ul style={s.tocSubList}>
+                                    {h2.children.map((h3) => (
+                                      <li key={h3.slug} style={s.tocSubItem}>
+                                        <a href={`#${h3.slug}`} className="atlas-toc-link" style={s.tocSubLink}>
+                                          {h3.text}
+                                        </a>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </li>
+                    )
+                  }
+                  return (
+                    <li key={entry.slug} style={s.tocItem}>
+                      <a href={`#${entry.slug}`} className="atlas-toc-link" style={s.tocLink}>
+                        {entry.text}
+                      </a>
+                      {entry.children.length > 0 && (
+                        <ul style={s.tocSubList}>
+                          {entry.children.map((h3) => (
+                            <li key={h3.slug} style={s.tocSubItem}>
+                              <a href={`#${h3.slug}`} className="atlas-toc-link" style={s.tocSubLink}>
+                                {h3.text}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </li>
+                  )
+                })}
               </ul>
             </nav>
           </aside>
