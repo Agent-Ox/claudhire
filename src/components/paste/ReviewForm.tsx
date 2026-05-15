@@ -9,6 +9,7 @@
  */
 
 import { useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import type { Outcome, StackElement } from '@/schemas/proof-receipt-v0.1'
@@ -61,6 +62,7 @@ export default function ReviewForm({
   const inferredIds = draft.atlas.inferred
   const lowConfidence = draft.atlas.confidence < 0.2
 
+  const router = useRouter()
   const [title, setTitle] = useState(draft.analyze.title_draft.slice(0, TITLE_MAX))
   const [description, setDescription] = useState(draft.analyze.description_draft.slice(0, DESCRIPTION_MAX))
   const [occurredAt, setOccurredAt] = useState(todayISODate())
@@ -72,6 +74,8 @@ export default function ReviewForm({
   const [wantedAttestation, setWantedAttestation] = useState(false)
   const [attestationModalOpen, setAttestationModalOpen] = useState(false)
   const [addingOutcome, setAddingOutcome] = useState(false)
+  const [publishing, setPublishing] = useState(false)
+  const [publishError, setPublishError] = useState<string | null>(null)
 
   const roleById = useMemo(() => {
     const m = new Map<string, AtlasRole>()
@@ -88,6 +92,85 @@ export default function ReviewForm({
   }, [inferredIds, confirmedRoles])
 
   const currentLadder: 'L0' | 'L1' = draft.classify.reachable ? 'L1' : 'L0'
+
+  async function handlePublish() {
+    if (publishing) return
+    setPublishError(null)
+
+    const trimmedTitle = title.trim()
+    const trimmedDescription = description.trim()
+    if (!trimmedTitle) {
+      setPublishError('Title is required.')
+      return
+    }
+    if (!trimmedDescription) {
+      setPublishError('Description is required.')
+      return
+    }
+    if (confirmedRoles.length === 0) {
+      setPublishError('Pick at least one Atlas role before publishing.')
+      return
+    }
+
+    // Build the spec §2.1 PasteDraft shape from local state + draft data.
+    // claimed = user-added roles that the classifier didn't infer; inferred
+    // = original classifier output (retained even when user unchecks); the
+    // user's confirmed set is the source of truth for what gets indexed.
+    const claimedRoles = confirmedRoles.filter((id) => !inferredIds.includes(id))
+    const publishPayload = {
+      draft_id: draftId,
+      draft: {
+        url: draft.url,
+        source: draft.classify.source,
+        event_type: draft.classify.event_type_candidate,
+        title: trimmedTitle,
+        description: trimmedDescription,
+        occurred_at: new Date(occurredAt).toISOString(),
+        occurred_at_precision: precision,
+        artifacts: draft.analyze.artifacts,
+        stack,
+        outcomes,
+        capabilities: draft.analyze.capabilities,
+        atlas_roles_confirmed: confirmedRoles,
+        atlas_roles_claimed: claimedRoles,
+        atlas_roles_inferred: inferredIds,
+        atlas_confidence: draft.atlas.confidence,
+        classifier_version: draft.atlas.classifier_version,
+        classifier_reasoning: draft.atlas.reasoning,
+        classifier_reachable: draft.classify.reachable,
+        visibility,
+        wanted_attestation: wantedAttestation,
+      },
+    }
+
+    setPublishing(true)
+    try {
+      const res = await fetch('/api/paste/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(publishPayload),
+      })
+      if (res.status === 401) {
+        const returnTo = `/paste/review?draft=${encodeURIComponent(draftId)}`
+        router.push(`/login?return_to=${encodeURIComponent(returnTo)}`)
+        return
+      }
+      const json = await res.json().catch(() => ({}))
+      if (!res.ok || !json.success) {
+        const msg = json?.message || 'Publishing failed — try again?'
+        setPublishError(msg)
+        setPublishing(false)
+        return
+      }
+      // Server-side navigation so the freshly-published /p/<slug> page
+      // (Step 7) gets a fresh server render with the new receipt.
+      window.location.href = json.canonical_url
+    } catch (e) {
+      console.error('[paste] publish failed', e)
+      setPublishError('Network error. Try again?')
+      setPublishing(false)
+    }
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: '#fbfbfd', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif', padding: '2rem 1.5rem 4rem' }}>
@@ -332,19 +415,25 @@ export default function ReviewForm({
         </Section>
 
         {/* PUBLISH CTA */}
-        <div style={{ marginTop: '2.5rem', paddingTop: '1.5rem', borderTop: '1px solid #ececf0', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            disabled
-            title="Publish ships in Step 6"
-            style={{ padding: '0.9rem 1.5rem', background: '#c5c5cc', color: 'white', border: 'none', borderRadius: 980, fontSize: 15, fontWeight: 600, cursor: 'not-allowed', fontFamily: 'inherit', letterSpacing: '-0.01em' }}
-          >
-            Publish proof receipt →
-          </button>
-          <span style={{ fontSize: 13, color: '#6e6e73' }}>Publish ships in Step 6.</span>
-          <span style={{ fontSize: 12, color: '#86868b', marginLeft: 'auto' }}>
-            Draft id <code style={{ background: '#f4f4f6', padding: '2px 6px', borderRadius: 4 }}>{draftId.slice(0, 8)}</code>
-          </span>
+        <div style={{ marginTop: '2.5rem', paddingTop: '1.5rem', borderTop: '1px solid #ececf0' }}>
+          {publishError && (
+            <div style={{ background: '#fff0f0', border: '1px solid #ffd0d0', borderRadius: 10, padding: '0.75rem 1rem', marginBottom: '1rem', fontSize: 14, color: '#c00' }}>
+              {publishError}
+            </div>
+          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              onClick={handlePublish}
+              disabled={publishing}
+              style={{ padding: '0.9rem 1.5rem', background: publishing ? '#9ec6f5' : '#0071e3', color: 'white', border: 'none', borderRadius: 980, fontSize: 15, fontWeight: 600, cursor: publishing ? 'wait' : 'pointer', fontFamily: 'inherit', letterSpacing: '-0.01em' }}
+            >
+              {publishing ? 'Publishing…' : 'Publish proof receipt →'}
+            </button>
+            <span style={{ fontSize: 12, color: '#86868b', marginLeft: 'auto' }}>
+              Draft id <code style={{ background: '#f4f4f6', padding: '2px 6px', borderRadius: 4 }}>{draftId.slice(0, 8)}</code>
+            </span>
+          </div>
         </div>
       </div>
 

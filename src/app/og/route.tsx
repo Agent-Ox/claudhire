@@ -1,16 +1,119 @@
 import { ImageResponse } from '@vercel/og'
+import { createClient } from '@supabase/supabase-js'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 
 export const runtime = 'edge'
 
+const VERIFICATION_LABELS: Record<string, string> = {
+  L0_claimed: 'L0 Claimed',
+  L1_artifact_confirmed: 'L1 Artifact Confirmed',
+  L2_technically_checked: 'L2 Technically Checked',
+  L3_externally_attested: 'L3 Externally Attested',
+  L4_cryptographically_signed: 'L4 Cryptographically Signed',
+}
+
+function verificationBadgeColor(level: string): { fg: string; bg: string; border: string } {
+  if (level.startsWith('L0')) return { fg: '#aeaeb2', bg: 'rgba(174,174,178,0.12)', border: 'rgba(174,174,178,0.3)' }
+  if (level.startsWith('L1')) return { fg: '#34d399', bg: 'rgba(52,211,153,0.15)', border: 'rgba(52,211,153,0.3)' }
+  if (level.startsWith('L2')) return { fg: '#34d399', bg: 'rgba(52,211,153,0.2)', border: 'rgba(52,211,153,0.4)' }
+  return { fg: '#a78bfa', bg: 'rgba(167,139,250,0.15)', border: 'rgba(167,139,250,0.3)' }
+}
+
+function truncate(s: string, max: number): string {
+  if (s.length <= max) return s
+  return s.slice(0, max - 1) + '…'
+}
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
-  const type = searchParams.get('type')       // 'company' | 'job' | 'builder' | null
+  const type = searchParams.get('type')       // 'company' | 'job' | 'builder' | 'receipt' | null
   const username = searchParams.get('username') // builder profile (legacy)
   const name = searchParams.get('name') || ''   // company name OR job title OR builder name
   const location = searchParams.get('location') || '' // company location OR company name for jobs
   const verifiedParam = searchParams.get('verified') // builder verified flag
   const roleParam = searchParams.get('role') || '' // builder role
+
+  // Receipt OG card — on-demand, reads from DB by slug. Service role so the
+  // card renders for unlisted receipts too (the card reveals only the
+  // already-shared title + subject + Atlas role IDs).
+  if (type === 'receipt') {
+    const slug = searchParams.get('slug')
+    if (slug) {
+      const admin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      )
+      const { data: receipt } = await admin
+        .from('proof_receipts')
+        .select('title, atlas_confirmed, verification_level, subject_id')
+        .eq('slug', slug)
+        .maybeSingle()
+      let subjectName = 'ShipStacked builder'
+      if (receipt?.subject_id) {
+        const { data: entity } = await admin
+          .from('entities')
+          .select('display_name')
+          .eq('id', receipt.subject_id)
+          .maybeSingle()
+        if (entity?.display_name) subjectName = entity.display_name as string
+      }
+      const title = truncate((receipt?.title as string) ?? 'Proof receipt', 70)
+      const verificationLevel = (receipt?.verification_level as string) ?? 'L0_claimed'
+      const verificationLabel = VERIFICATION_LABELS[verificationLevel] ?? verificationLevel
+      const badge = verificationBadgeColor(verificationLevel)
+      const roles: string[] = Array.isArray(receipt?.atlas_confirmed) ? (receipt!.atlas_confirmed as string[]).slice(0, 4) : []
+
+      return new ImageResponse(
+        (
+          <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#0a0a0f', padding: '60px', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+              <div style={{ width: 64, height: 64, background: '#0f0f18', borderRadius: 12, border: '1.5px solid #1e1e2e', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div style={{ background: '#161622', height: 16, display: 'flex', alignItems: 'center', paddingLeft: 8, gap: 5 }}>
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#ff5f57' }} />
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#febc2e' }} />
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#28c840' }} />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', padding: '8px', flex: 1 }}>
+                  <span style={{ fontFamily: 'monospace', fontSize: 16, fontWeight: 700, color: '#6c63ff' }}>~/</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: 16, fontWeight: 700, color: '#0071e3' }}>ship</span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <span style={{ fontSize: 30, fontWeight: 700, color: 'rgba(240,240,245,0.95)', letterSpacing: '-0.02em' }}>ShipStacked</span>
+                <span style={{ fontSize: 30, fontWeight: 700, color: '#0071e3' }}>.</span>
+              </div>
+              <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', background: badge.bg, border: `1px solid ${badge.border}`, padding: '8px 16px', borderRadius: 999 }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: badge.fg, letterSpacing: '0.05em' }}>{verificationLabel}</span>
+              </div>
+            </div>
+
+            <div style={{ flex: 1 }} />
+
+            <div style={{ display: 'flex', flexDirection: 'column', marginBottom: 36 }}>
+              <span style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 14, fontWeight: 700 }}>Proof receipt</span>
+              <span style={{ fontSize: 56, fontWeight: 700, color: 'rgba(240,240,245,0.95)', letterSpacing: '-0.03em', lineHeight: 1.05, marginBottom: 22 }}>{title}</span>
+              <span style={{ fontSize: 22, color: 'rgba(240,240,245,0.55)', letterSpacing: '-0.005em' }}>{subjectName}</span>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 24 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                {roles.length > 0 ? (
+                  <>
+                    <span style={{ fontSize: 13, color: 'rgba(240,240,245,0.35)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Atlas</span>
+                    <span style={{ fontFamily: 'monospace', fontSize: 18, color: 'rgba(108,99,255,0.9)', fontWeight: 700, letterSpacing: '0.04em' }}>{roles.join(' · ')}</span>
+                  </>
+                ) : (
+                  <span style={{ fontSize: 14, color: 'rgba(240,240,245,0.3)' }}>Unclassified</span>
+                )}
+              </div>
+              <span style={{ fontSize: 16, color: 'rgba(240,240,245,0.25)' }}>shipstacked.com/p/{slug}</span>
+            </div>
+          </div>
+        ),
+        { width: 1200, height: 630 },
+      )
+    }
+  }
 
   // Fast path — builder OG with data passed as params (no DB lookup needed)
   if (type === 'builder') {
