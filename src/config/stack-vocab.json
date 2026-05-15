@@ -26,6 +26,7 @@
     "next",
     "react",
     "svelte",
+    "astro",
     "vue",
     "fastapi",
     "flask",

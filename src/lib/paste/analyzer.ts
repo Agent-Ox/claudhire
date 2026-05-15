@@ -22,10 +22,28 @@ import { extractGeneric } from '@/services/extractors/generic';
 import { extractLovable } from '@/services/extractors/lovable';
 import { extractBolt } from '@/services/extractors/bolt';
 import { extractV0 } from '@/services/extractors/v0';
+import { extractReplit } from '@/services/extractors/replit';
+import { extractVercel } from '@/services/extractors/vercel';
+import { extractNetlify } from '@/services/extractors/netlify';
+import { extractMcpServer } from '@/services/extractors/mcp_server';
 
 export interface ExtractorInput {
   url: URL;
   classifierMetadata: ClassifierMetadata;
+}
+
+/**
+ * Cross-extractor classification signal. Emitted when an extractor detects
+ * a fingerprint from a different platform on the URL it's processing — e.g.
+ * vercel.ts spotting a Lovable build hosted on *.vercel.app. The note is
+ * surfaced to callers (paste/review UI, future re-routing logic) but
+ * extractors do NOT reroute themselves. Part D will decide whether to wire
+ * automatic reclassification once we see production data on how often this
+ * fires.
+ */
+export interface ClassificationNote {
+  detected_builder: 'lovable' | 'v0' | 'bolt';
+  message: string;
 }
 
 export interface AnalyzeResponse {
@@ -35,6 +53,7 @@ export interface AnalyzeResponse {
   stack: StackElement[];
   outcomes_suggestions: Outcome[];
   capabilities: string[];
+  classification_note?: ClassificationNote;
 }
 
 export interface AnalyzeInput {
@@ -58,11 +77,14 @@ export async function analyzePastedUrl(input: AnalyzeInput): Promise<AnalyzeResp
         return await extractBolt(extractorInput);
       case 'v0':
         return await extractV0(extractorInput);
-      // Part C will add: replit, vercel, netlify, mcp_server.
       case 'replit':
+        return await extractReplit(extractorInput);
       case 'vercel':
+        return await extractVercel(extractorInput);
       case 'netlify':
+        return await extractNetlify(extractorInput);
       case 'mcp_server':
+        return await extractMcpServer(extractorInput);
       case 'generic':
       default:
         return await extractGeneric(extractorInput);
