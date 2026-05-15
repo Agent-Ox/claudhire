@@ -1,7 +1,56 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// ─── Content negotiation for V2 public surfaces ─────────────────────────
+// /p/<slug>.json                       → /api/p/<slug>/jsonld
+// /atlas/roles/<id>.json               → /api/atlas/roles/<id>/jsonld?v=...
+// /p/<slug>           with Accept: application/ld+json → /api/p/<slug>/jsonld
+// /atlas/roles/<id>   with Accept: application/ld+json → /api/atlas/roles/<id>/jsonld?v=...
+// Bails before the auth gate when a rewrite fires — JSON-LD endpoints are
+// public reads gated downstream by visibility (receipts) / RLS (atlas).
+function tryContentNegotiation(request: NextRequest): NextResponse | null {
+  const { pathname, search } = request.nextUrl
+  const accept = request.headers.get('accept') || ''
+  const wantsJsonLd =
+    accept.includes('application/ld+json') ||
+    accept.includes('application/vnd.shipstacked.receipt+json')
+
+  const receiptJsonMatch = pathname.match(/^\/p\/([^/]+)\.json$/)
+  if (receiptJsonMatch) {
+    const url = request.nextUrl.clone()
+    url.pathname = `/api/p/${receiptJsonMatch[1]}/jsonld`
+    return NextResponse.rewrite(url)
+  }
+  const atlasJsonMatch = pathname.match(/^\/atlas\/roles\/([^/]+)\.json$/)
+  if (atlasJsonMatch) {
+    const url = request.nextUrl.clone()
+    url.pathname = `/api/atlas/roles/${atlasJsonMatch[1]}/jsonld`
+    url.search = search
+    return NextResponse.rewrite(url)
+  }
+
+  if (wantsJsonLd) {
+    const receiptMatch = pathname.match(/^\/p\/([^/]+)$/)
+    if (receiptMatch) {
+      const url = request.nextUrl.clone()
+      url.pathname = `/api/p/${receiptMatch[1]}/jsonld`
+      return NextResponse.rewrite(url)
+    }
+    const atlasMatch = pathname.match(/^\/atlas\/roles\/([^/]+)$/)
+    if (atlasMatch) {
+      const url = request.nextUrl.clone()
+      url.pathname = `/api/atlas/roles/${atlasMatch[1]}/jsonld`
+      url.search = search
+      return NextResponse.rewrite(url)
+    }
+  }
+  return null
+}
+
 export async function middleware(request: NextRequest) {
+  const negotiated = tryContentNegotiation(request)
+  if (negotiated) return negotiated
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
