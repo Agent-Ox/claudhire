@@ -4,6 +4,17 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
+function safeReturnToPaste(returnTo: string | null, pastedUrl: string | null): string | null {
+  if (!returnTo) return null
+  if (!returnTo.startsWith('/paste')) return null
+  if (returnTo.includes('://')) return null
+  if (/[\r\n\x00-\x1f]/.test(returnTo)) return null
+  if (!pastedUrl) return returnTo
+  if (/[\r\n\x00-\x1f]/.test(pastedUrl)) return returnTo
+  const sep = returnTo.includes('?') ? '&' : '?'
+  return `${returnTo}${sep}pasted_url=${encodeURIComponent(pastedUrl)}`
+}
+
 export async function login(formData: FormData) {
   const cookieStore = await cookies()
 
@@ -33,6 +44,15 @@ export async function login(formData: FormData) {
   if (!user) redirect('/login')
 
   await supabase.from('profiles').update({ last_seen_at: new Date().toISOString() }).eq('email', user.email!)
+
+  // /paste round-trip: if the user came in with a return_to=/paste hint
+  // (set by /paste when sending an unauthed visitor here), honor it ahead
+  // of role-based routing. Guarded against open-redirect by safeReturnToPaste.
+  const returnToTarget = safeReturnToPaste(
+    formData.get('return_to') as string | null,
+    formData.get('pasted_url') as string | null,
+  )
+  if (returnToTarget) redirect(returnToTarget)
 
   // Role-based redirect
   const metaRole = user.user_metadata?.role

@@ -4,9 +4,9 @@ import { login } from './actions'
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>
+  searchParams: Promise<{ error?: string; return_to?: string; pasted_url?: string }>
 }) {
-  const { error } = await searchParams
+  const { error, return_to: returnTo, pasted_url: pastedUrl } = await searchParams
 
   const inputStyle = 'width:100%;padding:0.875rem 1rem;border:1px solid #d2d2d7;border-radius:12px;font-size:16px;outline:none;font-family:inherit;background:white;box-sizing:border-box;'
 
@@ -30,6 +30,8 @@ export default async function LoginPage({
         )}
 
         <form>
+          {returnTo && <input type="hidden" name="return_to" value={returnTo} />}
+          {pastedUrl && <input type="hidden" name="pasted_url" value={pastedUrl} />}
           <div style={{ marginBottom: '1rem' }}>
             <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: '0.4rem', color: '#1d1d1f' }}>Email</label>
             <input
