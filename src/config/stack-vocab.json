@@ -1,0 +1,82 @@
+{
+  "model": [
+    "claude-sonnet-4-7",
+    "claude-sonnet-4-6",
+    "claude-opus-4-7",
+    "claude-opus-4-6",
+    "claude-haiku-4-5",
+    "gpt-5",
+    "gpt-5.5",
+    "gpt-5-codex",
+    "gemini-2.5-pro",
+    "llama-3",
+    "mistral-large"
+  ],
+  "framework": [
+    "langgraph",
+    "langchain",
+    "llamaindex",
+    "crewai",
+    "mastra",
+    "autogen",
+    "ag2",
+    "vercel-ai-sdk",
+    "anthropic-sdk",
+    "openai-sdk",
+    "next",
+    "react",
+    "svelte",
+    "vue",
+    "fastapi",
+    "flask",
+    "django",
+    "express"
+  ],
+  "infra": [
+    "supabase",
+    "vercel",
+    "neon",
+    "planetscale",
+    "fly-io",
+    "modal",
+    "railway",
+    "cloudflare-workers",
+    "aws-lambda",
+    "gcp-run",
+    "upstash",
+    "resend"
+  ],
+  "tool": [
+    "cursor",
+    "claude-code",
+    "codex",
+    "mcp",
+    "n8n",
+    "replit-agent",
+    "lovable",
+    "bolt",
+    "v0"
+  ],
+  "language": [
+    "typescript",
+    "javascript",
+    "python",
+    "rust",
+    "go",
+    "swift",
+    "ruby",
+    "java",
+    "kotlin"
+  ],
+  "service": [
+    "stripe",
+    "openai",
+    "anthropic",
+    "github",
+    "slack",
+    "linear",
+    "notion",
+    "twilio",
+    "sentry"
+  ]
+}
