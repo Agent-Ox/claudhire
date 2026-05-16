@@ -66,6 +66,18 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
     .order('created_at', { ascending: false })
     .limit(5)
 
+  // V2 proof receipts (Tier 1 merge — additive). Renders only when the profile
+  // is linked to an entity AND there is ≥1 public receipt to display, so any
+  // existing profile with no receipts looks byte-identical to before the merge.
+  const { data: receipts } = profile.entity_id ? await supabase
+    .from('proof_receipts')
+    .select('id, slug, title, description, event_type, atlas_confirmed, verification_level, issued_at')
+    .eq('subject_id', profile.entity_id)
+    .eq('visibility', 'public')
+    .order('issued_at', { ascending: false })
+    .limit(10)
+    : { data: null }
+
 
   const byCategory = (cat: string) => skills?.filter(s => s.category === cat).map(s => s.name) || []
   const initials = profile.full_name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()
@@ -372,6 +384,33 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                     </div>
                   )}
                 </div>
+              ))}
+            </div>
+          )}
+
+          {/* Proof receipts (V2 — additive; hidden when empty so existing
+              profiles with no receipts render identical to pre-merge) */}
+          {receipts && receipts.length > 0 && (
+            <div className="fade-up" style={{ marginBottom: '1.5rem', animationDelay: '0.28s' }}>
+              <p className="section-label">Proof receipts <span style={{ color: 'var(--text3)', fontWeight: 400 }}>({receipts.length})</span></p>
+              {receipts.map((r: any) => (
+                <a key={r.id} href={`/p/${r.slug}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+                  <div className="card" style={{ padding: '1.25rem 1.5rem', marginBottom: '0.75rem' }}>
+                    <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: '0.4rem', letterSpacing: '-0.01em' }}>{r.title}</p>
+                    {r.description && (
+                      <p style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.6, marginBottom: '0.5rem', fontWeight: 300 }}>
+                        {r.description.length > 140 ? r.description.slice(0, 139) + '…' : r.description}
+                      </p>
+                    )}
+                    {Array.isArray(r.atlas_confirmed) && r.atlas_confirmed.length > 0 && (
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: '0.5rem' }}>
+                        {r.atlas_confirmed.map((roleId: string) => (
+                          <span key={roleId} className="tag-claude">{roleId}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </a>
               ))}
             </div>
           )}

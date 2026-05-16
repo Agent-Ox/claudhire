@@ -1,13 +1,15 @@
 /**
  * Entity helpers.
  *
- * Phase 1A: subject auto-creation for the /paste flow. A logged-in user
- * who hits Publish for the first time gets a single `kind = 'human'`
- * entity with a derived display_name + slug. Subsequent publishes reuse
- * that row. The /claim flow (which writes to `claim_submissions`, not
- * `entities`) is unaffected.
+ * Tier 1 merge (docs/v2/TIER_1_MERGE_SPEC.md §4.3): resolves V1 `profiles`
+ * to V2 `entities` BEFORE creating a new entity. Same human → one entity.
+ * The link is bidirectional (`profiles.entity_id` ↔ `entities.profile_id`,
+ * migration 20260516142038_merge_profiles_entities_link.sql).
  *
- * Spec: docs/v2/STEP_6_PUBLISH_API_SPEC.md §3.4.
+ * The pre-merge behaviour — deriving slug from user_metadata.full_name with
+ * no profiles lookup — caused the audit Part 3 duplicate-identity bug
+ * (entity_canonical_url 404 against /u/[username]). That path now only
+ * fires for genuinely new users with no V1 profile.
  */
 
 import type { SupabaseClient, User } from '@supabase/supabase-js';
@@ -21,11 +23,19 @@ export interface EntityRow {
   display_name: string;
   slug: string;
   owner_user_id: string;
+  profile_id?: string | null;
 }
 
 export interface FindOrCreateResult {
   entity: EntityRow;
   was_created: boolean;
+}
+
+interface ProfileLite {
+  id: string;
+  username: string;
+  full_name: string | null;
+  entity_id: number | null;
 }
 
 function deriveDisplayName(user: User): string {
@@ -49,31 +59,153 @@ function deriveSlugBase(user: User, displayName: string): string {
 }
 
 /**
- * Look up the user's human entity; create one if missing.
+ * Look up the existing V1 profile for this auth user, if any.
+ * Returns null when the user has no V1 profile (genuinely new account).
+ */
+async function findExistingProfile(
+  admin: SupabaseClient,
+  user: User,
+): Promise<ProfileLite | null> {
+  const { data, error } = await admin
+    .from('profiles')
+    .select('id, username, full_name, entity_id')
+    .eq('user_id', user.id)
+    .not('user_id', 'is', null)
+    .limit(1)
+    .maybeSingle();
+  if (error && error.code !== 'PGRST116') {
+    throw new Error(`profile lookup failed: ${error.message}`);
+  }
+  return (data as ProfileLite | null) ?? null;
+}
+
+async function fetchEntityById(
+  admin: SupabaseClient,
+  id: number,
+): Promise<EntityRow | null> {
+  const { data, error } = await admin
+    .from('entities')
+    .select('id, external_id, kind, display_name, slug, owner_user_id, profile_id')
+    .eq('id', id)
+    .maybeSingle();
+  if (error && error.code !== 'PGRST116') {
+    throw new Error(`entity fetch-by-id failed: ${error.message}`);
+  }
+  return (data as EntityRow | null) ?? null;
+}
+
+async function fetchEntityByOwner(
+  admin: SupabaseClient,
+  userId: string,
+): Promise<EntityRow | null> {
+  const { data, error } = await admin
+    .from('entities')
+    .select('id, external_id, kind, display_name, slug, owner_user_id, profile_id')
+    .eq('owner_user_id', userId)
+    .eq('kind', 'human')
+    .limit(1)
+    .maybeSingle();
+  if (error && error.code !== 'PGRST116') {
+    throw new Error(`entity lookup failed: ${error.message}`);
+  }
+  return (data as EntityRow | null) ?? null;
+}
+
+async function writeProfileEntityLink(
+  admin: SupabaseClient,
+  profileId: string,
+  entityId: number,
+): Promise<void> {
+  const { error } = await admin
+    .from('profiles')
+    .update({ entity_id: entityId })
+    .eq('id', profileId);
+  if (error) {
+    throw new Error(`profile.entity_id update failed: ${error.message}`);
+  }
+}
+
+/**
+ * Resolve the human entity for this user, creating it if missing.
  *
- * Caller is responsible for compensating delete if a subsequent write in
- * the publish flow fails — see publish.ts. Use the service-role client
- * because RLS policies require `owner_user_id = auth.uid()` and we may
- * not have a session-bound supabase client in every path that needs this
- * helper.
+ * Resolution order (Spec §4.3):
+ *   1. If V1 profile exists AND profile.entity_id is set → fetch & return that entity (idempotent).
+ *   2. If V1 profile exists AND profile.entity_id null AND an entity already exists for this
+ *      owner_user_id → link profile.entity_id to it and return.
+ *   3. If V1 profile exists AND no entity yet → INSERT entity with slug = profile.username
+ *      VERBATIM and display_name = profile.full_name; link profile.entity_id; return.
+ *   4. No V1 profile → original behaviour (derive slug from user_metadata / email).
+ *
+ * The §0 non-negotiable: when a profile is found, `entities.slug` MUST equal
+ * `profiles.username` exactly. Never normalised, never transformed.
  */
 export async function findOrCreateHumanEntity(
   admin: SupabaseClient,
   user: User,
 ): Promise<FindOrCreateResult> {
-  const { data: existing, error: findErr } = await admin
-    .from('entities')
-    .select('id, external_id, kind, display_name, slug, owner_user_id')
-    .eq('owner_user_id', user.id)
-    .eq('kind', 'human')
-    .limit(1)
-    .maybeSingle();
+  const profile = await findExistingProfile(admin, user);
 
-  if (findErr && findErr.code !== 'PGRST116') {
-    throw new Error(`entity lookup failed: ${findErr.message}`);
+  // ─── Path 1: V1 profile exists, already linked ────────────────────────
+  if (profile?.entity_id) {
+    const linked = await fetchEntityById(admin, profile.entity_id);
+    if (linked) return { entity: linked, was_created: false };
+    // Linked entity row missing — fall through to re-create (defensive).
   }
-  if (existing) {
-    return { entity: existing as EntityRow, was_created: false };
+
+  // ─── Path 2: V1 profile exists, no link yet, but an entity already exists ─
+  if (profile) {
+    const existingByOwner = await fetchEntityByOwner(admin, user.id);
+    if (existingByOwner) {
+      // Link profile → entity (idempotent if entity already had profile_id set).
+      if (!profile.entity_id) {
+        await writeProfileEntityLink(admin, profile.id, existingByOwner.id);
+      }
+      return { entity: existingByOwner, was_created: false };
+    }
+  }
+
+  // ─── Path 3: V1 profile exists, no entity yet → CREATE with username slug ─
+  if (profile) {
+    const displayName = profile.full_name?.trim() || deriveDisplayName(user);
+    const slug = profile.username; // VERBATIM — Spec §0 invariant.
+
+    const row = {
+      external_id: entityExternalId(),
+      kind: 'human' as const,
+      display_name: displayName,
+      slug,
+      owner_user_id: user.id,
+      profile_id: profile.id,
+    };
+
+    const { data: inserted, error: insertErr } = await admin
+      .from('entities')
+      .insert(row)
+      .select('id, external_id, kind, display_name, slug, owner_user_id, profile_id')
+      .single();
+
+    if (insertErr || !inserted) {
+      // Race: another publish in flight just claimed the slug or owner_user_id.
+      if (insertErr?.code === '23505') {
+        const raceWinner = await fetchEntityByOwner(admin, user.id);
+        if (raceWinner) {
+          if (!profile.entity_id) {
+            await writeProfileEntityLink(admin, profile.id, raceWinner.id);
+          }
+          return { entity: raceWinner, was_created: false };
+        }
+      }
+      throw new Error(`entity insert failed: ${insertErr?.message ?? 'unknown'}`);
+    }
+
+    await writeProfileEntityLink(admin, profile.id, (inserted as EntityRow).id);
+    return { entity: inserted as EntityRow, was_created: true };
+  }
+
+  // ─── Path 4: no V1 profile (genuinely new user) → pre-merge behaviour ─
+  const existingByOwner = await fetchEntityByOwner(admin, user.id);
+  if (existingByOwner) {
+    return { entity: existingByOwner, was_created: false };
   }
 
   const displayName = deriveDisplayName(user);
@@ -91,21 +223,13 @@ export async function findOrCreateHumanEntity(
   const { data: inserted, error: insertErr } = await admin
     .from('entities')
     .insert(row)
-    .select('id, external_id, kind, display_name, slug, owner_user_id')
+    .select('id, external_id, kind, display_name, slug, owner_user_id, profile_id')
     .single();
 
   if (insertErr || !inserted) {
-    // Unique-violation race: another publish in flight just claimed the
-    // slug or owner_user_id. Re-read; if a row now exists, use it.
     if (insertErr?.code === '23505') {
-      const { data: raceWinner } = await admin
-        .from('entities')
-        .select('id, external_id, kind, display_name, slug, owner_user_id')
-        .eq('owner_user_id', user.id)
-        .eq('kind', 'human')
-        .limit(1)
-        .maybeSingle();
-      if (raceWinner) return { entity: raceWinner as EntityRow, was_created: false };
+      const raceWinner = await fetchEntityByOwner(admin, user.id);
+      if (raceWinner) return { entity: raceWinner, was_created: false };
     }
     throw new Error(`entity insert failed: ${insertErr?.message ?? 'unknown'}`);
   }
