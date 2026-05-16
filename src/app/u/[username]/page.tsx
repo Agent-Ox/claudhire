@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import { getResolvedUser } from '@/lib/user'
+import { getPublishedProfile } from '@/lib/profiles'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import ShareButtons from './ShareButtons'
@@ -9,12 +10,7 @@ export async function generateMetadata(
   { params }: { params: Promise<{ username: string }> }
 ): Promise<Metadata> {
   const { username } = await params
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('full_name, role, bio, about, location, verified, username, velocity_score, primary_profession')
-    .eq('username', username)
-    .eq('published', true)
-    .single()
+  const profile = await getPublishedProfile(supabase, username)
 
   if (!profile) return { title: 'Profile not found' }
 
@@ -33,12 +29,7 @@ export async function generateMetadata(
 export default async function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = await params
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('username', username)
-    .eq('published', true)
-    .single()
+  const profile = await getPublishedProfile(supabase, username)
 
   if (!profile) notFound()
 
