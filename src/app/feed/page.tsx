@@ -18,7 +18,13 @@ export default async function FeedPage() {
 
   const { data: posts } = await supabase
     .from('posts')
-    .select('*, profiles(username, full_name, avatar_url, verified, github_connected)')
+    // H9a: inner-join + filter on profiles.published — posts authored by the 3
+    // neutralized fakes (jennypeterson224, johnchambers73, oxleethomasagentox598)
+    // are excluded from the feed. Same precedent as Tier 0's /api/apply
+    // status-filter hardening. No ItemList JSON-LD wrapper on this page per
+    // Beacon 1's no-noise rule — only per-post Article markup at /feed/[id].
+    .select('*, profiles!inner(username, full_name, avatar_url, verified, github_connected, published)')
+    .eq('profiles.published', true)
     .order('created_at', { ascending: false })
     .limit(20)
 

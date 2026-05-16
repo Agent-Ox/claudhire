@@ -2,6 +2,8 @@ import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { createClient } from '@supabase/supabase-js'
 import type { Metadata } from 'next'
 import JobsClient from './JobsClient'
+import { buildItemListJsonLd } from '@/lib/jsonld/item-list'
+import { CANONICAL_HOST, jobPostingId } from '@/lib/jsonld/context'
 
 export const metadata: Metadata = {
   title: 'AI-Native Jobs',
@@ -51,11 +53,29 @@ export default async function JobsPage() {
     appliedJobIds = applications?.map((a: any) => a.job_id) || []
   }
 
+  // Beacon 1 — ItemList of active JobPostings. Query above already filters
+  // status='active' AND expires_at > now() so paused/expired jobs are
+  // excluded. Empty-suppressed (null when 0 active jobs — currently always).
+  const jobsItemListLd = buildItemListJsonLd({
+    listUrl: `${CANONICAL_HOST}/jobs`,
+    listName: 'Open AI-native roles on ShipStacked',
+    items: jobList.map((j: any) => ({
+      url: jobPostingId(j.id),
+      id: jobPostingId(j.id),
+      name: j.role_title,
+    })),
+  })
+
   return (
-    <JobsClient
-      jobs={jobsWithLogos}
-      role={role}
-      appliedJobIds={appliedJobIds}
-    />
+    <>
+      {jobsItemListLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jobsItemListLd) }} />
+      )}
+      <JobsClient
+        jobs={jobsWithLogos}
+        role={role}
+        appliedJobIds={appliedJobIds}
+      />
+    </>
   )
 }

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase'
 import BuilderMap from './components/BuilderMap'
+import { buildWebsiteJsonLd } from '@/lib/jsonld/website'
 
 async function goToCheckout() {
   const res = await fetch('/api/checkout', {
@@ -67,8 +68,11 @@ export default function Home() {
   const displayProfiles = realProfiles
   const displayPosts = feedPosts
 
+  const websiteLd = buildWebsiteJsonLd()
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }} />
       <style>{`
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {

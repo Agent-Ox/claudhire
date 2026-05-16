@@ -9,6 +9,8 @@ import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import GithubSlugger from 'github-slugger'
 import StickyAtlasCTA from './StickyAtlasCTA'
+import { createClient } from '@supabase/supabase-js'
+import { buildAtlasArticleJsonLd, buildAtlasDefinedTermSetJsonLd } from '@/lib/jsonld/atlas-article'
 
 const TITLE = 'The Atlas of the Agentic Economy | ShipStacked'
 const DESCRIPTION =
@@ -567,7 +569,21 @@ export default async function AtlasPage() {
   const stripped = stripFrontMatter(raw)
   const toc = extractToc(stripped)
   const wordCount = countWords(stripped)
-  const jsonLd = buildJsonLd(wordCount)
+  // Beacon 1 — Article + DefinedTermSet (the latter references every
+  // /atlas/roles/[id] DefinedTerm so the Atlas works as one controlled
+  // vocabulary entry-point). The per-role DefinedTerm at /atlas/roles/[id]
+  // is V2 code (src/lib/atlas/jsonld.ts) — UNTOUCHED.
+  const jsonLd = buildAtlasArticleJsonLd(wordCount)
+  const ATLAS_VERSION = 'v0.4'
+  const admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+  const { data: roleRows } = await admin
+    .from('atlas_roles')
+    .select('role_id')
+    .eq('atlas_version', ATLAS_VERSION)
+    .order('role_id')
+  const definedTermSetLd = (roleRows && roleRows.length > 0)
+    ? buildAtlasDefinedTermSetJsonLd(ATLAS_VERSION, roleRows.map((r: any) => r.role_id))
+    : null
 
   return (
     <main style={s.page}>
@@ -576,6 +592,12 @@ export default async function AtlasPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      {definedTermSetLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(definedTermSetLd) }}
+        />
+      )}
       <a href="#atlas-content" className="atlas-skip-link">Skip to content</a>
 
       {/* Hero */}

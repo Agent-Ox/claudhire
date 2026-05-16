@@ -3,6 +3,7 @@ import { getResolvedUser } from '@/lib/user'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import ShareButtons from './ShareButtons'
+import { buildPersonJsonLd } from '@/lib/jsonld/person'
 
 export async function generateMetadata(
   { params }: { params: Promise<{ username: string }> }
@@ -97,16 +98,55 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
   const hasLinks = profile.github_url || profile.x_url || profile.linkedin_url || profile.website_url
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: profile.full_name,
-    jobTitle: profile.role,
-    description: profile.bio || profile.about,
-    url: profileUrl,
-    ...(profile.github_url && { sameAs: [profile.github_url, profile.x_url, profile.linkedin_url, profile.website_url].filter(Boolean) }),
-    ...(allSkillNames.length > 0 && { knowsAbout: allSkillNames }),
+  // Beacon 1 — full Person markup with shipstacked: extensions, entity link,
+  // honest-field hygiene. The 3 fakes have published=false post-Tier-1 so this
+  // code path is unreachable for them (profile fetch above returns null → 404).
+  let linkedEntity: { external_id: string } | null = null
+  if (profile.entity_id) {
+    const { data: entityRow } = await supabase
+      .from('entities')
+      .select('external_id')
+      .eq('id', profile.entity_id)
+      .maybeSingle()
+    linkedEntity = entityRow ?? null
   }
+  const jsonLd = buildPersonJsonLd(
+    {
+      username: profile.username,
+      full_name: profile.full_name,
+      role: profile.role,
+      bio: profile.bio,
+      about: profile.about,
+      location: profile.location,
+      github_url: profile.github_url,
+      x_url: profile.x_url,
+      linkedin_url: profile.linkedin_url,
+      website_url: profile.website_url,
+      verified: !!profile.verified,
+      velocity_score: profile.velocity_score,
+      primary_profession: profile.primary_profession,
+      seniority: profile.seniority,
+      work_type: profile.work_type,
+      day_rate: profile.day_rate,
+      timezone: profile.timezone,
+      languages: profile.languages,
+      entity_id: profile.entity_id,
+    },
+    linkedEntity,
+    (skills ?? []).map((s: any) => ({ name: s.name })),
+    (projects ?? []).map((p: any) => ({
+      title: p.title,
+      description: p.description,
+      outcome: p.outcome,
+      project_url: p.project_url,
+    })),
+    githubData ? {
+      github_username: githubData.github_username,
+      repos_count: githubData.repos_count,
+      commits_90d: githubData.commits_90d,
+      top_languages: githubData.top_languages,
+    } : null,
+  )
 
   return (
     <>

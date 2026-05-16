@@ -6,16 +6,20 @@ import NativeShareDetailButton from './NativeShareButton'
 import FeedPostCTA from './FeedPostCTA'
 import PostComments from './PostComments'
 import { getResolvedUser } from '@/lib/user'
+import { buildArticleJsonLd } from '@/lib/jsonld/article'
 
 export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
   const supabase = await createServerSupabaseClient()
+  // H9a: inner-join + filter on profiles.published — posts whose author was
+  // neutralized post-Tier-1 no longer surface metadata for fake authors.
   const { data: post } = await supabase
     .from('posts')
-    .select('title, problem_solved, outcome, tools_used, created_at, profiles(full_name, username, verified)')
+    .select('title, problem_solved, outcome, tools_used, created_at, profiles!inner(full_name, username, verified, published)')
     .eq('id', id)
+    .eq('profiles.published', true)
     .maybeSingle()
 
   if (!post) return { title: 'Build not found' }
@@ -60,10 +64,16 @@ export default async function FeedPostPage({ params }: { params: Promise<{ id: s
   const { id } = await params
   const supabase = await createServerSupabaseClient()
 
+  // H9a: inner-join + filter on profiles.published — the 3 fakes
+  // (jennypeterson224, johnchambers73, oxleethomasagentox598) had posts; this
+  // filter ensures their build pages now 404 instead of rendering an Article
+  // that references a neutralized profile. Same precedent as Tier 0's
+  // /api/apply status-filter hardening.
   const { data: post } = await supabase
     .from('posts')
-    .select('*, profiles(id, username, full_name, avatar_url, verified, github_connected, role, location, accepts_project_inquiries)')
+    .select('*, profiles!inner(id, email, username, full_name, avatar_url, verified, published, github_connected, role, location, accepts_project_inquiries)')
     .eq('id', id)
+    .eq('profiles.published', true)
     .maybeSingle()
 
   if (!post) notFound()
@@ -84,28 +94,23 @@ export default async function FeedPostPage({ params }: { params: Promise<{ id: s
   const xShareUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(xShareText)}`
   const liShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://shipstacked.com/feed/${id}`)}`
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Article',
-    headline: post.title,
-    description: post.problem_solved || post.outcome || `${profile?.full_name} shipped this on ShipStacked`,
-    datePublished: post.created_at,
-    author: {
-      '@type': 'Person',
-      name: profile?.full_name,
-      url: `https://shipstacked.com/u/${profile?.username}`,
+  // Beacon 1 — Article markup with shipstacked: namespace + author Person @id
+  // cross-ref. Page-level H9a filter guarantees `profile` here is published.
+  const jsonLd = buildArticleJsonLd(
+    {
+      id,
+      title: post.title,
+      problem_solved: post.problem_solved,
+      outcome: post.outcome,
+      tools_used: post.tools_used,
+      url: post.url,
+      created_at: post.created_at,
     },
-    publisher: {
-      '@type': 'Organization',
-      name: 'ShipStacked',
-      url: 'https://shipstacked.com',
-      logo: { '@type': 'ImageObject', url: 'https://shipstacked.com/icon.svg' },
+    {
+      username: profile?.username,
+      full_name: profile?.full_name,
     },
-    url: `https://shipstacked.com/feed/${id}`,
-    mainEntityOfPage: `https://shipstacked.com/feed/${id}`,
-    ...(post.url && { isBasedOn: post.url }),
-    ...(post.tools_used && { keywords: post.tools_used }),
-  }
+  )
 
   return (
     <>

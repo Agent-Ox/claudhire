@@ -2,6 +2,8 @@ import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { createClient } from '@supabase/supabase-js'
 import type { Metadata } from 'next'
 import TalentClient from './TalentClient'
+import { buildItemListJsonLd } from '@/lib/jsonld/item-list'
+import { CANONICAL_HOST, personId } from '@/lib/jsonld/context'
 
 export const metadata: Metadata = {
   title: 'AI-Native Builder Directory | ShipStacked',
@@ -102,8 +104,27 @@ export default async function TalentPage({ searchParams }: { searchParams: Promi
     savedIds = saved?.map((s: any) => s.profile_id) || []
   }
 
+  // Beacon 1 — paywall-aware ItemList. JSON-LD reflects the 6-builder
+  // teaser slice that's HTML-visible to anonymous viewers, NOT the full
+  // unpaywalled list (emitting the full list to crawlers would expose
+  // data behind a paywall). Query above already filters published=true so
+  // the 3 fakes are excluded at source.
+  const teaserSlice = profiles.slice(0, 6)
+  const talentItemListLd = buildItemListJsonLd({
+    listUrl: `${CANONICAL_HOST}/talent`,
+    listName: 'AI-native builders on ShipStacked',
+    items: teaserSlice.map((p: any) => ({
+      url: personId(p.username),
+      id: personId(p.username),
+      name: p.full_name?.trim() || p.username,
+    })),
+  })
+
   return (
     <div style={{ minHeight: '100vh', background: '#fbfbfd', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif', overflowX: 'hidden' }}>
+      {talentItemListLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(talentItemListLd) }} />
+      )}
       <div style={{ maxWidth: 1000, margin: '0 auto', padding: '4rem 1.5rem 5rem' }}>
         <TalentClient
           profiles={displayProfiles}

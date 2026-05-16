@@ -5,6 +5,7 @@ import { getResolvedUser } from '@/lib/user'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import ApplyButton from './ApplyButton'
+import { buildEmployerOrgJsonLd } from '@/lib/jsonld/employer-org'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
@@ -73,15 +74,20 @@ export default async function CompanyProfilePage({ params }: { params: Promise<{
   const initials = company.company_name
     .split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: company.company_name,
-    description: company.about || undefined,
-    url: company.website_url || `https://shipstacked.com/company/${slug}`,
-    ...(company.location && { address: { '@type': 'PostalAddress', addressLocality: company.location } }),
-    ...(company.linkedin_url && { sameAs: [company.linkedin_url] }),
-  }
+  // Beacon 1 — Organization markup with shipstacked: namespace + canonical
+  // @id matching the page URL. The page above already filters public=true
+  // so unpublished employer profiles 404 and this code never runs for them.
+  const jsonLd = buildEmployerOrgJsonLd({
+    slug,
+    company_name: company.company_name,
+    about: company.about,
+    website_url: company.website_url,
+    logo_url: company.logo_url,
+    location: company.location,
+    linkedin_url: company.linkedin_url,
+    x_url: company.x_url,
+    industry: company.industry,
+  })
 
   return (
     <>

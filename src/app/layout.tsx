@@ -3,6 +3,7 @@ import Script from 'next/script'
 import './globals.css'
 import NavBar from '@/app/components/NavBar'
 import FooterBar from '@/app/components/FooterBar'
+import { buildOrganizationJsonLd } from '@/lib/jsonld/organization'
 
 export const viewport = {
   width: 'device-width',
@@ -52,21 +53,7 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const orgLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'ShipStacked',
-    alternateName: 'ShipStacked.',
-    url: 'https://shipstacked.com',
-    logo: 'https://shipstacked.com/icon.svg',
-    description: 'Proof-of-work hiring platform for AI-native builders. Find verified developers, prompt engineers, and AI automation specialists.',
-    foundingDate: '2026-04',
-    founder: { '@type': 'Person', name: 'Thomas Oxlee' },
-    sameAs: [
-      'https://x.com/ShipStacked',
-      'https://www.linkedin.com/company/shipstacked',
-    ],
-  }
+  const orgLd = buildOrganizationJsonLd()
 
   return (
     <html lang="en">

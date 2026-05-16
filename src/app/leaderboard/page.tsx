@@ -1,6 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import type { Metadata } from 'next'
+import { buildItemListJsonLd } from '@/lib/jsonld/item-list'
+import { CANONICAL_HOST, personId } from '@/lib/jsonld/context'
 
 export const metadata: Metadata = {
   title: 'Velocity Leaderboard | ShipStacked',
@@ -64,8 +66,24 @@ export default async function LeaderboardPage() {
     }
   }
 
+  // Beacon 1 — ItemList of top builders. Query above already filters
+  // published=true AND velocity_score > 0 so the 3 fakes are excluded
+  // at source. Empty-suppressed (null when no rows).
+  const itemListLd = buildItemListJsonLd({
+    listUrl: `${CANONICAL_HOST}/leaderboard`,
+    listName: 'Velocity Leaderboard — top builders on ShipStacked',
+    items: top.map((b: any) => ({
+      url: personId(b.username),
+      id: personId(b.username),
+      name: b.full_name?.trim() || b.username,
+    })),
+  })
+
   return (
     <div style={{ minHeight: '100vh', background: '#fbfbfd', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+      {itemListLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }} />
+      )}
       <div style={{ maxWidth: 680, margin: '0 auto', padding: '4rem 1.5rem 6rem' }}>
 
         {/* Header */}
