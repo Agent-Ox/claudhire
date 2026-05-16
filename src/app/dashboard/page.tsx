@@ -2,6 +2,8 @@ import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import BuilderDashboardClient from './BuilderDashboardClient'
 import AgentOnboarding from './AgentOnboarding'
+import { listActiveCollections } from '@/lib/collections/collections'
+import { listMembershipsForProfile } from '@/lib/collections/consent'
 
 export default async function DashboardPage({
   searchParams,
@@ -57,6 +59,17 @@ export default async function DashboardPage({
     .not('url', 'is', null)
     .neq('url', '')
 
+  // Consented collections — per-collection cards rendered in a loop on the
+  // dashboard, gated on profile.published in the client component. Zero
+  // active collections → empty arrays → no cards → dashboard byte-identical
+  // to today. Both queries use the session-bound client; RLS allows the
+  // public-read-active policy on collections, and memberships are
+  // service-role-only — but the user's own profile_id-keyed memberships
+  // can be read via the same path because we use service role for that
+  // specific lookup via the helper.
+  const activeCollections = await listActiveCollections(supabase)
+  const memberships = await listMembershipsForProfile(supabase, profile.id)
+
   return (
     <BuilderDashboardClient
       profile={profile}
@@ -66,6 +79,8 @@ export default async function DashboardPage({
       githubData={githubData || null}
       velocityScore={profile?.velocity_score || 0}
       provenPostCount={provenPostCount || 0}
+      activeCollections={activeCollections}
+      memberships={memberships}
     />
   )
 }

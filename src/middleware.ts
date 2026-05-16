@@ -29,6 +29,22 @@ function tryContentNegotiation(request: NextRequest): NextResponse | null {
     return NextResponse.rewrite(url)
   }
 
+  // Consented Collections (slug-as-data — middleware rewrites by pattern;
+  // unknown / inactive slugs are handled by the underlying API route's
+  // requireActiveCollection gate).
+  const collectionJsonMatch = pathname.match(/^\/collections\/([^/]+)\.json$/)
+  if (collectionJsonMatch) {
+    const url = request.nextUrl.clone()
+    url.pathname = `/api/collections/${collectionJsonMatch[1]}/jsonld`
+    return NextResponse.rewrite(url)
+  }
+  const collectionCsvMatch = pathname.match(/^\/collections\/([^/]+)\.csv$/)
+  if (collectionCsvMatch) {
+    const url = request.nextUrl.clone()
+    url.pathname = `/api/collections/${collectionCsvMatch[1]}/csv`
+    return NextResponse.rewrite(url)
+  }
+
   if (wantsJsonLd) {
     const receiptMatch = pathname.match(/^\/p\/([^/]+)$/)
     if (receiptMatch) {
@@ -41,6 +57,14 @@ function tryContentNegotiation(request: NextRequest): NextResponse | null {
       const url = request.nextUrl.clone()
       url.pathname = `/api/atlas/roles/${atlasMatch[1]}/jsonld`
       url.search = search
+      return NextResponse.rewrite(url)
+    }
+    // /collections/<slug> (no extension) with Accept: application/ld+json
+    // → rewrite to the JSON-LD endpoint. The HTML page handles default Accept.
+    const collectionMatch = pathname.match(/^\/collections\/([^/]+)$/)
+    if (collectionMatch) {
+      const url = request.nextUrl.clone()
+      url.pathname = `/api/collections/${collectionMatch[1]}/jsonld`
       return NextResponse.rewrite(url)
     }
   }

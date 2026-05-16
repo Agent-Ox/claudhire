@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import ShareButtons from '@/app/u/[username]/ShareButtons'
 import FeedPostForm from '@/app/feed/FeedPostForm'
+import CollectionToggleCard from './CollectionToggleCard'
 
 const MILESTONE_SCORES = [25, 50, 75, 100]
 
@@ -65,6 +66,8 @@ export default function BuilderDashboardClient({
   velocityScore: initialScore,
   provenPostCount,
   agentMode = false,
+  activeCollections = [],
+  memberships = [],
 }: {
   profile: any
   applications: any[]
@@ -74,6 +77,8 @@ export default function BuilderDashboardClient({
   velocityScore: number
   provenPostCount: number
   agentMode?: boolean
+  activeCollections?: Array<{ slug: string; title: string; description: string | null }>
+  memberships?: Array<{ collection_slug: string; opted_in_at: string; source: 'dashboard' | 'link' }>
 }) {
   const [requestSent, setRequestSent] = useState(false)
   const [requesting, setRequesting] = useState(false)
@@ -467,6 +472,24 @@ export default function BuilderDashboardClient({
                 </button>
               </div>
             </div>
+
+            {/* Consented Collections — one card per active collection, gated on
+                profile.published. Zero collections → zero cards (byte-identical
+                to pre-feature dashboard). Collections are DATA — the card has
+                no knowledge of what any collection is for; all human-readable
+                specifics come from collection.title / collection.description. */}
+            {profile?.published && activeCollections.map((c) => {
+              const m = memberships.find(x => x.collection_slug === c.slug)
+              return (
+                <CollectionToggleCard
+                  key={c.slug}
+                  collection={c}
+                  isOptedIn={!!m}
+                  optedInAt={m?.opted_in_at ?? null}
+                  source={m?.source ?? null}
+                />
+              )
+            })}
 
             {/* API Keys */}
             <div style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.5rem', marginBottom: '1rem' }}>
