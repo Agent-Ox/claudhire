@@ -1,0 +1,55 @@
+{
+  "name": "@shipstacked/atlas-roles",
+  "version": "0.4.0",
+  "description": "The ShipStacked Atlas — a practitioner-defined role taxonomy of the agentic economy. Data + Schema.org/DefinedTerm helpers, generated from the canonical markdown source the live shipstacked.com/atlas pages also render.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./jsonld": {
+      "types": "./dist/jsonld.d.ts",
+      "import": "./dist/jsonld.js"
+    },
+    "./data/v0.4": {
+      "types": "./dist/data/roles-v0.4.d.ts",
+      "import": "./dist/data/roles-v0.4.js"
+    },
+    "./data/v0.3": {
+      "types": "./dist/data/roles-v0.3.d.ts",
+      "import": "./dist/data/roles-v0.3.js"
+    }
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Agent-Ox/shipstacked.git",
+    "directory": "packages/atlas-roles"
+  },
+  "keywords": [
+    "taxonomy",
+    "atlas",
+    "schema.org",
+    "defined-term",
+    "labor-market",
+    "agentic",
+    "ai-roles",
+    "iso-42001",
+    "eu-ai-act",
+    "isco-08"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "node --experimental-strip-types scripts/build.ts",
+    "verify": "node --experimental-strip-types scripts/verify.ts",
+    "pack:dry": "npm pack --dry-run"
+  }
+}
