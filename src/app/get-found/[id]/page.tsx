@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import type { Metadata } from 'next'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -27,8 +27,12 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function GetFoundPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
-  const { data: job } = await admin.from('jobs').select('*').eq('id', id).eq('status', 'active').maybeSingle()
+  // Two-step: load by id first; if the row exists but is non-active (e.g. seed job
+  // soft-deleted), 308 → /jobs to honour the no-404 rule. If the id is unknown,
+  // fall through to notFound().
+  const { data: job } = await admin.from('jobs').select('*').eq('id', id).maybeSingle()
   if (!job) notFound()
+  if (job.status !== 'active') permanentRedirect('/jobs')
 
   const steps = [
     { n: '01', title: 'Create your free profile', desc: 'Name, role, one-line bio. Takes two minutes. No CV required.' },

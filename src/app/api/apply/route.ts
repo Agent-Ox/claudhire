@@ -30,6 +30,7 @@ export async function POST(req: Request) {
       .from('jobs')
       .select('*')
       .eq('id', job_id)
+      .eq('status', 'active')
       .maybeSingle()
 
     if (!job) {

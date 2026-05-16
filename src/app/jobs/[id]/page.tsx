@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import JobDetailClient from './JobDetailClient'
 
@@ -45,6 +45,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
     .maybeSingle()
 
   if (!job) notFound()
+  if (job.status !== 'active') permanentRedirect('/jobs')
 
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()

@@ -18,14 +18,6 @@ async function goToCheckout() {
 export default function Home() {
   const [realProfiles, setRealProfiles] = useState<any[]>([])
   const [feedPosts, setFeedPosts] = useState<any[]>([])
-  const [hireCount, setHireCount] = useState<number | null>(null)
-
-  useEffect(() => {
-    fetch('/api/hire-confirm/count')
-      .then(r => r.json())
-      .then(({ count }) => setHireCount(count))
-      .catch(() => {})
-  }, [])
 
   useEffect(() => {
     // Try featured posts first, fall back to most recent
@@ -213,7 +205,6 @@ export default function Home() {
           <div className="proof-item"><span className="proof-dot" /> Free forever for builders</div>
           <div className="proof-item"><span className="proof-dot" /> Auto-verified when your proof is real</div>
           <div className="proof-item"><span className="proof-dot" /> Live in 5 minutes</div>
-          <div className="proof-item"><span className="proof-dot" /> {hireCount !== null && hireCount >= 10 ? hireCount : 10}+ hires made</div>
         </div>
       </section>
 
