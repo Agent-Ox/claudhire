@@ -43,3 +43,6 @@ shipstacked_src.zip
 
 # runtime state for scripts/
 scripts/posted-jobs-state.json
+
+# Claude Code local-only settings (per-machine; never committed)
+.claude/
