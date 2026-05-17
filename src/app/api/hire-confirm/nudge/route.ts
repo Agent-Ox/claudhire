@@ -3,12 +3,13 @@ import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const CRON_SECRET = 'shipstacked_cron_2026'
+const CRON_SECRET = process.env.CRON_SECRET
 
 export async function POST(req: Request) {
-  // Verify cron secret
+  // Verify cron secret — fail-closed: deny on unset/empty env, missing/empty
+  // header, or mismatch. No fallback literal. No skip-when-unset.
   const secret = req.headers.get('x-cron-secret')
-  if (secret !== CRON_SECRET) {
+  if (!CRON_SECRET || !secret || secret !== CRON_SECRET) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
