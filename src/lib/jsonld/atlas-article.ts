@@ -43,7 +43,7 @@ export function buildAtlasArticleJsonLd(wordCount: number): AtlasArticleJsonLd {
     '@id': ATLAS_URL,
     headline: 'The Atlas of the Agentic Economy',
     alternativeHeadline:
-      "v0.4 — A practitioner's map of the labor market that didn't have a name yesterday",
+      "v0.5 — A practitioner's map of the labor market that didn't have a name yesterday",
     author: {
       '@type': 'Person',
       name: 'Thomas Oxlee',

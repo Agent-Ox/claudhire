@@ -564,7 +564,7 @@ const components: Components = {
 }
 
 export default async function AtlasPage() {
-  const markdownPath = path.join(process.cwd(), 'src/content/atlas-v04.md')
+  const markdownPath = path.join(process.cwd(), 'src/content/atlas-v05.md')
   const raw = await fs.readFile(markdownPath, 'utf-8')
   const stripped = stripFrontMatter(raw)
   const toc = extractToc(stripped)
@@ -605,7 +605,7 @@ export default async function AtlasPage() {
         <div style={s.heroInner}>
           <div style={s.eyebrow}>
             <span style={s.eyebrowDot} aria-hidden="true" />
-            <span>Version 0.4 — Practitioner-defined</span>
+            <span>Version 0.5 — Practitioner-defined</span>
           </div>
           <h1 style={s.h1}>The Atlas of the Agentic Economy</h1>
           <p style={s.subhead}>
@@ -715,7 +715,7 @@ export default async function AtlasPage() {
             <Link href="/claim" style={s.ctaOutline}>Claim your role →</Link>
           </div>
           <p style={s.versionNote}>
-            This is v0.4. It will be wrong in places. Tell me where —{' '}
+            This is v0.5. It will be wrong in places. Tell me where —{' '}
             <a href="mailto:hello@shipstacked.com" style={s.versionLink}>hello@shipstacked.com</a>
           </p>
         </div>
