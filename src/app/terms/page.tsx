@@ -29,7 +29,7 @@ export default function TermsPage() {
 
         <p style={s.eyebrow}>Legal</p>
         <h1 style={s.h1}>Terms of Service</h1>
-        <p style={s.meta}>ShipStacked · Last updated: 5 April 2026</p>
+        <p style={s.meta}>ShipStacked · Last updated: 17 May 2026</p>
 
         <hr style={s.hr} />
 
@@ -59,6 +59,8 @@ export default function TermsPage() {
         <p style={s.p}>The verified badge is awarded automatically when your profile meets our criteria. We reserve the right to remove verification if we determine that content is false, misleading, or in breach of these Terms.</p>
         <h3 style={s.h3}>4.4 API keys</h3>
         <p style={s.p}>Your API keys are personal to you. You are responsible for keeping them secure. Do not share keys publicly or embed them in client-side code. If a key is compromised, revoke it immediately from your dashboard. You are responsible for all activity made using your keys.</p>
+        <h3 style={s.h3}>4.5 Discovery and hiring partners</h3>
+        <p style={s.p}>Your published profile may be made discoverable through trusted third-party discovery and hiring partners whose purpose is to help you get found and hired, as described in our Privacy Policy. This applies only to published profiles and only for discovery and hiring purposes. You can stop it at any time by setting your profile to unpublished. This does not change your ownership of your content (Section 8.1).</p>
 
         <hr style={s.hr} />
 

@@ -33,7 +33,7 @@ export default function PrivacyPage() {
 
         <p style={s.eyebrow}>Legal</p>
         <h1 style={s.h1}>Privacy Policy</h1>
-        <p style={s.meta}>ShipStacked · Last updated: 5 April 2026</p>
+        <p style={s.meta}>ShipStacked · Last updated: 17 May 2026</p>
 
         <hr style={s.hr} />
 
@@ -109,6 +109,7 @@ export default function PrivacyPage() {
               ['Auto-verification of builder profiles', 'Performance of a contract'],
               ['Calculating Velocity Scores', 'Performance of a contract'],
               ['Displaying your public profile to employers and visitors', 'Legitimate interests'],
+              ['Making your published profile discoverable through trusted third-party discovery and hiring partners, so that you can be found and hired', 'Legitimate interests'],
               ['Improving the platform through usage analytics', 'Legitimate interests'],
               ['Complying with legal obligations', 'Legal obligation'],
             ].map(([purpose, basis]) => (
@@ -149,9 +150,10 @@ export default function PrivacyPage() {
             ))}
           </tbody>
         </table>
-        <p style={s.p}>We do not share your personal data with any other third parties unless required by law.</p>
-        <p style={s.p}><strong>Public profile data:</strong> Builder profiles marked as published are publicly accessible and may be indexed by search engines. This includes your name, role, bio, location, skills, projects, and Build Feed posts. You control this — set your profile to unpublished at any time from your dashboard.</p>
-        <p style={s.p}><strong>Employer access:</strong> Paid employers can view your published profile and message you directly. They cannot export or bulk-download your data.</p>
+        <p style={s.p}><strong>Discovery and hiring partners.</strong> In addition to the service providers above, ShipStacked may make your <strong>published</strong> profile data available to trusted third-party discovery and hiring partners whose purpose is to help builders get found and hired — the same purpose for which ShipStacked itself displays your public profile. This applies only to profiles you have set to <strong>published</strong>; unpublished profiles are never shared this way. The data that may be shared is the same published profile data that is already public on the platform: your name, role, bio, location, skills, projects, links, and Build Feed posts. We share this data only with partners who are contractually bound to use it solely for discovery and hiring and not for advertising, resale, or any unrelated purpose. We do not sell your data. You can stop this sharing at any time by setting your profile to unpublished from your dashboard, which removes it from the platform and from partner availability going forward.</p>
+        <p style={s.p}><strong>Other third parties.</strong> Except for the service providers listed above and the discovery and hiring partners described here, we do not share your personal data with any other third parties unless required by law.</p>
+        <p style={s.p}><strong>Public profile data.</strong> Builder profiles marked as published are publicly accessible and may be indexed by search engines. This includes your name, role, bio, location, skills, projects, and Build Feed posts. You control this — set your profile to unpublished at any time from your dashboard.</p>
+        <p style={s.p}><strong>Employer access.</strong> Paid employers can view your published profile and message you directly. They cannot export or bulk-download your data.</p>
 
         <hr style={s.hr} />
 
