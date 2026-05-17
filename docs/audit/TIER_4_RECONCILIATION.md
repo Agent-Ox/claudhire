@@ -158,7 +158,12 @@ All 5 ledger items closed via record-correction or by reference to a prior commi
 - A hardcoded string constant `CRON_SECRET = 'shipstacked_cron_2026'` is present at line 6 of `src/app/api/hire-confirm/nudge/route.ts`. It gates a single cron-style nudger endpoint (low-criticality; not a JWT signing key, not a DB password). It is a secret in committed source code by definition, and the standing no-secrets rule applies.
 - **This is a DISTINCT finding, NOT flattened into the F.2 feature-disposition pile.** It is its own small fix-in-place item (replace the constant with `process.env.CRON_SECRET!`, add the env var to Vercel, rotate the value). The fix is independent of any decision on whether `/api/hire-confirm/*` stays or goes — it is correct under any disposition.
 - **Sequencing:** should be its own small discovery-first step, scheduled BEFORE the MCP fast-follow (the post-Beacon-5 announcement step). Not acted on in this Tier 4 cycle (correctly out of Phase A scope), but explicitly NOT deferrable to the indefinite Phase B pile.
-- **Status: TAGGED FOR NEAR-TERM, BEFORE MCP FAST-FOLLOW.** Its own micro-cycle.
+- ~~**Status: TAGGED FOR NEAR-TERM, BEFORE MCP FAST-FOLLOW.** Its own micro-cycle.~~
+- **Status: RESOLVED at commit `551baff` (2026-05-17).** Closed via Step 1.5 (`docs/v2/STEP_1_5_CRON_SECRET_SPEC.md` + `docs/audit/STEP_1_5_DISCOVERY.md`). Closure was independently verified on production *before* this note was written — the record claims closure only because closure is proven. Three POST probes against `https://shipstacked.com/api/hire-confirm/nudge`:
+  - **(a) Previously hardcoded literal** in the `x-cron-secret` header → **HTTP 401** (terminal Claude; the literal is already in public git history at the Tier 0 commit, so sending it once for verification created no new exposure). This is the load-bearing proof: the value visible in history is dead and authenticates nothing.
+  - **(b) Rotated value** in the `x-cron-secret` header → **HTTP 200** (Thomas, in own terminal; terminal Claude does not have and never had the rotated value).
+  - **(c) No `x-cron-secret` header** → **HTTP 401** (fail-closed input-side proof).
+  Reversal intentionally NOT-recommended per the commit message (reversing the code re-introduces the literal as the active credential, re-opening the exposure; removing the env var alone causes fail-closed 401-on-every-call). The correct posture is to leave the rotation in place.
 
 ---
 
@@ -166,7 +171,7 @@ All 5 ledger items closed via record-correction or by reference to a prior commi
 
 The reconciliation is done; the audit trail (the publishable subset) is in history; repo hygiene is clean.
 
-1. **CRON_SECRET extraction** (F.3) — small discovery-first cycle, before any other forward step.
+1. ~~**CRON_SECRET extraction** (F.3) — small discovery-first cycle, before any other forward step.~~ **DONE at commit `551baff` (2026-05-17). See §F.3 closure note for the rotation proof.**
 2. **MCP fast-follow** — announce `/api/mcp` in AgentCard / AGENTS.md / `/llms.txt`. Own tiny spec, additive.
 3. **Publish `@shipstacked/atlas-roles`** — operational, Thomas-only, irreversible. Pre-publish checklist then the command.
 4. **First real Consented Collection + reach the named candidate** — operational, Thomas-only.
