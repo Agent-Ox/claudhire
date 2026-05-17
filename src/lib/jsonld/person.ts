@@ -158,7 +158,12 @@ export function buildPersonJsonLd(
     url,
   }
 
-  if (entity?.external_id) out.identifier = entity.external_id
+  // Step 3 B-1: identifier is always present. Entity-linked builders (Tier 1
+  // backfilled) keep the entity external_id (already prefixed shipstacked:entity:…
+  // in the DB column value); builders without an entity_id get a stable fallback
+  // shipstacked:profile:<username> so downstream consumers always have a
+  // canonical machine-identifier. No fabrication — username is genuine data.
+  out.identifier = entity?.external_id ?? `shipstacked:profile:${profile.username}`
 
   const jobTitle = nonEmpty(profile.role)
   if (jobTitle) out.jobTitle = jobTitle
