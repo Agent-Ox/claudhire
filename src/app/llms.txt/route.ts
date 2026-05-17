@@ -33,6 +33,10 @@ ShipStacked is where AI-native builders publish proof receipts — atomic, deref
 
 - [The Atlas of the Agentic Economy](https://shipstacked.com/atlas): A practitioner-defined map of the labor market for AI integration. Specialist roles, operator types, the compliance layer, alignment research, vertical specialists. By Thomas Oxlee.
 
+## Callable interface — MCP server
+
+- [/api/mcp](https://shipstacked.com/api/mcp): Streamable HTTP MCP endpoint (protocol 2025-06-18). POST JSON-RPC; read-only tools over the same public data the rest of this site exposes. The AgentCard at /.well-known/agent-card.json declares this endpoint in \`metadata.shipstacked:mcpEndpoint\`.
+
 ## Atlas roles (v0.4)
 
 Every role dereferences to JSON-LD (DefinedTerm + shipstacked:AtlasRole) via Accept: application/ld+json or the .json convenience suffix.

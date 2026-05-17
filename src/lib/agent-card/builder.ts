@@ -212,6 +212,27 @@ export function buildAgentCard(): AgentCard {
       examples: [`GET ${CANONICAL_HOST}/sitemap.xml`],
       outputModes: ['application/xml'],
     }),
+    // Read-via-MCP-server skill — Step 2 announcement. The MCP server is a
+    // SEPARATE non-A2A protocol (Streamable HTTP per MCP spec 2025-06-18).
+    // This skill is announced here so A2A clients walking skills[] can
+    // discover the MCP endpoint. The skill description explicitly carves
+    // itself out of Beacon 2's "HTTP GET targets" disclaimer (MCP is POST
+    // JSON-RPC) and reasserts "no A2A invocation" so verify-agent-card.ts's
+    // existing per-skill assertion regex still matches.
+    fetchSkill({
+      id: 'read-via-mcp-server',
+      name: 'Read via the MCP server (separate non-A2A protocol)',
+      description:
+        `Read via the MCP server at ${CANONICAL_HOST}/api/mcp — a separate non-A2A JSON-RPC protocol (MCP Streamable HTTP, protocol version 2025-06-18) exposing the same read-only data the other skills fetch over HTTP. ` +
+        'POST a JSON-RPC initialize, then tools/list and tools/call. Tools: get-atlas-role, list-atlas-roles, get-collection, get-builder. ' +
+        'This skill is itself NOT a fetch URL in the HTTP-GET sense (MCP is POST JSON-RPC) — it is announced here so A2A clients walking skills can discover the MCP endpoint. ' +
+        'No A2A invocation; this is a separate protocol entirely, parallel to the HTTP-GET skills above.',
+      tags: ['mcp', 'streamable-http', 'json-rpc', 'read-only', 'discovery'],
+      examples: [
+        `POST ${CANONICAL_HOST}/api/mcp  (with JSON-RPC initialize body)`,
+      ],
+      outputModes: ['application/json', 'text/event-stream'],
+    }),
   ]
 
   return {
@@ -252,13 +273,29 @@ export function buildAgentCard(): AgentCard {
         'All public surfaces share one @id graph keyed by canonical URLs. ' +
         'A builder Person @id at /u/<username> is the same @id used in receipt author refs at /p/<slug> ' +
         'and in collection ItemList items at /collections/<slug>. One URL keys both per-page and aggregated data.',
+      // Step 2 — typed descriptor for the separate MCP server. No canonical A2A
+      // field exists for cross-protocol announcement (verified at STEP_2_DISCOVERY
+      // §A.1/§G); using the shipstacked: namespace Beacon 2 already publishes.
+      // Every property here matches what the live /api/mcp server already serves.
+      'shipstacked:mcpEndpoint': {
+        url: `${CANONICAL_HOST}/api/mcp`,
+        protocol: 'mcp',
+        protocolVersion: '2025-06-18',
+        transport: 'streamable-http',
+        method: 'POST',
+        acceptedContentTypes: ['application/json', 'text/event-stream'],
+        readOnly: true,
+        toolCount: 4,
+        toolNames: ['get-atlas-role', 'list-atlas-roles', 'get-collection', 'get-builder'],
+        note: 'Separate non-A2A JSON-RPC protocol. Not an A2A messaging endpoint; the data-publisher disclaimer in `description` and `shipstacked:respondsToA2AMessages: false` continue to hold. MCP tools are all read-only over already-public data; gate-inherited per Beacon 5.',
+      },
       'shipstacked:beacons': {
         schemaOrg:            { status: 'live',     since: '2026-05-16' },
         consentedCollections: { status: 'live',     since: '2026-05-16', note: 'Capability is live; specific collections are operational and created out-of-band.' },
         agentCard:            { status: 'live',     since: '2026-05-16' },
         agentsMd:             { status: 'deferred', note: 'Beacon 3 — not yet shipped.' },
         atlasPackage:         { status: 'deferred', note: 'Beacon 4 — not yet shipped.' },
-        mcpServer:            { status: 'deferred', note: 'Beacon 5 — not yet shipped.' },
+        mcpServer:            { status: 'live',     since: '2026-05-17', path: '/api/mcp', protocolVersion: '2025-06-18', transport: 'streamable-http', note: 'Read-only MCP tool calls over the same public data.' },
       },
     },
   }

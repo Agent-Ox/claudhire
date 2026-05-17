@@ -52,6 +52,7 @@ src/
 ├── app/                          Next.js 16 App Router routes
 │   ├── .well-known/agent-card.json/   A2A AgentCard route handler
 │   ├── api/                      REST + content-negotiation projections
+│   │   └── mcp/                  Streamable HTTP MCP endpoint (read-only, 2025-06-18)
 │   ├── atlas/                    /atlas long-form + /atlas/roles/[id]
 │   ├── collections/[slug]/       Consented Collections HTML route family
 │   ├── p/[slug]/                 Proof receipt pages

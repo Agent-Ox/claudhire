@@ -266,7 +266,121 @@ async function main(): Promise<void> {
     }
   }
 
-  // ─── 6. Summary ────────────────────────────────────────────────────
+  // ─── 6. MCP endpoint probe (Step 2 extension) ──────────────────────
+  // The card declares the MCP server via metadata.shipstacked:mcpEndpoint
+  // AND a skill (id 'read-via-mcp-server'). This section verifies the
+  // declared URL actually speaks MCP — POST initialize → 200 with a
+  // valid JSON-RPC initialize result. A declared endpoint that doesn't
+  // respond as declared is the machine-readable lie this script exists
+  // to prevent (per Beacon 2's accuracy guarantee + Step 2's spec §3).
+  console.log('\n6. MCP endpoint probe (Step 2 — the announcement is real)')
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mcpDescriptor = (card.metadata as any)['shipstacked:mcpEndpoint']
+  if (!mcpDescriptor || typeof mcpDescriptor !== 'object') {
+    fail('metadata.shipstacked:mcpEndpoint missing or not an object')
+  } else {
+    pass('metadata.shipstacked:mcpEndpoint present + object')
+    const declaredUrl: string | undefined = mcpDescriptor.url
+    if (typeof declaredUrl !== 'string' || !/^https?:\/\//.test(declaredUrl)) {
+      fail(`metadata.shipstacked:mcpEndpoint.url missing or malformed: ${JSON.stringify(declaredUrl)}`)
+    } else {
+      pass(`metadata.shipstacked:mcpEndpoint.url: ${declaredUrl}`)
+      const declaredProtoVer: string | undefined = mcpDescriptor.protocolVersion
+      // Translate the declared canonical URL (https://shipstacked.com) to the
+      // configured target base for local-dev probing (same trick Section 5 uses).
+      const probeUrl = declaredUrl.replace(/^https:\/\/shipstacked\.com/, base)
+      const initBody = {
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'initialize',
+        params: {
+          protocolVersion: declaredProtoVer ?? '2025-06-18',
+          capabilities: {},
+          clientInfo: { name: 'verify-agent-card', version: '1.0' },
+        },
+      }
+      let mcpRes: Response
+      try {
+        mcpRes = await fetch(probeUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json, text/event-stream',
+          },
+          body: JSON.stringify(initBody),
+        })
+      } catch (e) {
+        fail(`MCP initialize POST failed: ${e instanceof Error ? e.message : String(e)}`)
+        // Skip the per-field checks if we couldn't even reach the endpoint.
+        mcpRes = new Response(null, { status: 0 })
+      }
+      if (mcpRes.status === 200) {
+        pass(`MCP initialize POST → HTTP 200`)
+        const text = await mcpRes.text()
+        // Leak-pattern check on the response body (same 8 patterns verify-mcp.ts uses).
+        const MCP_LEAK_PATTERNS: { name: string; re: RegExp }[] = [
+          { name: 'stack-trace', re: /\bat\s+\w+\.\w+\s*\(/ },
+          { name: 'file-path', re: /\/(Users|private|home|var|tmp)\// },
+          { name: 'PGRST code', re: /PGRST\d+/ },
+          { name: 'env-var key', re: /SUPABASE_SERVICE_ROLE/ },
+          { name: '.env reference', re: /\.env(\.|\b)/ },
+          { name: 'src/lib path', re: /src\/lib\// },
+          { name: 'node_modules', re: /node_modules\// },
+          { name: 'column-does-not-exist', re: /column\s+["']?\w+["']?\s+does not exist/i },
+        ]
+        let leakHit = false
+        for (const { name, re } of MCP_LEAK_PATTERNS) {
+          if (re.test(text)) { fail(`MCP initialize response leak: pattern "${name}"`); leakHit = true; break }
+        }
+        if (!leakHit) pass('MCP initialize response: no leak (zero stack/path/PGRST/env/internal patterns)')
+        try {
+          const parsed = JSON.parse(text) as {
+            jsonrpc?: string
+            id?: number
+            result?: {
+              protocolVersion?: string
+              capabilities?: { tools?: unknown }
+              serverInfo?: { name?: string; version?: string }
+            }
+          }
+          if (parsed.jsonrpc === '2.0') pass(`MCP response jsonrpc === "2.0"`)
+          else fail(`MCP response jsonrpc unexpected: ${parsed.jsonrpc}`)
+          if (parsed.result?.protocolVersion === declaredProtoVer) {
+            pass(`MCP result.protocolVersion (${parsed.result?.protocolVersion}) matches declared (${declaredProtoVer})`)
+          } else {
+            fail(`MCP result.protocolVersion (${parsed.result?.protocolVersion}) !== declared (${declaredProtoVer})`)
+          }
+          if (parsed.result?.serverInfo?.name === 'shipstacked-mcp') {
+            pass(`MCP result.serverInfo.name === "shipstacked-mcp"`)
+          } else {
+            fail(`MCP result.serverInfo.name unexpected: ${parsed.result?.serverInfo?.name}`)
+          }
+          const caps = parsed.result?.capabilities
+          if (caps && 'tools' in caps) {
+            pass('MCP result.capabilities.tools present')
+          } else {
+            fail('MCP result.capabilities.tools missing')
+          }
+        } catch (e) {
+          fail(`MCP response not valid JSON: ${e instanceof Error ? e.message : String(e)}`)
+        }
+      } else if (mcpRes.status !== 0) {
+        fail(`MCP initialize POST → HTTP ${mcpRes.status} (expected 200)`)
+      }
+    }
+    // Regression guard: the beacons.mcpServer status must be 'live'
+    // post-Step-2 (catches any accidental revert to 'deferred').
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const beacons = (card.metadata as any)['shipstacked:beacons']
+    const mcpBeaconStatus = beacons?.mcpServer?.status
+    if (mcpBeaconStatus === 'live') {
+      pass(`metadata.shipstacked:beacons.mcpServer.status === "live"`)
+    } else {
+      fail(`metadata.shipstacked:beacons.mcpServer.status is "${mcpBeaconStatus}" (expected "live" post-Step-2)`)
+    }
+  }
+
+  // ─── 7. Summary ────────────────────────────────────────────────────
   console.log('\n============================================================')
   if (failures === 0) {
     console.log('VERIFY-AGENT-CARD ✓ — all gates passed')
