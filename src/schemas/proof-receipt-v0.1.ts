@@ -379,6 +379,21 @@ export interface ProofReceiptJsonLd {
     url: string;
     name?: string;
   }>;
+
+  'shipstacked:attestations'?: Array<{
+    '@type': 'shipstacked:Attestation';
+    'shipstacked:attestorRole': string;
+    'shipstacked:statement': string;
+    'shipstacked:signedAt': string;
+  }>;
+
+  'shipstacked:verificationTrail'?: Array<{
+    '@type': 'shipstacked:VerificationEvent';
+    'shipstacked:level': string;
+    'shipstacked:method': string;
+    'shipstacked:achievedAt': string;
+    'shipstacked:evidence': Record<string, unknown>;
+  }>;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

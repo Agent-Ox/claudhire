@@ -41,6 +41,19 @@ export interface ProofReceiptJsonLd {
     url: string
     name?: string
   }>
+  'shipstacked:attestations'?: Array<{
+    '@type': 'shipstacked:Attestation'
+    'shipstacked:attestorRole': string
+    'shipstacked:statement': string
+    'shipstacked:signedAt': string
+  }>
+  'shipstacked:verificationTrail'?: Array<{
+    '@type': 'shipstacked:VerificationEvent'
+    'shipstacked:level': string
+    'shipstacked:method': string
+    'shipstacked:achievedAt': string
+    'shipstacked:evidence': Record<string, unknown>
+  }>
 }
 
 function atlasRoleRef(roleId: string, version: string): string {
@@ -107,9 +120,23 @@ function buildAtlasRoles(receipt: ReceiptRow): ProofReceiptJsonLd['shipstacked:a
 }
 
 export function receiptJsonLd(bundle: ReceiptBundle): ProofReceiptJsonLd {
-  const { receipt, subject } = bundle
+  const { receipt, subject, attestations, verification_events } = bundle
   const canonical = `${CANONICAL_HOST}/p/${receipt.slug}`
   const entityCanonical = `${CANONICAL_HOST}/u/${subject.slug}`
+
+  const attestationsLd = attestations.map((a) => ({
+    '@type': 'shipstacked:Attestation' as const,
+    'shipstacked:attestorRole': a.attestor_role,
+    'shipstacked:statement': a.statement,
+    'shipstacked:signedAt': a.signed_at,
+  }))
+  const verificationTrailLd = verification_events.map((v) => ({
+    '@type': 'shipstacked:VerificationEvent' as const,
+    'shipstacked:level': v.level,
+    'shipstacked:method': v.method,
+    'shipstacked:achievedAt': v.achieved_at,
+    'shipstacked:evidence': v.evidence,
+  }))
 
   return {
     '@context': [
@@ -138,5 +165,7 @@ export function receiptJsonLd(bundle: ReceiptBundle): ProofReceiptJsonLd {
       url: a.url,
       ...(a.title ? { name: a.title } : {}),
     })),
+    ...(attestationsLd.length > 0 ? { 'shipstacked:attestations': attestationsLd } : {}),
+    ...(verificationTrailLd.length > 0 ? { 'shipstacked:verificationTrail': verificationTrailLd } : {}),
   }
 }
