@@ -192,23 +192,23 @@ export default function Home() {
       <section className="hero">
         <div className="hero-eyebrow">
           <span className="hero-dot" />
-          The proof-of-work platform for AI-native builders
+          The accountability layer for agent work
         </div>
         <h1>
-          You shipped something incredible last week.<br />
-          <span className="muted">Nobody important saw it.</span>
+          An agent did the work.<br />
+          <span className="muted">Who&apos;s answerable for it?</span>
         </h1>
         <p className="hero-sub">
-          ShipStacked is where AI-native builders post their work, prove what they can do, and get found by the people worth working with. No CVs. No guessing. Just proof.
+          ShipStacked is the independent record of which human stands behind an agent&apos;s output — and whether they&apos;ve been right before. Verifiable. Portable. Built for the work that carries real consequences.
         </p>
-        <Link href="/join" className="btn-primary">
-          Show what you&apos;ve built — it&apos;s free
+        <Link href="#how" className="btn-primary">
+          See how accountability works →
         </Link>
-        <p className="hero-note">Join the founding cohort of builders shipping in public</p>
+        <p className="hero-note">For operators shipping agent work where being wrong has a cost.</p>
         <div className="hero-proof">
-          <div className="proof-item"><span className="proof-dot" /> Free forever for builders</div>
-          <div className="proof-item"><span className="proof-dot" /> Auto-verified when your proof is real</div>
-          <div className="proof-item"><span className="proof-dot" /> Live in 5 minutes</div>
+          <div className="proof-item"><span className="proof-dot" /> Independent of the agent</div>
+          <div className="proof-item"><span className="proof-dot" /> Portable across rails</div>
+          <div className="proof-item"><span className="proof-dot" /> Verifiable by an auditor or insurer</div>
         </div>
       </section>
 
@@ -250,18 +250,18 @@ export default function Home() {
       {/* ── MANIFESTO ── */}
       <section className="manifesto">
         <div className="manifesto-inner">
-          <h2>The hiring world<br />just <span className="accent">broke.</span></h2>
+          <h2>Agents do the work now.<br />The <span className="accent">accountability</span> didn&apos;t follow.</h2>
           <p>
-            The builders who matter right now aren&apos;t on LinkedIn. They&apos;re shipping production-grade AI tools over a weekend, automating entire workflows without a team, building things that didn&apos;t exist six months ago — with Bolt, Lovable, Cursor, Claude Code, and whatever drops next week.
+            Identity for the agent exists. Payment for the agent exists. Discovery for the agent exists. The one unanswered question is the one that matters when money moves or a decision lands: which human is accountable for what the agent produced — and is there any verifiable reason to trust them?
           </p>
           <p>
-            <strong>Traditional platforms can&apos;t see them.</strong> The filters were built for a different era. CVs don&apos;t capture what you shipped at midnight. GitHub doesn&apos;t show what you built with AI. Recruiters don&apos;t know what questions to ask.
+            <strong>Every agent-payment protocol&apos;s own documentation names this as the unsolved problem.</strong> They verify the agent. They explicitly leave the human out of scope. That gap is where the risk concentrates — and where ShipStacked sits.
           </p>
           <p>
-            Some of these builders don&apos;t even show up themselves anymore — they send their agents. Outreach agents. Build agents. Research agents. The agentic economy is here, and the hiring infrastructure hasn&apos;t caught up.
+            Not a directory. Not a hiring platform. An independent, portable record: this human is answerable for this agent&apos;s work, at this verified level, with this track record behind them. The kind of proof an auditor or an insurer can check without taking anyone&apos;s word for it.
           </p>
           <p>
-            ShipStacked was built for this moment. <strong>Post your builds. Show your outcomes. Get verified automatically. Get found — on your terms.</strong>
+            <strong>The work that carries consequences needs a name attached to it. ShipStacked is where that name is verifiable.</strong>
           </p>
         </div>
       </section>
@@ -397,7 +397,7 @@ export default function Home() {
       <section className="employer-section" id="hire">
         <div className="employer-inner">
           <p className="eyebrow">For founders and hiring teams</p>
-          <h2 className="section-title">The right people are already watching.</h2>
+          <h2 className="section-title">Hiring for agent-native work?</h2>
           <p style={{ fontSize: '1rem', color: 'var(--text2)', lineHeight: 1.7, marginBottom: '2rem', fontWeight: 300 }}>
             Employers on ShipStacked pay $199/month to browse verified builders and message them directly. No commissions. No middlemen. No placement fees. When you&apos;re ready to hire — they&apos;re here, and their proof of work is already waiting.
           </p>
