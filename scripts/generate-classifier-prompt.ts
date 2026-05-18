@@ -13,7 +13,35 @@ import { createClient } from '@supabase/supabase-js';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-const ATLAS_VERSION = 'v0.4';
+/**
+ * The role-taxonomy / DB-row version. NOT the essay display version.
+ *
+ * Used to:
+ *   - parameterize the Supabase `atlas_roles` query when regenerating
+ *     `src/services/atlas-classifier/prompts/<VERSION>.md` from current
+ *     DB state (.eq('atlas_version', ...) below; also embedded in the
+ *     log and error messages)
+ *
+ * The essay version is the hardcoded chrome strings in /atlas, NOT this
+ * constant:
+ *   - header chip in src/app/atlas/page.tsx
+ *   - footer "This is v0.X" in src/app/atlas/page.tsx
+ *   - alternativeHeadline in src/lib/jsonld/atlas-article.ts
+ *
+ * Changing this value re-points the atlas_roles query and regenerates the
+ * classifier prompt against a different role set; it is an Option-γ
+ * action (full role-schema cycle: re-seed v0.X rows, bump
+ * ATLAS_VERSION_DEFAULT/ATLAS_VERSIONS in src/lib/atlas/roles.ts, update
+ * MCP role tools, regenerate Beacon 4 package snapshots). It is NOT an
+ * essay-version bump.
+ *
+ * History: flipping the matching constant in src/app/atlas/page.tsx from
+ * 'v0.4' to 'v0.5' during the Atlas v0.5 essay ship returned 0 DB rows
+ * and silently dropped the DefinedTermSet structured data — caught by
+ * the byte-equivalence gate, fixed by the one-line revert, landmine
+ * defused repo-wide by this rename.
+ */
+const ROLE_TAXONOMY_VERSION = 'v0.4';
 const VERSION = 'v0.1.0';
 
 interface AtlasRoleRow {
@@ -51,17 +79,17 @@ async function main() {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
-  console.log(`Querying atlas_roles where atlas_version = '${ATLAS_VERSION}'…`);
+  console.log(`Querying atlas_roles where atlas_version = '${ROLE_TAXONOMY_VERSION}'…`);
   const { data, error } = await supa
     .from('atlas_roles')
     .select('role_id, cluster, name, short_description')
-    .eq('atlas_version', ATLAS_VERSION);
+    .eq('atlas_version', ROLE_TAXONOMY_VERSION);
   if (error) {
     console.error('Query failed:', error);
     process.exit(1);
   }
   if (!data || data.length === 0) {
-    console.error(`No rows for atlas_version='${ATLAS_VERSION}'. Reseed first.`);
+    console.error(`No rows for atlas_version='${ROLE_TAXONOMY_VERSION}'. Reseed first.`);
     process.exit(1);
   }
   console.log(`Fetched ${data.length} roles.`);

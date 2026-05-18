@@ -574,15 +574,38 @@ export default async function AtlasPage() {
   // vocabulary entry-point). The per-role DefinedTerm at /atlas/roles/[id]
   // is V2 code (src/lib/atlas/jsonld.ts) — UNTOUCHED.
   const jsonLd = buildAtlasArticleJsonLd(wordCount)
-  const ATLAS_VERSION = 'v0.4'
+  /**
+   * The role-taxonomy / DB-row version. NOT the essay display version.
+   *
+   * Used to:
+   *   - parameterize the Supabase `atlas_roles` query (.eq('atlas_version', ...))
+   *   - build the DefinedTermSet @id (?v=...) and per-role @id refs
+   *
+   * The essay version is the hardcoded chrome strings, NOT this constant:
+   *   - header chip in page.tsx
+   *   - footer "This is v0.X" in page.tsx
+   *   - alternativeHeadline in src/lib/jsonld/atlas-article.ts
+   *
+   * Changing this value re-points the atlas_roles query + the DefinedTermSet
+   * @id and is an Option-γ action (full role-schema cycle: re-seed v0.X rows,
+   * bump ATLAS_VERSION_DEFAULT/ATLAS_VERSIONS in src/lib/atlas/roles.ts,
+   * update MCP role tools, regenerate Beacon 4 package snapshots). It is NOT
+   * an essay-version bump.
+   *
+   * History: flipping this from 'v0.4' to 'v0.5' during the Atlas v0.5 essay
+   * ship returned 0 DB rows and silently dropped the DefinedTermSet structured
+   * data — caught by the byte-equivalence gate, fixed by the one-line revert,
+   * landmine defused by this rename.
+   */
+  const ROLE_TAXONOMY_VERSION = 'v0.4'
   const admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
   const { data: roleRows } = await admin
     .from('atlas_roles')
     .select('role_id')
-    .eq('atlas_version', ATLAS_VERSION)
+    .eq('atlas_version', ROLE_TAXONOMY_VERSION)
     .order('role_id')
   const definedTermSetLd = (roleRows && roleRows.length > 0)
-    ? buildAtlasDefinedTermSetJsonLd(ATLAS_VERSION, roleRows.map((r: any) => r.role_id))
+    ? buildAtlasDefinedTermSetJsonLd(ROLE_TAXONOMY_VERSION, roleRows.map((r: any) => r.role_id))
     : null
 
   return (

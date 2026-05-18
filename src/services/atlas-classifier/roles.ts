@@ -13,7 +13,35 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const PROMPT_FILE = 'v0.1.0.md';
-const ATLAS_VERSION = 'v0.4';
+/**
+ * The role-taxonomy / DB-row version. NOT the essay display version.
+ *
+ * Used to:
+ *   - returned by `getAtlasVersion()` below. NOTE: `getAtlasVersion()`
+ *     is currently a dead export (defined but never called anywhere in
+ *     the repo) — flagged for reconciliation backlog. This constant is
+ *     renamed here for consistency with the matching constants in
+ *     src/app/atlas/page.tsx and scripts/generate-classifier-prompt.ts.
+ *
+ * The essay version is the hardcoded chrome strings in /atlas, NOT this
+ * constant:
+ *   - header chip in src/app/atlas/page.tsx
+ *   - footer "This is v0.X" in src/app/atlas/page.tsx
+ *   - alternativeHeadline in src/lib/jsonld/atlas-article.ts
+ *
+ * Changing this value would re-point any future caller of
+ * `getAtlasVersion()` and is an Option-γ action (full role-schema cycle:
+ * re-seed v0.X rows, bump ATLAS_VERSION_DEFAULT/ATLAS_VERSIONS in
+ * src/lib/atlas/roles.ts, update MCP role tools, regenerate Beacon 4
+ * package snapshots). It is NOT an essay-version bump.
+ *
+ * History: flipping the matching constant in src/app/atlas/page.tsx
+ * from 'v0.4' to 'v0.5' during the Atlas v0.5 essay ship returned 0 DB
+ * rows and silently dropped the DefinedTermSet structured data — caught
+ * by the byte-equivalence gate, fixed by the one-line revert, landmine
+ * defused repo-wide by this rename.
+ */
+const ROLE_TAXONOMY_VERSION = 'v0.4';
 
 export interface AtlasRole {
   id: string;
@@ -53,5 +81,5 @@ export function getAtlasRoles(): AtlasRole[] {
 }
 
 export function getAtlasVersion(): string {
-  return ATLAS_VERSION;
+  return ROLE_TAXONOMY_VERSION;
 }
