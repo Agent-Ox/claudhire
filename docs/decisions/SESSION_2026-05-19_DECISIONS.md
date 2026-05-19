@@ -75,11 +75,16 @@ placement fees.") — not just delete the line.
 2. Canonical message rework against the 4-type user model (define 4 flow voices
    + router; D4 → final).
 3. Copy-fix diff set (26+5), operator-approved strings, via ship loop.
-4. 18-individual enrichment build (discovery doc + diff). DONE (9ecc723).
+4. 18-individual enrichment build (discovery doc + diff). DONE (9ecc723) —
+   one-shot manual backfill only; auto-enrichment for new signups UNBUILT
+   (see CRITICAL OPEN at end of doc).
 5. Stress-test composable-modes model vs codebase (free capability +
    profiles/entities schema + Stripe $199 wiring) — gated verification pass.
-6. D2/D3 company/agent graph build (separate discovery doc).
-7. Backlog: intake seam, write-path consolidation, hygiene.
+6. Auto-enrichment build — new-signup automatic profile→engine path
+   (trigger model + persistent idempotency + rate/cost design). Priority
+   TBD: before or alongside D2/D3 per CRITICAL OPEN.
+7. D2/D3 company/agent graph build (separate discovery doc).
+8. Backlog: intake seam, write-path consolidation, hygiene.
 
 ## UPDATE 2026-05-19 — User model finalized
 
@@ -261,3 +266,39 @@ actual codebase (current free capability, profiles/entities schema, Stripe
 $199 gate wiring) — gated verification pass BEFORE D2/D3. Decision is locked;
 the code check verifies, does not re-derive. Then D2/D3 entity-graph build
 (own discovery doc).
+
+## CRITICAL OPEN — Enrichment is manual-backfill-only (auto-enrichment UNBUILT)
+
+STATUS (2026-05-19): The profile→engine enrichment adapter (commit 9ecc723)
+ran ONCE, by hand, as a one-time backfill for the D5 cohort (18 builders).
+It does NOT run automatically.
+
+THE GAP: A new user signing up today gets a profile but ZERO enrichment —
+no proof_receipts, no entity classification. The engine now has a door, but
+ONLY a manual script-invoked one. This is the SAME disconnect pattern that
+the session set out to fix, displaced one level: profiles still do not reach
+the engine automatically. Backfilling the cohort proved the adapter works;
+it did NOT make enrichment a product behavior.
+
+WHY THIS IS CRITICAL: This is the engine behind profile enrichment — the
+core mechanism that makes "machine-verified, not self-reported" true (D1).
+Without auto-enrichment, every new builder is an unenriched profile and the
+moat does not operate for anyone past the initial 18.
+
+UNRESOLVED — must be scoped (own discovery doc, gated build):
+- Trigger model: enrich on signup? on first publish? on profile update? a
+  periodic batch over new/changed profiles? (Options have different latency,
+  cost, and idempotency properties — the adapter's dedupe/validate logic was
+  built for a one-shot run, not repeated incremental runs.)
+- Idempotency: re-running must not duplicate receipts for already-enriched
+  profiles (current dedupe is per-run, in-memory — NOT persistent).
+- Cost/rate: full chain is ~1 Anthropic call + fetches per artifact; at
+  signup scale this needs rate/queue design.
+- Scope boundary: still individuals only (kind:human); D2/D3 entity types
+  not yet in the engine.
+
+SEQUENCING IMPACT: This is higher priority than D2/D3. A platform that does
+not auto-enrich new builders is not delivering its core promise. Recommend
+this becomes the gated step AFTER the composable-modes codebase stress-test
+(step 5) and BEFORE or ALONGSIDE D2/D3 — operator to confirm priority next
+session.
