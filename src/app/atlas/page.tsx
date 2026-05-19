@@ -8,7 +8,6 @@ import remarkGfm from 'remark-gfm'
 import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import GithubSlugger from 'github-slugger'
-import StickyAtlasCTA from './StickyAtlasCTA'
 import { createClient } from '@supabase/supabase-js'
 import { buildAtlasArticleJsonLd, buildAtlasDefinedTermSetJsonLd } from '@/lib/jsonld/atlas-article'
 
@@ -642,8 +641,7 @@ export default async function AtlasPage() {
             Published May 15, 2026 · {wordCount.toLocaleString()} words · ~{Math.round(wordCount / 250)} min read
           </p>
           <div style={s.ctaRow}>
-            <Link href="/hire" style={s.ctaOutlineDark}>Tell me what&apos;s broken →</Link>
-            <Link href="/claim" style={s.ctaOutlineDark}>Claim your role →</Link>
+            <Link href="/join" style={s.ctaPrimary}>Join ShipStacked →</Link>
           </div>
         </div>
       </section>
@@ -734,8 +732,7 @@ export default async function AtlasPage() {
             Thomas Oxlee is the founder of ShipStacked, the discovery and classification layer for the labor market of the agentic economy. He is currently embedded as the AI integration operator at a regulated EU business under AI Act exposure, where most of the field signal that informs this Atlas comes from. ShipStacked matches AI-native specialists, agent operators, vertical specialists, and compliance practitioners to companies that need them — without CVs, without LinkedIn taxonomies, and without the assumptions of a labor regime that broke eighteen months ago.
           </p>
           <div style={s.footerCtaRow}>
-            <Link href="/hire" style={s.ctaPrimary}>Tell me what&apos;s broken →</Link>
-            <Link href="/claim" style={s.ctaOutline}>Claim your role →</Link>
+            <Link href="/join" style={s.ctaPrimary}>Join ShipStacked →</Link>
           </div>
           <p style={s.versionNote}>
             This is v0.5. It will be wrong in places. Tell me where —{' '}
@@ -743,8 +740,6 @@ export default async function AtlasPage() {
           </p>
         </div>
       </section>
-
-      <StickyAtlasCTA />
     </main>
   )
 }

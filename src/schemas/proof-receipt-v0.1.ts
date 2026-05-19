@@ -89,7 +89,6 @@ export const IngestionSource = z.enum([
   'paste',                       // /paste flow — PRIMARY in Phase 1A
   'github_sync',                 // future: GitHub App watches public repos
   'mcp_post_proof',              // MCP server, agent-posted
-  'claim_flow',                  // /claim, existing flow
   'api',                         // direct API key usage
   'import_bulk',                 // future
   'third_party_webhook',         // future
@@ -97,8 +96,8 @@ export const IngestionSource = z.enum([
 export type IngestionSource = z.infer<typeof IngestionSource>;
 
 /**
- * Entity kind. Most receipts have a human subject in Phase 1A.
- * Operators and fleets exist but are populated via /claim, not /paste.
+ * Entity kind. Phase 1A populates only `human`; other kinds reserved for
+ * future flows.
  */
 export const EntityKind = z.enum(['human', 'operator', 'fleet', 'agent']);
 
