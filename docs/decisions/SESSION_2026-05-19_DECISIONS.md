@@ -72,7 +72,46 @@ placement fees.") — not just delete the line.
 ## SEQUENCING
 
 1. Commit this doc.
-2. Copy-fix diff set (26+5), operator-approved strings, via ship loop.
-3. 18-individual enrichment build (discovery doc + diff).
-4. D2/D3 company/agent graph build (separate discovery doc).
-5. Backlog: intake seam, write-path consolidation, hygiene.
+2. Canonical message rework against the 4-type user model (define 4 flow voices
+   + router; D4 → final).
+3. Copy-fix diff set (26+5), operator-approved strings, via ship loop.
+4. 18-individual enrichment build (discovery doc + diff).
+5. D2/D3 company/agent graph build (separate discovery doc).
+6. Backlog: intake seam, write-path consolidation, hygiene.
+
+## UPDATE 2026-05-19 — User model finalized
+
+D9 — User model = 4 entity types, not 2:
+  1. Solo builder (human) — supply
+  2. Team / agency / studio — supply (D3)
+  3. Employer / company — demand ($199)
+  4. Agent — supply, Phase 1 only
+Each is a distinct signup flow.
+
+D10 — Linking model = LinkedIn-style. Entities sign up independently and are
+complete alone. Links (person↔company, agent↔sponsor, team↔members) are
+OPTIONAL, added AFTER signup, never a signup gate, asymmetric, and tolerate the
+other side not existing yet (pending/unclaimed link resolves when it does).
+Reference verbatim for the build: "do it like LinkedIn person↔company."
+
+D11 — Agent type, phased:
+  - Phase 1 (buildable): Agent-as-Supply, linked to a human/team, as a sub-flow
+    that EXTENDS the existing agent path (AgentOnboarding.tsx / /api/v1/profile)
+    — must be verified and extended, NOT duplicated.
+  - Phase 2 (parked, recorded not specced): autonomous agent — wallet/DID
+    identity, on-chain auth, Stripe/Moltbook/RentAHuman history import. Real
+    per 2026 market (Stripe agent wallets, RentAHuman, Moltbook live) but
+    greenfield. Do not design until Phase 1 ships.
+
+D12 — Velocity Score sub-scores for team/agent: CUT from Phase 1. Velocity
+Score is flagged-vanity (architecture audit). Do not extend a weak metric to
+new entity types until the Velocity Score question is resolved (backlog).
+
+D4 STATUS CHANGE: D4 (canonical message) was written for the OLD 2-type model.
+It is now PROVISIONAL, pending rewrite against the 4-type model (D9). The
+copy-fix set must NOT be applied against D4 as-is. Canonical message rework is
+the next gated step before any copy fixes ship.
+
+D2/D3 build note: the 4 flows are designed against ONE linked entity graph
+(D10), not 4 standalone forms. Separate gated discovery doc. Draft signup flows
+(operator-supplied 2026-05-19) are input to that doc, not the spec.
