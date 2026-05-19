@@ -75,9 +75,11 @@ placement fees.") — not just delete the line.
 2. Canonical message rework against the 4-type user model (define 4 flow voices
    + router; D4 → final).
 3. Copy-fix diff set (26+5), operator-approved strings, via ship loop.
-4. 18-individual enrichment build (discovery doc + diff).
-5. D2/D3 company/agent graph build (separate discovery doc).
-6. Backlog: intake seam, write-path consolidation, hygiene.
+4. 18-individual enrichment build (discovery doc + diff). DONE (9ecc723).
+5. Stress-test composable-modes model vs codebase (free capability +
+   profiles/entities schema + Stripe $199 wiring) — gated verification pass.
+6. D2/D3 company/agent graph build (separate discovery doc).
+7. Backlog: intake seam, write-path consolidation, hygiene.
 
 ## UPDATE 2026-05-19 — User model finalized
 
@@ -179,3 +181,83 @@ STATUS CHANGES
 - SEQUENCING: step 2 (canonical message rework) = DONE. Copy-fix set (step 3)
   proceeds against THIS spec, re-tagged by flow (which of the 4 flows does each
   surface serve; does it speak that flow's voice).
+
+## UPDATE 2026-05-19 (c) — Entity model: composable modes
+
+Resolves the locked OPEN QUESTION (entity-as-both-supply-and-demand). Decision:
+COMPOSABLE MODES, not exclusive types. Unblocks D2/D3.
+
+CORE ABSTRACTION
+- Entity (one record): id, profile data, velocity, proof, etc.
+- Modes attached to an entity (not a single type):
+  - Builder/Supply — EARNED, not toggled. Auto-activates/strengthens via
+    verified proof (≥1 verified receipt → badge; thresholds → ranking). Cannot
+    be flipped on with zero proof; system shows less/nothing in talent search
+    until proof exists. Free.
+  - Team/Agency — declarative overlay. Proof requirement is SOFT, not a gate
+    (consistent with D10 async linking): agency exists immediately, ranks
+    low/shows little until a linked proven builder exists. NOT blocked at
+    signup waiting for links.
+  - Hirer/Demand — PAID TOGGLE. Enabling triggers $199/mo immediately. No free
+    Hirer mode ever, no grandfathering.
+- Relationships (the graph): Works-At/Affiliated-With; Owns/Sponsors
+  (entity→agent); Hired (past engagement).
+
+ASYMMETRY (the key principle): supply needs PROOF, demand needs MONEY. Modes
+are deliberately not symmetric.
+
+THE FREE/PAID LINE (resolves the agency-that-also-hires case):
+- FREE: being discovered, contacted, and responding to inbound. Showcasing
+  shipped work. Winning contracts via inbound. This is the supply liquidity
+  that makes Hirer Mode worth paying for.
+- PAID (Hirer Mode, $199/mo): posting jobs, browsing/filtering the full talent
+  graph, outbound sourcing/messaging at scale.
+- An agency is free as Builder+Team (discoverable, responsive); pays only when
+  it wants to actively hire/subcontract (Builder+Team+Hirer).
+
+AGENT HIRER MODE: modeled, not built in Phase 1. Graph supports an agent
+entity with Hirer mode (wallet/spend); Phase 1 exposes Hirer only for
+human/company entities. Agent Hirer = Phase 2 (spend limits, human-sponsor
+approval, on-chain audit) per D11.
+
+SIGNUP UNCHANGED: 4-voice router stays the entry point (D4). Modes are added
+after creation, never a signup gate (D10). Post-creation: "Your profile is
+live in Builder mode (free). Want to also hire? Enable Hirer Mode."
+
+ENABLES: no migration/invariant-#6 risk — zero hirers exist yet, so this
+defines the paid product on a blank slate rather than retrofitting live
+behavior.
+
+STILL TO DO before D2/D3 build: stress-test this model against the actual
+codebase (current free capability, profiles/entities schema, Stripe gate
+wiring) — verification pass, separate, gated. Decision is locked; the code
+check verifies against it, does not re-derive it.
+
+## SESSION 2026-05-19 CLOSE-OUT
+
+SHIPPED (live origin/main): c08f13e H1 revert; ee425ac/b6e66bd/a65860e
+decisions + 4-type model + D4 final; 83538a6 kill /claim+/hire dead flow;
+6045f96 remove Doc-B copy drift + repoint /hire->/join; 9ecc723 enrichment
+adapter + 55 proof_receipts + 18 entity links (prod-verified, renders at
+/p/<slug>); plus this (c) commit.
+
+PROD GRAPH STATE: 18 entities (all human), 55 proof_receipts, 18/18 cohort
+profiles entity-linked, every receipt has a working canonical URL. The
+load-bearing disconnect (populated profiles never reached the engine) is
+CLOSED for the D5 cohort.
+
+RECORDED DATA-QUALITY NOTES (out of scope; upstream signup-validation fix, NOT
+adapter bugs):
+1. Yuki proof_receipt #45: stored artifacts JSON retains the dirty pasted
+   query string. Slug + canonical URL clean; dedupe key normalized correctly;
+   receipt functional. Cosmetic only.
+2. Accepted #4 missing-https (2: vinodkrishnabanda657 post, khairulanwar932
+   project) + #5 unreachable-at-probe (varies by network) — handled per
+   accepted decision (unreachable still writes, L0_claimed downgrade). Real
+   fix is upstream new-signup URL validation, already roadmap.
+
+NEXT SESSION OPENS WITH: stress-test the composable-modes model against the
+actual codebase (current free capability, profiles/entities schema, Stripe
+$199 gate wiring) — gated verification pass BEFORE D2/D3. Decision is locked;
+the code check verifies, does not re-derive. Then D2/D3 entity-graph build
+(own discovery doc).
