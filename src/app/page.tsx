@@ -258,9 +258,6 @@ export default function Home() {
             <strong>Traditional platforms can&apos;t see them.</strong> The filters were built for a different era. CVs don&apos;t capture what you shipped at midnight. GitHub doesn&apos;t show what you built with AI. Recruiters don&apos;t know what questions to ask.
           </p>
           <p>
-            Some of these builders don&apos;t even show up themselves anymore — they send their agents. Outreach agents. Build agents. Research agents. The agentic economy is here, and the hiring infrastructure hasn&apos;t caught up.
-          </p>
-          <p>
             ShipStacked was built for this moment. <strong>Post your builds. Show your outcomes. Get verified automatically. Get found — on your terms.</strong>
           </p>
         </div>

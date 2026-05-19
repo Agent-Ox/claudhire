@@ -210,7 +210,7 @@ export default function ClientInboxClient({ userEmail, userName }: { userEmail: 
           <div style={{ marginTop: '2rem', background: 'linear-gradient(135deg, #f8f8ff, #f0f0ff)', border: '1px solid #e0e0ee', borderRadius: 14, padding: '1.25rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
               <p style={{ fontSize: 14, fontWeight: 600, color: '#1d1d1f', marginBottom: '0.2rem' }}>Looking for more builders?</p>
-              <p style={{ fontSize: 13, color: '#6e6e73' }}>Browse 500+ verified AI-native builders and message anyone directly.</p>
+              <p style={{ fontSize: 13, color: '#6e6e73' }}>Browse verified AI-native builders and message anyone directly.</p>
             </div>
             <Link href="/employers"
               style={{ fontSize: 13, padding: '0.5rem 1.25rem', background: '#6c63ff', color: 'white', borderRadius: 980, textDecoration: 'none', fontWeight: 500, whiteSpace: 'nowrap' }}>

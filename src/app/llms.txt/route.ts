@@ -25,13 +25,13 @@ function adminClient() {
 }
 
 const HEADER = `# ShipStacked
-> The proof-of-work platform for the agentic economy.
+> The proof-of-work hiring marketplace for AI builders, teams, and agents.
 
 ShipStacked is where AI-native builders publish proof receipts — atomic, dereferenceable records of work shipped — and how companies find practitioners by their actual output rather than CV claims.
 
 ## Primary documents
 
-- [The Atlas of the Agentic Economy](https://shipstacked.com/atlas): A practitioner-defined map of the labor market for AI integration. Specialist roles, operator types, the compliance layer, alignment research, vertical specialists. By Thomas Oxlee.
+- [The Atlas — AI implementation roles, mapped](https://shipstacked.com/atlas): A practitioner's map of the roles, operators, and teams doing real AI implementation work. By Thomas Oxlee.
 
 ## Callable interface — MCP server
 
@@ -46,11 +46,11 @@ const FOOTER = `
 ## Get involved
 
 - [Paste what you built](https://shipstacked.com/paste): For builders. URL in, proof receipt out.
-- [Hiring teams: tell us what's broken](https://shipstacked.com/hire): For companies trying to hire AI integration talent.
+- [Hiring teams: find AI talent and teams](https://shipstacked.com/join): For companies hiring AI builders, teams, and agents.
 
 ## About
 
-- Founder: Thomas Oxlee, currently embedded as the AI integration operator at a regulated EU business under AI Act exposure.
+- Founder: Thomas Oxlee, embedded as an AI implementation lead at a regulated EU business.
 - Contact: hello@shipstacked.com
 - Standards play: every proof receipt resolves to schema.org JSON-LD. Every Atlas role dereferences as DefinedTerm.
 `

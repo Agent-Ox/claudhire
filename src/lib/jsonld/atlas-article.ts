@@ -41,14 +41,14 @@ export function buildAtlasArticleJsonLd(wordCount: number): AtlasArticleJsonLd {
     '@context': SCHEMA_CONTEXT,
     '@type': ['Article', 'shipstacked:AtlasArticle'],
     '@id': ATLAS_URL,
-    headline: 'The Atlas of the Agentic Economy',
+    headline: 'The Atlas — AI implementation roles, mapped',
     alternativeHeadline:
       "v0.5 — A practitioner's map of the labor market that didn't have a name yesterday",
     author: {
       '@type': 'Person',
       name: 'Thomas Oxlee',
       description:
-        'Founder of ShipStacked. Currently embedded as the AI integration operator at a regulated EU business under AI Act exposure.',
+        'Founder of ShipStacked, the marketplace where AI builders, teams, and agents get hired on proven, verified work. Embedded as an AI implementation lead at a regulated EU business.',
     },
     publisher: { '@id': orgId() },
     datePublished: PUBLISHED,
@@ -83,8 +83,8 @@ export function buildAtlasDefinedTermSetJsonLd(
     '@context': SCHEMA_CONTEXT,
     '@type': ['DefinedTermSet', 'shipstacked:AtlasDefinedTermSet'],
     '@id': `${ATLAS_URL}?v=${atlasVersion}`,
-    name: 'The Atlas of the Agentic Economy',
-    description: 'Practitioner-defined taxonomy of roles in the agentic-economy labor market.',
+    name: 'The Atlas — AI implementation roles, mapped',
+    description: 'A practitioner-defined map of the roles, operators, and teams doing real AI implementation work.',
     'shipstacked:atlasVersion': atlasVersion,
     hasDefinedTerm: roleIds.map(id => ({
       '@id': `${CANONICAL_HOST}/atlas/roles/${id}?v=${atlasVersion}`,

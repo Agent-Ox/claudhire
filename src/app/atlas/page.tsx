@@ -11,9 +11,9 @@ import GithubSlugger from 'github-slugger'
 import { createClient } from '@supabase/supabase-js'
 import { buildAtlasArticleJsonLd, buildAtlasDefinedTermSetJsonLd } from '@/lib/jsonld/atlas-article'
 
-const TITLE = 'The Atlas of the Agentic Economy | ShipStacked'
+const TITLE = 'The Atlas — AI implementation roles, mapped | ShipStacked'
 const DESCRIPTION =
-  'A practitioner-defined map of the labor market for AI integration. 28 specialist roles, 5 operator types, the compliance layer, alignment research, vertical specialists, the practitioner layer. By Thomas Oxlee.'
+  "A practitioner's map of the roles, operators, and teams doing real AI implementation work. By Thomas Oxlee."
 const CANONICAL = 'https://shipstacked.com/atlas'
 const PUBLISHED = '2026-05-15'
 
@@ -34,33 +34,6 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
   },
-}
-
-function buildJsonLd(wordCount: number) {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'Article',
-    headline: 'The Atlas of the Agentic Economy',
-    alternativeHeadline:
-      "v0.4 — A practitioner's map of the labor market that didn't have a name yesterday",
-    author: {
-      '@type': 'Person',
-      name: 'Thomas Oxlee',
-      description:
-        'Founder of ShipStacked. Currently embedded as the AI integration operator at a regulated EU business under AI Act exposure.',
-    },
-    publisher: {
-      '@type': 'Organization',
-      name: 'ShipStacked',
-      url: 'https://shipstacked.com',
-    },
-    datePublished: PUBLISHED,
-    dateModified: PUBLISHED,
-    url: CANONICAL,
-    mainEntityOfPage: { '@type': 'WebPage', '@id': CANONICAL },
-    wordCount,
-    inLanguage: 'en',
-  }
 }
 
 type TocEntry = { text: string; slug: string; level: 1 | 2 | 3; children: TocEntry[] }
@@ -629,13 +602,13 @@ export default async function AtlasPage() {
             <span style={s.eyebrowDot} aria-hidden="true" />
             <span>Version 0.5 — Practitioner-defined</span>
           </div>
-          <h1 style={s.h1}>The Atlas of the Agentic Economy</h1>
+          <h1 style={s.h1}>The Atlas — AI implementation roles, mapped</h1>
           <p style={s.subhead}>
             A practitioner&apos;s map of the labor market that didn&apos;t have a name yesterday.
           </p>
           <p style={s.byline}>By Thomas Oxlee</p>
           <p style={s.bylineSub}>
-            Founder, ShipStacked. Currently embedded as the AI integration operator at a regulated EU business under AI Act exposure.
+            Founder, ShipStacked. Embedded as an AI implementation lead at a regulated EU business.
           </p>
           <p style={s.bylineMeta}>
             Published May 15, 2026 · {wordCount.toLocaleString()} words · ~{Math.round(wordCount / 250)} min read
@@ -729,7 +702,7 @@ export default async function AtlasPage() {
         <div style={s.footerInner}>
           <h2 style={s.footerH2}>About the author</h2>
           <p style={s.footerP}>
-            Thomas Oxlee is the founder of ShipStacked, the discovery and classification layer for the labor market of the agentic economy. He is currently embedded as the AI integration operator at a regulated EU business under AI Act exposure, where most of the field signal that informs this Atlas comes from. ShipStacked matches AI-native specialists, agent operators, vertical specialists, and compliance practitioners to companies that need them — without CVs, without LinkedIn taxonomies, and without the assumptions of a labor regime that broke eighteen months ago.
+            Thomas Oxlee is the founder of ShipStacked, the marketplace where AI builders, teams, and agents get hired on proven, verified work — not résumés. He is currently embedded as an AI implementation lead at a regulated EU business, where most of the field signal that informs this Atlas comes from.
           </p>
           <div style={s.footerCtaRow}>
             <Link href="/join" style={s.ctaPrimary}>Join ShipStacked →</Link>

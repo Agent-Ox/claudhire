@@ -178,7 +178,7 @@ export default function EmployersPage() {
           <span className="muted">are already here.</span>
         </h1>
         <p className="emp-sub">
-          ShipStacked is where AI-native builders post real work, earn verified status, and get found. Browse proof-of-work profiles, watch the Build Feed, post roles, and message anyone directly. No CVs. No agencies. No guessing.
+          ShipStacked is where AI-native builders post real work, earn verified status, and get found. Browse proof-of-work profiles, watch the Build Feed, post roles, and message anyone directly. No CVs. No recruiters. No placement fees.
         </p>
         <div className="emp-cta-wrap">
           <input
@@ -207,7 +207,7 @@ export default function EmployersPage() {
         <div className="manifesto-inner">
           <h2>The best AI builders<br />aren't on <span className="accent">LinkedIn.</span></h2>
           <p>
-            They're shipping production-grade tools over a weekend. Automating entire workflows solo. Building things that didn't exist six months ago — with Bolt, Lovable, Cursor, Claude Code, and whatever drops next week.
+            They're shipping production-grade tools over a weekend. Automating entire workflows. Building things that didn't exist six months ago — with Bolt, Lovable, Cursor, Claude Code, and whatever drops next week.
           </p>
           <p>
             <strong>Traditional hiring platforms can't see them.</strong> The filters were built for a different era. CVs don't capture what someone shipped at midnight. GitHub doesn't show what was built with AI. Recruiters don't know what questions to ask.

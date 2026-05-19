@@ -162,7 +162,7 @@ export default async function GetFoundPage({ params }: { params: Promise<{ id: s
         <p style={{ fontSize: 13, color: '#6e6e73' }}>
           <a href="/" style={{ color: '#6e6e73', textDecoration: 'none' }}>ShipStacked.</a>
           {' · '}
-          <a href="/jobs" style={{ color: '#6e6e73', textDecoration: 'none' }}>Browse all 23 roles</a>
+          <a href="/jobs" style={{ color: '#6e6e73', textDecoration: 'none' }}>Browse open roles</a>
           {' · '}
           <a href="/employers" style={{ color: '#6e6e73', textDecoration: 'none' }}>Post a role</a>
         </p>
