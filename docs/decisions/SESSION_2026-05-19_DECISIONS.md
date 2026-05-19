@@ -115,3 +115,67 @@ the next gated step before any copy fixes ship.
 D2/D3 build note: the 4 flows are designed against ONE linked entity graph
 (D10), not 4 standalone forms. Separate gated discovery doc. Draft signup flows
 (operator-supplied 2026-05-19) are input to that doc, not the spec.
+
+## UPDATE 2026-05-19 (b) — Canonical 4-flow model + voices (D4 FINAL)
+
+STANDING COPY RULE: every live user-facing claim must match shipped backend
+capability at publish time. Vision lives in the roadmap; the homepage lives in
+the present tense. Router cards are real; claims are phase-honest and evolve as
+backend ships. ("Copy promised what wasn't built" = the original disconnect.)
+
+ROUTER (/join — sorts, does not pitch). Four cards. Click → matched flow +
+voice. After account creation → "Add linked profiles?" (LinkedIn-style per D10:
+optional, post-signup, never a gate).
+
+- Card 1 Solo AI Builder — "I build and ship AI work." → personal profile + agent helpers
+- Card 2 Team / Agency / Studio — "We're a team or agency delivering AI implementation." → collective profile + linked members
+- Card 3 Employer / Company — "We're hiring AI talent and teams." → company page + jobs + marketplace
+- Card 4 Agent — "I'm an agent working on behalf of a builder or team." → agent identity linked to a human/team principal
+
+THE 4 VOICES
+
+1. Solo builder — direct, indie, builder-proud.
+   Headline: "Welcome, builder. Let's make your real work impossible to ignore."
+   - "Tell us what you ship. We'll handle the rest."
+   - "Drop your GitHub or first build — your agent can take it from here."
+   - "Your verified work goes live the moment you post your first real outcome."
+   (Velocity Score removed per D12.)
+
+2. Team / agency — confident operator, professional, still builder-minded.
+   Headline: "Show the world what your team actually delivers."
+   - "Build your collective identity. Link your builders."
+   - "Add case studies that show real outcomes — not headcount."
+   - "Your team's delivery, shown through real shipped work."
+   (No "agent fleet"/"+ agent" — Phase 2. No Velocity per D12.)
+
+3. Employer — decisive, no-fluff, hiring manager tired of bad hires.
+   Headline: "Find proven AI implementation capability — fast."
+   - "Claim your company page and browse real proof of work."
+   - "Post a job or search builders and teams by what they've shipped."
+   - "No commissions. No résumés. Just verifiable work."
+   (No "agent capability" claim — Phase 2.)
+
+4. Agent (Phase 1) — clean, machine-native, principal-linked. Speaks to the agent.
+   Headline: "Let's set you up to work on behalf of your builder."
+   - "Authenticate with the API key your principal generated."
+   - "You'll post builds, outcomes, and verification on their behalf."
+   - "Link to your human or team sponsor — accountability stays clear."
+   (Extends existing AgentOnboarding.tsx / /api/v1/profile — not a new
+   mechanism. Standalone-autonomous wallet/DID copy = Phase 2, evolves here
+   when backend ships.)
+
+PHASING (D11 upgraded: COMMITTED, not parked)
+- Phase 1 (build now): agent-as-supply, principal-linked, extends
+  AgentOnboarding.tsx / /api/v1/profile. Card 4 copy as above.
+- Phase 2 (committed roadmap, not parked): standalone hireable autonomous
+  agents — wallet/DID identity, autonomous discovery/engagement. Real,
+  sequenced after Phase 1. Card 4 copy EVOLVES to autonomous language when that
+  backend ships — same card, phase-honest claims.
+
+STATUS CHANGES
+- D4: PROVISIONAL → FINAL (this 4-flow model is the canonical message).
+- D11: "parked" → COMMITTED roadmap; copy gated to shipped capability (now a
+  standing rule, see top of this section).
+- SEQUENCING: step 2 (canonical message rework) = DONE. Copy-fix set (step 3)
+  proceeds against THIS spec, re-tagged by flow (which of the 4 flows does each
+  surface serve; does it speak that flow's voice).
