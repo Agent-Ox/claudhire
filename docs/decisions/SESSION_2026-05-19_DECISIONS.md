@@ -302,3 +302,32 @@ not auto-enrich new builders is not delivering its core promise. Recommend
 this becomes the gated step AFTER the composable-modes codebase stress-test
 (step 5) and BEFORE or ALONGSIDE D2/D3 — operator to confirm priority next
 session.
+
+## UPDATE 2026-05-20 — Standing principle: cater to all 4 excellently; money-aware prioritization
+
+PRINCIPLE: The product treats all 4 user types (solo builder, team/agency,
+employer, agent) as first-class with equal quality. PRIORITIZATION of
+investment, scope, and default behaviors is informed by where revenue
+actually comes from. Equal product, prioritized investment. The two are not
+in tension.
+
+GOVERNS:
+- Scope calls: when choosing what to build next among comparable options,
+  the option closer to revenue wins, all else equal. NOT "build only for the
+  paying segment" — "build for all, sequence by revenue impact."
+- Default behaviors: when a UX decision has a defensible tiebreaker, the
+  paid side gets the default, the free side stays one click away (see 5a
+  routing decision: builder+hirer lands on /employer, NavBar shows both).
+- Roadmap: agency-aware investments (distribution mechanics, team
+  presentation, RFP-style flows) are real prioritized items, not "deferred
+  with everything else." Recorded here so they survive into future sessions.
+
+CONTEXT: agencies are likely the highest-LTV / fastest-distribution segment
+(operator hypothesis 2026-05-20: agencies are searchable/identifiable at
+scale, they hire AND ship, and each onboarded agency brings a network).
+Validation pending — but the principle holds regardless of which segment
+the data confirms: revenue-awareness shapes priority without compromising
+universal product quality.
+
+APPLIES IMMEDIATELY TO: 5a composable-modes refactor (routing default to
+/employer per this principle, code precedent already aligns).
