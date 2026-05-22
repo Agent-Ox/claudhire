@@ -25,7 +25,7 @@ export default async function AdminPage() {
     { data: comments },
     { data: hireConfirmations },
     { data: applications },
-    { data: employerProfiles },
+    { data: hirerProfiles },
   ] = await Promise.all([
     supabase.from('profiles').select('*').order('created_at', { ascending: false }),
     supabase.from('subscriptions').select('*').order('created_at', { ascending: false }),
@@ -59,11 +59,11 @@ export default async function AdminPage() {
   const activeBuilders7d = profiles?.filter(p => p.last_seen_at && p.last_seen_at >= sevenDaysAgo).length || 0
   const highVelocity = profiles?.filter(p => (p.velocity_score || 0) >= 75).length || 0
 
-  const totalEmployers = activeSubscriptions.length
-  const activeEmployerConvs = new Set(conversations?.filter(c => c.last_message_at >= thirtyDaysAgo).map(c => c.employer_email)).size
+  const totalHirers = activeSubscriptions.length
+  const activeHirerConvs = new Set(conversations?.filter(c => c.last_message_at >= thirtyDaysAgo).map(c => c.employer_email)).size
   const activeJobListings = jobs?.filter(j => j.status === 'active').length || 0
   const totalApplications = applications?.length || 0
-  const employerContactRate = totalEmployers > 0 ? Math.round((activeEmployerConvs / totalEmployers) * 100) : 0
+  const hirerContactRate = totalHirers > 0 ? Math.round((activeHirerConvs / totalHirers) * 100) : 0
 
   const totalPosts = posts?.length || 0
   const postsThisWeek = posts?.filter(p => p.created_at >= sevenDaysAgo).length || 0
@@ -120,7 +120,7 @@ export default async function AdminPage() {
           {[
             { label: 'MRR', value: '$' + mrr.toLocaleString(), sub: mrrGrowth !== 0 ? (mrrGrowth > 0 ? '+' : '') + mrrGrowth + '% vs last month' : 'No prior data', subColor: mrrGrowth > 0 ? '#1a7f37' : mrrGrowth < 0 ? '#c00' : '#6e6e73' },
             { label: 'ARR', value: '$' + arr.toLocaleString(), sub: 'Annualised run rate', subColor: '#6e6e73' },
-            { label: 'Active subscribers', value: String(activeSubscriptions.length), sub: totalEmployers + ' employer accounts', subColor: '#6e6e73' },
+            { label: 'Active subscribers', value: String(activeSubscriptions.length), sub: totalHirers + ' hirer accounts', subColor: '#6e6e73' },
             { label: 'Churn rate', value: churnRate + '%', sub: cancelledThisMonth.length + ' cancelled this month', subColor: churnRate > 10 ? '#c00' : '#6e6e73' },
             { label: 'LTV estimate', value: ltv > 0 ? '$' + ltv.toLocaleString() : 'N/A', sub: 'Based on churn rate', subColor: '#6e6e73' },
           ].map(stat => (
@@ -155,17 +155,17 @@ export default async function AdminPage() {
           </div>
 
           <div style={{ background: '#0f0f18', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: '1.5rem' }}>
-            <p style={{ fontSize: 10, fontWeight: 700, color: '#0071e3', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '1.25rem' }}>Demand — Employers</p>
+            <p style={{ fontSize: 10, fontWeight: 700, color: '#0071e3', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '1.25rem' }}>Demand — Hirers</p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               {[
-                { label: 'Paying employers', value: String(totalEmployers) },
-                { label: 'Active (30d)', value: String(activeEmployerConvs) },
-                { label: 'Contact rate', value: employerContactRate + '%' },
+                { label: 'Paying hirers', value: String(totalHirers) },
+                { label: 'Active (30d)', value: String(activeHirerConvs) },
+                { label: 'Contact rate', value: hirerContactRate + '%' },
                 { label: 'Active job listings', value: String(activeJobListings) },
                 { label: 'Total job listings', value: String(jobs?.length || 0) },
                 { label: 'Total applications', value: String(totalApplications) },
-                { label: 'Company profiles', value: String(employerProfiles?.length || 0) },
-                { label: 'Public profiles', value: String(employerProfiles?.filter((e: any) => e.public).length || 0) },
+                { label: 'Company profiles', value: String(hirerProfiles?.length || 0) },
+                { label: 'Public profiles', value: String(hirerProfiles?.filter((e: any) => e.public).length || 0) },
               ].map(s => (
                 <div key={s.label} style={{ padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: 10 }}>
                   <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.4)', marginBottom: '0.3rem' }}>{s.label}</p>
@@ -207,13 +207,13 @@ export default async function AdminPage() {
                 { label: 'Confirmed hires', value: String(confirmedHires) },
                 { label: 'Pending confirmations', value: String(pendingHires) },
                 { label: 'Hire rate', value: hireRate + '%' },
-                { label: 'Builder:Employer ratio', value: totalEmployers > 0 ? (totalProfiles / totalEmployers).toFixed(1) + ':1' : 'N/A' },
-                { label: 'Supply/demand', value: totalProfiles >= totalEmployers * 5 ? 'Healthy' : 'Needs builders' },
+                { label: 'Builder:Hirer ratio', value: totalHirers > 0 ? (totalProfiles / totalHirers).toFixed(1) + ':1' : 'N/A' },
+                { label: 'Supply/demand', value: totalProfiles >= totalHirers * 5 ? 'Healthy' : 'Needs builders' },
                 { label: 'Avg hires/builder', value: totalProfiles > 0 ? (confirmedHires / totalProfiles).toFixed(2) : '0' },
               ].map(s => (
                 <div key={s.label} style={{ padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: 10 }}>
                   <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.4)', marginBottom: '0.3rem' }}>{s.label}</p>
-                  <p style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-0.03em', color: s.label === 'Supply/demand' ? (totalProfiles >= totalEmployers * 5 ? '#1a7f37' : '#c00') : '#f0f0f5' }}>{s.value}</p>
+                  <p style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-0.03em', color: s.label === 'Supply/demand' ? (totalProfiles >= totalHirers * 5 ? '#1a7f37' : '#c00') : '#f0f0f5' }}>{s.value}</p>
                 </div>
               ))}
             </div>
@@ -330,7 +330,7 @@ export default async function AdminPage() {
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                    {['Builder', 'Employer', 'Builder', 'Employer', 'Confirmed'].map((h, i) => (
+                    {['Builder', 'Hirer', 'Builder', 'Hirer', 'Confirmed'].map((h, i) => (
                       <th key={i} style={{ padding: '0.75rem 1rem', textAlign: 'left', fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.4)', letterSpacing: '0.04em' }}>{h}</th>
                     ))}
                   </tr>

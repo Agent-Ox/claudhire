@@ -10,7 +10,7 @@ import { type EntityModes } from './user'
  * same-origin path starting with /).
  * Optional `requiresPasswordSet` covers the post-Stripe-checkout onboarding
  * case — a hirer who hasn't set a password yet goes to /update-password
- * instead of /employer.
+ * instead of /hirer.
  */
 export function routeAfterAuth(
   modes: EntityModes,
@@ -21,7 +21,7 @@ export function routeAfterAuth(
   if (modes.admin) return '/admin'
   if (modes.client) return '/client/inbox'
   if (modes.hirer) {
-    return opts.requiresPasswordSet ? '/update-password' : '/employer'
+    return opts.requiresPasswordSet ? '/update-password' : '/hirer'
   }
   if (modes.builder) return '/dashboard'
   return '/dashboard'

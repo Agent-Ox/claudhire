@@ -189,7 +189,7 @@ function MessagesInner() {
 
   // Conversation card label/name depend on active mode:
   //   as=hirer  → render builder side (from conv.profiles)
-  //   as=builder→ render employer side (from conv.employer_profile / jobs)
+  //   as=builder→ render hirer side (from conv.employer_profile / jobs — DB shape stays)
   const getConvLabel = (conv: any) => {
     if (activeMode === 'builder') {
       if (conv.conversation_type === 'project_inquiry') return { label: 'Project enquiry', color: '#6c63ff', bg: '#f0f0ff' }
@@ -202,7 +202,7 @@ function MessagesInner() {
     if (activeMode === 'hirer') {
       return builderForConv(conv).full_name || 'Builder'
     }
-    return conv.employer_profile?.company_name || conv.jobs?.company_name || conv.employer_email?.split('@')[0] || 'Employer'
+    return conv.employer_profile?.company_name || conv.jobs?.company_name || conv.employer_email?.split('@')[0] || 'Hirer'
   }
 
   const msgBubble = (msg: any) => {

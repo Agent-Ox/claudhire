@@ -7,7 +7,7 @@ const admin = () => createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-// GET — fetch all saved profile IDs for current employer
+// GET — fetch all saved profile IDs for current hirer
 export async function GET() {
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()

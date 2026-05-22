@@ -50,7 +50,7 @@ export default function PrivacyPage() {
         <ul style={{ paddingLeft: '1.25rem', marginBottom: '1rem' }}>
           <li style={s.li}>Email address</li>
           <li style={s.li}>Password (stored as a secure hash — we never see your plain-text password)</li>
-          <li style={s.li}>Account type (builder or employer)</li>
+          <li style={s.li}>Account type (builder or hirer)</li>
         </ul>
         <p style={{ ...s.p, marginBottom: '0.5rem' }}><strong>When you build your profile (builders):</strong></p>
         <ul style={{ paddingLeft: '1.25rem', marginBottom: '1rem' }}>
@@ -58,7 +58,7 @@ export default function PrivacyPage() {
           <li style={s.li}>Skills, projects, day rate, availability, timezone, languages</li>
           <li style={s.li}>Links to GitHub, X, LinkedIn, personal website</li>
         </ul>
-        <p style={{ ...s.p, marginBottom: '0.5rem' }}><strong>When you build your profile (employers):</strong></p>
+        <p style={{ ...s.p, marginBottom: '0.5rem' }}><strong>When you build your profile (hirers):</strong></p>
         <ul style={{ paddingLeft: '1.25rem', marginBottom: '1rem' }}>
           <li style={s.li}>Company name, about, logo, location, website, industry, team size</li>
         </ul>
@@ -74,7 +74,7 @@ export default function PrivacyPage() {
           <li style={s.li}>GitHub username and public repository count</li>
           <li style={s.li}>Commit activity (90-day window, includes private repo commit counts via OAuth — no code is accessed)</li>
         </ul>
-        <p style={{ ...s.p, marginBottom: '0.5rem' }}><strong>When you pay (employers):</strong></p>
+        <p style={{ ...s.p, marginBottom: '0.5rem' }}><strong>When you pay (hirers):</strong></p>
         <p style={s.p}>Payment is processed entirely by Stripe. We receive confirmation of payment and your subscription status. We do not store card numbers or payment details.</p>
         <p style={{ ...s.p, marginBottom: '0.5rem' }}><strong>When you use the Builder API:</strong></p>
         <ul style={{ paddingLeft: '1.25rem', marginBottom: '1rem' }}>
@@ -108,7 +108,7 @@ export default function PrivacyPage() {
               ['Sending transactional emails (welcome, verification, message notifications)', 'Performance of a contract'],
               ['Auto-verification of builder profiles', 'Performance of a contract'],
               ['Calculating Velocity Scores', 'Performance of a contract'],
-              ['Displaying your public profile to employers and visitors', 'Legitimate interests'],
+              ['Displaying your public profile to hirers and visitors', 'Legitimate interests'],
               ['Making your published profile discoverable through trusted third-party discovery and hiring partners, so that you can be found and hired', 'Legitimate interests'],
               ['Improving the platform through usage analytics', 'Legitimate interests'],
               ['Complying with legal obligations', 'Legal obligation'],
@@ -153,7 +153,7 @@ export default function PrivacyPage() {
         <p style={s.p}><strong>Discovery and hiring partners.</strong> In addition to the service providers above, ShipStacked may make your <strong>published</strong> profile data available to trusted third-party discovery and hiring partners whose purpose is to help builders get found and hired — the same purpose for which ShipStacked itself displays your public profile. This applies only to profiles you have set to <strong>published</strong>; unpublished profiles are never shared this way. The data that may be shared is the same published profile data that is already public on the platform: your name, role, bio, location, skills, projects, links, and Build Feed posts. We share this data only with partners who are contractually bound to use it solely for discovery and hiring and not for advertising, resale, or any unrelated purpose. We do not sell your data. You can stop this sharing at any time by setting your profile to unpublished from your dashboard, which removes it from the platform and from partner availability going forward.</p>
         <p style={s.p}><strong>Other third parties.</strong> Except for the service providers listed above and the discovery and hiring partners described here, we do not share your personal data with any other third parties unless required by law.</p>
         <p style={s.p}><strong>Public profile data.</strong> Builder profiles marked as published are publicly accessible and may be indexed by search engines. This includes your name, role, bio, location, skills, projects, and Build Feed posts. You control this — set your profile to unpublished at any time from your dashboard.</p>
-        <p style={s.p}><strong>Employer access.</strong> Paid employers can view your published profile and message you directly. They cannot export or bulk-download your data.</p>
+        <p style={s.p}><strong>Hirer access.</strong> Paid hirers can view your published profile and message you directly. They cannot export or bulk-download your data.</p>
 
         <hr style={s.hr} />
 

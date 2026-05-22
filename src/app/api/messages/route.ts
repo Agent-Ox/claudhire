@@ -85,16 +85,16 @@ export async function GET(req: Request) {
 
       const convs = data || []
 
-      const employerEmails = [...new Set(convs.map((c: any) => c.employer_email))]
-      const { data: empProfiles } = employerEmails.length > 0
+      const hirerEmails = [...new Set(convs.map((c: any) => c.employer_email))]
+      const { data: hirerProfileRows } = hirerEmails.length > 0
         ? await admin
             .from('employer_profiles')
             .select('email, company_name, logo_url')
-            .in('email', employerEmails)
+            .in('email', hirerEmails)
         : { data: [] }
 
-      const empMap = Object.fromEntries((empProfiles || []).map((e: any) => [e.email, e]))
-      conversations = convs.map((conv: any) => ({ ...conv, employer_profile: empMap[conv.employer_email] || null }))
+      const hirerMap = Object.fromEntries((hirerProfileRows || []).map((e: any) => [e.email, e]))
+      conversations = convs.map((conv: any) => ({ ...conv, employer_profile: hirerMap[conv.employer_email] || null }))
     }
   }
 
@@ -223,15 +223,15 @@ export async function POST(req: Request) {
     .eq('id', convId)
     .maybeSingle()
 
-  let empProfile: any = null
+  let hirerProfileRow: any = null
   if (conv) {
     const { data: ep } = await admin
       .from('employer_profiles')
       .select('company_name')
       .eq('email', conv.employer_email)
       .maybeSingle()
-    empProfile = ep
-    ;(conv as any).employer_profile = empProfile
+    hirerProfileRow = ep
+    ;(conv as any).employer_profile = hirerProfileRow
   }
 
   if (conv) {
@@ -245,9 +245,9 @@ export async function POST(req: Request) {
       .eq('conversation_id', convId)
 
     if ((msgCount || 0) <= 1 && recipientEmail) {
-      const isEmployerSending = user.email === conv.employer_email
+      const isHirerSending = user.email === conv.employer_email
       // Recipient's inbox URL — unified /messages page with mode tab
-      const inboxUrl = isEmployerSending
+      const inboxUrl = isHirerSending
         ? `${siteUrl}/messages?as=builder`
         : `${siteUrl}/messages?as=hirer`
 
@@ -255,7 +255,7 @@ export async function POST(req: Request) {
         await resend.emails.send({
           from: 'ShipStacked <hello@shipstacked.com>',
           to: recipientEmail,
-          subject: isEmployerSending
+          subject: isHirerSending
             ? `New message about your ShipStacked profile`
             : `New message from ${builderName} on ShipStacked`,
           html: `
@@ -264,7 +264,7 @@ export async function POST(req: Request) {
                 New message on ShipStacked
               </h2>
               <p style="color: #6e6e73; font-size: 14px; line-height: 1.6; margin-bottom: 1rem;">
-                ${isEmployerSending ? (conv.employer_profile?.company_name || 'An employer on ShipStacked') : builderName} sent you a message:
+                ${isHirerSending ? (conv.employer_profile?.company_name || 'A hirer on ShipStacked') : builderName} sent you a message:
               </p>
               <div style="background: #f5f5f7; border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem; font-size: 14px; color: #3d3d3f; line-height: 1.6;">
                 ${content.trim()}

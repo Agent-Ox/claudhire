@@ -45,8 +45,8 @@ export default function TermsPage() {
         <hr style={s.hr} />
 
         <h2 style={s.h2}>3. Account Types</h2>
-        <p style={s.p}><strong>Builder accounts</strong> are free. Builders can create a public profile, post to the Build Feed, connect GitHub, use the Builder API, and receive messages from employers.</p>
-        <p style={s.p}><strong>Employer accounts</strong> require a paid monthly subscription. Employers can browse the full builder directory, message builders directly, post job listings, and save builders to a shortlist.</p>
+        <p style={s.p}><strong>Builder accounts</strong> are free. Builders can create a public profile, post to the Build Feed, connect GitHub, use the Builder API, and receive messages from hirers.</p>
+        <p style={s.p}><strong>Buyer / Hirer accounts</strong> (parties acting as the buying side of a hiring transaction) require a paid monthly subscription. Hirers can browse the full builder directory, message builders directly, post job listings, and save builders to a shortlist.</p>
 
         <hr style={s.hr} />
 
@@ -64,9 +64,9 @@ export default function TermsPage() {
 
         <hr style={s.hr} />
 
-        <h2 style={s.h2}>5. Employer Accounts</h2>
+        <h2 style={s.h2}>5. Hirer Accounts</h2>
         <h3 style={s.h3}>5.1 Subscription</h3>
-        <p style={s.p}>Employer access requires a paid monthly subscription billed in advance. You can cancel at any time. No refunds are provided for partial months. We reserve the right to change pricing with 30 days notice.</p>
+        <p style={s.p}>Hirer access requires a paid monthly subscription billed in advance. You can cancel at any time. No refunds are provided for partial months. We reserve the right to change pricing with 30 days notice.</p>
         <h3 style={s.h3}>5.2 Use of builder data</h3>
         <p style={s.p}>You may access builder profiles and messaging solely for the purpose of evaluating and hiring builders. You may not scrape or export builder data in bulk, use builder contact details for purposes unrelated to hiring, share builder data with third parties without consent, or send unsolicited commercial messages unrelated to hiring.</p>
         <h3 style={s.h3}>5.3 Job listings</h3>
@@ -75,7 +75,7 @@ export default function TermsPage() {
         <hr style={s.hr} />
 
         <h2 style={s.h2}>6. Messaging</h2>
-        <p style={s.p}>All messages between builders and employers take place on the ShipStacked platform. You agree not to send spam or unsolicited promotions, harass or abuse other users, or share personal contact details for the purpose of circumventing the platform. We reserve the right to remove messages and suspend accounts that violate these rules.</p>
+        <p style={s.p}>All messages between builders and hirers take place on the ShipStacked platform. You agree not to send spam or unsolicited promotions, harass or abuse other users, or share personal contact details for the purpose of circumventing the platform. We reserve the right to remove messages and suspend accounts that violate these rules.</p>
 
         <hr style={s.hr} />
 
@@ -101,12 +101,12 @@ export default function TermsPage() {
         <h3 style={s.h3}>10.1 By you</h3>
         <p style={s.p}>You can delete your account at any time from your dashboard or by emailing privacy@shipstacked.com. Your public profile is removed immediately. Your data is retained for 30 days before permanent deletion.</p>
         <h3 style={s.h3}>10.2 By us</h3>
-        <p style={s.p}>We reserve the right to suspend or terminate accounts that violate these Terms, with or without notice. Paid employer accounts suspended for Terms violations are not entitled to a refund.</p>
+        <p style={s.p}>We reserve the right to suspend or terminate accounts that violate these Terms, with or without notice. Paid hirer accounts suspended for Terms violations are not entitled to a refund.</p>
 
         <hr style={s.hr} />
 
         <h2 style={s.h2}>11. Disclaimers</h2>
-        <p style={s.p}>ShipStacked is provided "as is" without warranties of any kind. We do not guarantee the accuracy of builder profiles, the outcome of any hiring process, or uninterrupted access to the platform. We are not a party to any agreement between builders and employers and accept no liability for the outcome of any hire.</p>
+        <p style={s.p}>ShipStacked is provided "as is" without warranties of any kind. We do not guarantee the accuracy of builder profiles, the outcome of any hiring process, or uninterrupted access to the platform. We are not a party to any agreement between builders and hirers and accept no liability for the outcome of any hire.</p>
 
         <hr style={s.hr} />
 

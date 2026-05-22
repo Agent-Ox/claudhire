@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase'
 
-type EmployerProfile = {
+type HirerProfile = {
   id?: string
   email: string
   company_name?: string
@@ -41,16 +41,16 @@ function Tag({ label, selected, onClick }: { label: string; selected: boolean; o
   )
 }
 
-export default function EmployerDashboardClient({
-  email, renewsString, jobs, employerProfile: initial, applications,
+export default function HirerDashboardClient({
+  email, renewsString, jobs, hirerProfile: initial, applications,
 }: {
   email: string
   renewsString: string
   jobs: any[]
-  employerProfile: EmployerProfile | null
+  hirerProfile: HirerProfile | null
   applications: any[]
 }) {
-  const [profile, setProfile] = useState<EmployerProfile>(initial || { email, public: false })
+  const [profile, setProfile] = useState<HirerProfile>(initial || { email, public: false })
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
@@ -91,7 +91,7 @@ export default function EmployerDashboardClient({
       const blob = await new Promise<Blob>((resolve) => canvas.toBlob(b => resolve(b!), 'image/jpeg', 0.85))
       const formData = new FormData()
       formData.append('file', new File([blob], 'logo.jpg', { type: 'image/jpeg' }))
-      const res = await fetch('/api/employer-logo', { method: 'POST', body: formData })
+      const res = await fetch('/api/hirer-logo', { method: 'POST', body: formData })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Upload failed')
       setProfile(p => ({ ...p, logo_url: data.url + '?t=' + Date.now() }))
@@ -227,7 +227,7 @@ export default function EmployerDashboardClient({
             <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1d1d1f', letterSpacing: '-0.02em', marginBottom: '0.3rem' }}>Browse talent</h3>
             <p style={{ fontSize: 13, color: '#6e6e73', lineHeight: 1.5 }}>Find verified AI-native builders and message them directly.</p>
           </a>
-          <a href={hasProfile || profileSaved ? "/employer/messages" : "#company-form"} style={{ display: 'block', background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.5rem', textDecoration: 'none', opacity: hasProfile || profileSaved ? 1 : 0.5 }}>
+          <a href={hasProfile || profileSaved ? "/messages?as=hirer" : "#company-form"} style={{ display: 'block', background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.5rem', textDecoration: 'none', opacity: hasProfile || profileSaved ? 1 : 0.5 }}>
             <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6e6e73', marginBottom: '0.5rem' }}>Conversations</p>
             <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1d1d1f', letterSpacing: '-0.02em', marginBottom: '0.3rem' }}>Messages</h3>
             <p style={{ fontSize: 13, color: '#6e6e73', lineHeight: 1.5 }}>{hasProfile || profileSaved ? 'Your conversations with builders.' : 'Set up your profile first.'}</p>
@@ -528,7 +528,7 @@ export default function EmployerDashboardClient({
                 <p style={{ fontSize: 13, color: '#6e6e73', marginBottom: '0.2rem' }}>Cancel subscription</p>
                 <p style={{ fontSize: 14, color: '#1d1d1f' }}>You will keep access until {renewsString}.</p>
               </div>
-              <form action="/api/employer/cancel" method="POST">
+              <form action="/api/hirer/cancel" method="POST">
                 <button type="submit" style={{ fontSize: 13, padding: '0.5rem 1rem', background: 'white', color: '#c00', border: '1px solid #ffd0d0', borderRadius: 980, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500 }}>Cancel</button>
               </form>
             </div>

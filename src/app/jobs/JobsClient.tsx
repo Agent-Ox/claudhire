@@ -233,7 +233,7 @@ export default function JobsClient({
   appliedJobIds: string[]
 }) {
   const isBuilder = modes.builder
-  const isEmployer = modes.hirer || modes.admin
+  const isHirer = modes.hirer || modes.admin
   const isLoggedOut = !modes.builder && !modes.hirer && !modes.client && !modes.admin
 
   return (
@@ -250,7 +250,7 @@ export default function JobsClient({
             <p style={{ fontSize: 28, marginBottom: '1rem' }}>🔍</p>
             <h2 style={{ fontSize: 18, fontWeight: 600, color: '#1d1d1f', marginBottom: '0.5rem' }}>No jobs posted yet.</h2>
             <p style={{ color: '#6e6e73', fontSize: 14, marginBottom: '1.5rem' }}>Be the first company to hire AI-native talent.</p>
-            {isEmployer && (
+            {isHirer && (
               <Link href="/post-job" style={{ padding: '0.75rem 1.5rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 14, fontWeight: 500, textDecoration: 'none' }}>
                 Post a job →
               </Link>
@@ -290,8 +290,8 @@ export default function JobsClient({
           </div>
         )}
 
-        {/* Employer CTA */}
-        {isEmployer && (
+        {/* Hirer CTA */}
+        {isHirer && (
           <div style={{ marginTop: '1rem', padding: '1.5rem', background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
             <div>
               <p style={{ fontSize: 14, fontWeight: 600, color: '#1d1d1f', marginBottom: '0.2rem' }}>Hiring AI-native talent?</p>

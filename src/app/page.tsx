@@ -152,9 +152,9 @@ export default function Home() {
         .profile-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
         .ptag { font-size: 0.7rem; padding: 0.25rem 0.6rem; background: var(--bg2); border-radius: var(--radius-pill); color: var(--text2); font-weight: 500; }
 
-        /* Employer section */
-        .employer-section { background: var(--bg2); padding: 5rem 1.5rem; }
-        .employer-inner { max-width: 580px; margin: 0 auto; text-align: center; }
+        /* Hirer section */
+        .hirer-section { background: var(--bg2); padding: 5rem 1.5rem; }
+        .hirer-inner { max-width: 580px; margin: 0 auto; text-align: center; }
 
         /* Founder story */
         .founder-section { padding: 5rem 1.5rem; border-top: 0.5px solid var(--border-light); }
@@ -178,7 +178,7 @@ export default function Home() {
           .profiles-grid { grid-template-columns: 1fr; }
           .founder-inner { flex-direction: column; gap: 1.25rem; }
           .hero-proof { gap: 1rem; }
-          .employer-section { padding: 4rem 1.25rem; }
+          .hirer-section { padding: 4rem 1.25rem; }
           .founder-section { padding: 4rem 1.25rem; }
           .cta-section { padding: 5rem 1.25rem; }
         }
@@ -336,7 +336,7 @@ export default function Home() {
             <div className="step">
               <p className="step-num">03 — Get found</p>
               <h3>Let the work speak</h3>
-              <p>Get auto-verified when your proof is real. Your Velocity Score shows you&apos;re active. Employers with real budgets find you — no applications, no guessing.</p>
+              <p>Get auto-verified when your proof is real. Your Velocity Score shows you&apos;re active. Hirers with real budgets find you — no applications, no guessing.</p>
             </div>
           </div>
         </div>
@@ -390,13 +390,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── EMPLOYER PAYOFF ── */}
-      <section className="employer-section" id="hire">
-        <div className="employer-inner">
+      {/* ── HIRER PAYOFF ── */}
+      <section className="hirer-section" id="hire">
+        <div className="hirer-inner">
           <p className="eyebrow">For founders and hiring teams</p>
           <h2 className="section-title">The right people are already watching.</h2>
           <p style={{ fontSize: '1rem', color: 'var(--text2)', lineHeight: 1.7, marginBottom: '2rem', fontWeight: 300 }}>
-            Employers on ShipStacked pay $199/month to browse verified builders and message them directly. No commissions. No middlemen. No placement fees. When you&apos;re ready to hire — they&apos;re here, and their proof of work is already waiting.
+            Hirers on ShipStacked pay $199/month to browse verified builders and message them directly. No commissions. No middlemen. No placement fees. When you&apos;re ready to hire — they&apos;re here, and their proof of work is already waiting.
           </p>
           <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button

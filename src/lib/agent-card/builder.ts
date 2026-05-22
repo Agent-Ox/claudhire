@@ -206,7 +206,7 @@ export function buildAgentCard(): AgentCard {
       name: 'Fetch the public sitemap',
       description:
         'Fetch https://shipstacked.com/sitemap.xml → returns application/xml. ' +
-        'XML sitemap of public pages (homepage, published builder profiles, active job listings, public employer pages, build-feed posts). ' +
+        'XML sitemap of public pages (homepage, published builder profiles, active job listings, public hirer pages, build-feed posts). ' +
         'Plain HTTP GET; no A2A invocation.',
       tags: ['sitemap', 'discovery', 'http-get'],
       examples: [`GET ${CANONICAL_HOST}/sitemap.xml`],

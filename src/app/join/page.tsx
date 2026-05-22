@@ -263,7 +263,7 @@ export default function JoinPage() {
           <div style={{ textAlign: 'center', padding: '3rem 0' }}>
             <div style={{ width: 64, height: 64, background: '#e8f1fd', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', fontSize: 28, color: '#0071e3', fontWeight: 700 }}>✓</div>
             <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-0.03em', marginBottom: '0.5rem' }}>You are live.</h1>
-            <p style={{ color: '#6e6e73', marginBottom: '2rem', fontSize: 15 }}>Your ShipStacked profile is published. Employers can find you now.</p>
+            <p style={{ color: '#6e6e73', marginBottom: '2rem', fontSize: 15 }}>Your ShipStacked profile is published. Hirers can find you now.</p>
             <div style={{ background: '#f5f5f7', borderRadius: 10, padding: '0.75rem 1rem', marginBottom: '1.5rem', fontSize: 14, color: '#1d1d1f', fontFamily: 'monospace' }}>
               shipstacked.com/u/{username}
             </div>

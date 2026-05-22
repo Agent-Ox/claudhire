@@ -97,7 +97,7 @@ export async function POST(req: Request) {
       }])
     }
 
-    // Notify employer — pulls them to the platform, not to email
+    // Notify hirer — pulls them to the platform, not to email
     await resend.emails.send({
       from: 'ShipStacked <hello@shipstacked.com>',
       to: job.employer_email,
@@ -110,7 +110,7 @@ export async function POST(req: Request) {
           </p>
           ${profile.bio ? `<div style="background: #f5f5f7; border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem; font-size: 14px; color: #3d3d3f; line-height: 1.6;">${profile.bio}</div>` : ''}
           <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
-            <a href="${siteUrl}/employer/messages"
+            <a href="${siteUrl}/messages?as=hirer"
               style="display: inline-block; padding: 0.75rem 1.5rem; background: #0071e3; color: white; border-radius: 20px; text-decoration: none; font-size: 14px; font-weight: 500;">
               Reply on ShipStacked →
             </a>

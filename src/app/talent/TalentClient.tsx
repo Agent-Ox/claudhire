@@ -140,10 +140,10 @@ function FilterDrawer({
   )
 }
 
-function ProfileCard({ profile, isPaidEmployer, hasEmployerProfile, isSaved, onToggleSave }: {
+function ProfileCard({ profile, isPaidHirer, hasHirerProfile, isSaved, onToggleSave }: {
   profile: any
-  isPaidEmployer: boolean
-  hasEmployerProfile: boolean
+  isPaidHirer: boolean
+  hasHirerProfile: boolean
   isSaved: boolean
   onToggleSave: (profileId: string, saved: boolean) => void
 }) {
@@ -153,10 +153,10 @@ function ProfileCard({ profile, isPaidEmployer, hasEmployerProfile, isSaved, onT
 
   return (
     <a href={`/u/${profile.username}`} className={profile.verified ? 'talent-card talent-card-verified' : 'talent-card'}>
-      {isPaidEmployer && (
+      {isPaidHirer && (
         <SaveButton profileId={profile.id} initialSaved={isSaved} onToggle={onToggleSave} />
       )}
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.875rem', width: '100%', minWidth: 0, boxSizing: 'border-box', paddingRight: isPaidEmployer ? '2rem' : 0 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.875rem', width: '100%', minWidth: 0, boxSizing: 'border-box', paddingRight: isPaidHirer ? '2rem' : 0 }}>
         <div style={{ width: 48, height: 48, borderRadius: '50%', flexShrink: 0, background: profile.verified ? 'linear-gradient(135deg, #e8f1fd, #d0e4fb)' : '#f0f0f5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 700, color: profile.verified ? '#0071e3' : '#6e6e73', border: profile.verified ? '2px solid rgba(0,113,227,0.2)' : 'none', overflow: 'hidden' }}>
           {profile.avatar_url ? <img src={profile.avatar_url} alt={profile.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : initials}
         </div>
@@ -191,13 +191,13 @@ function ProfileCard({ profile, isPaidEmployer, hasEmployerProfile, isSaved, onT
         <span style={{ fontSize: 11, color: '#6e6e73', textTransform: 'capitalize', background: '#f5f5f7', padding: '0.2rem 0.6rem', borderRadius: 980, fontWeight: 500 }}>
           {profile.availability || 'open'}
         </span>
-        {isPaidEmployer && (
-          hasEmployerProfile ? (
-            <a href={'/employer/messages?new=' + profile.id} onClick={e => e.stopPropagation()} style={{ fontSize: 12, padding: '0.4rem 0.875rem', background: '#0071e3', color: 'white', borderRadius: 980, textDecoration: 'none', fontWeight: 500, flexShrink: 0 }}>
+        {isPaidHirer && (
+          hasHirerProfile ? (
+            <a href={'/messages?as=hirer&new=' + profile.id} onClick={e => e.stopPropagation()} style={{ fontSize: 12, padding: '0.4rem 0.875rem', background: '#0071e3', color: 'white', borderRadius: 980, textDecoration: 'none', fontWeight: 500, flexShrink: 0 }}>
               Message →
             </a>
           ) : (
-            <a href="/employer#company-form" onClick={e => e.stopPropagation()} style={{ fontSize: 12, padding: '0.4rem 0.875rem', background: '#f5f5f7', color: '#6e6e73', borderRadius: 980, textDecoration: 'none', fontWeight: 500, flexShrink: 0, border: '1px solid #e0e0e5' }}>
+            <a href="/hirer#company-form" onClick={e => e.stopPropagation()} style={{ fontSize: 12, padding: '0.4rem 0.875rem', background: '#f5f5f7', color: '#6e6e73', borderRadius: 980, textDecoration: 'none', fontWeight: 500, flexShrink: 0, border: '1px solid #e0e0e5' }}>
               Set up profile first
             </a>
           )
@@ -208,18 +208,18 @@ function ProfileCard({ profile, isPaidEmployer, hasEmployerProfile, isSaved, onT
 }
 
 export default function TalentClient({
-  profiles, savedIds: initialSavedIds, isPaidEmployer, isTeaser,
-  verifiedCount, totalCount, totalUnfilteredCount, user, hasEmployerProfile = false, filters,
+  profiles, savedIds: initialSavedIds, isPaidHirer, isTeaser,
+  verifiedCount, totalCount, totalUnfilteredCount, user, hasHirerProfile = false, filters,
 }: {
   profiles: any[]
   savedIds: string[]
-  isPaidEmployer: boolean
+  isPaidHirer: boolean
   isTeaser: boolean
   verifiedCount: number
   totalCount: number
   totalUnfilteredCount: number
   user: any
-  hasEmployerProfile?: boolean
+  hasHirerProfile?: boolean
   filters: { profession: string; availability: string; verified: boolean; sort: string }
 }) {
   const router = useRouter()
@@ -314,7 +314,7 @@ export default function TalentClient({
               }
             </p>
           </div>
-          {isPaidEmployer && (
+          {isPaidHirer && (
             <div style={{ fontSize: 13, color: '#6e6e73', background: '#f5f5f7', padding: '0.4rem 0.875rem', borderRadius: 980 }}>Full access</div>
           )}
         </div>
@@ -383,7 +383,7 @@ export default function TalentClient({
       <FilterDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} filters={filters} onApply={handleDrawerApply} />
 
       {/* Tabs */}
-      {isPaidEmployer && (
+      {isPaidHirer && (
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
           {tabBtn('all', 'All builders', profiles.length)}
           {tabBtn('shortlist', 'Shortlist', shortlisted.length)}
@@ -432,7 +432,7 @@ export default function TalentClient({
                       <div style={{ flex: 1, height: '0.5px', background: '#e0e0e5' }} />
                     </div>
                   )}
-                  <ProfileCard profile={profile} isPaidEmployer={isPaidEmployer} hasEmployerProfile={hasEmployerProfile} isSaved={savedIds.includes(profile.id)} onToggleSave={handleToggleSave} />
+                  <ProfileCard profile={profile} isPaidHirer={isPaidHirer} hasHirerProfile={hasHirerProfile} isSaved={savedIds.includes(profile.id)} onToggleSave={handleToggleSave} />
                 </React.Fragment>
               )
             })}

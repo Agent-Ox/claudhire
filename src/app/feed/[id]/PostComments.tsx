@@ -93,7 +93,8 @@ export default function PostComments({ postId, isLoggedIn }: { postId: string, i
   const hiddenCount = comments.length - PREVIEW_COUNT
 
   const getRoleLabel = (role: string) => {
-    if (role === 'employer') return { label: 'Employer', color: '#0071e3', bg: '#e8f1fd' }
+    // G.3 — display label "Hirer" while keeping stored value 'employer' (DB-leave per Batch 3)
+    if (role === 'employer') return { label: 'Hirer', color: '#0071e3', bg: '#e8f1fd' }
     if (role === 'builder') return { label: 'Builder', color: '#1a7f37', bg: '#e3f3e3' }
     return null
   }

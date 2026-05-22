@@ -65,7 +65,7 @@ export async function POST(req: Request) {
     if (!confirmation) continue
 
     const builderLink = `${siteUrl}/api/hire-confirm?id=${confirmation.id}&role=builder`
-    const employerLink = `${siteUrl}/api/hire-confirm?id=${confirmation.id}&role=employer`
+    const hirerLink = `${siteUrl}/api/hire-confirm?id=${confirmation.id}&role=employer`
 
     // Email to builder
     await resend.emails.send({
@@ -76,7 +76,7 @@ export async function POST(req: Request) {
         <div style="font-family:-apple-system,sans-serif;max-width:480px;margin:0 auto;padding:2rem">
           <h2 style="font-size:20px;font-weight:700;color:#1d1d1f;margin-bottom:0.5rem">Did you get hired?</h2>
           <p style="color:#6e6e73;font-size:14px;line-height:1.6;margin-bottom:1.5rem">
-            You connected with an employer on ShipStacked about 2 weeks ago. Did anything come of it? If you got hired, let us know — it helps other builders see that ShipStacked works.
+            You connected with a hirer on ShipStacked about 2 weeks ago. Did anything come of it? If you got hired, let us know — it helps other builders see that ShipStacked works.
           </p>
           <a href="${builderLink}" style="display:inline-block;padding:0.75rem 1.5rem;background:#0071e3;color:white;border-radius:20px;text-decoration:none;font-size:14px;font-weight:500;margin-bottom:1.5rem">
             Yes, I got hired
@@ -88,7 +88,7 @@ export async function POST(req: Request) {
       `
     })
 
-    // Email to employer
+    // Email to hirer
     await resend.emails.send({
       from: 'ShipStacked <hello@shipstacked.com>',
       to: conv.employer_email,
@@ -99,7 +99,7 @@ export async function POST(req: Request) {
           <p style="color:#6e6e73;font-size:14px;line-height:1.6;margin-bottom:1.5rem">
             You connected with ${builderName} on ShipStacked about 2 weeks ago. Did you end up hiring them? Confirming helps us prove the platform works and keeps the community strong.
           </p>
-          <a href="${employerLink}" style="display:inline-block;padding:0.75rem 1.5rem;background:#0071e3;color:white;border-radius:20px;text-decoration:none;font-size:14px;font-weight:500;margin-bottom:1.5rem">
+          <a href="${hirerLink}" style="display:inline-block;padding:0.75rem 1.5rem;background:#0071e3;color:white;border-radius:20px;text-decoration:none;font-size:14px;font-weight:500;margin-bottom:1.5rem">
             Yes, we made a hire
           </a>
           <p style="color:#aeaeb2;font-size:12px;margin-top:1.5rem">If nothing came of it, no worries — just ignore this email.</p>

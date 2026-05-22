@@ -6,9 +6,11 @@ import Link from 'next/link'
 // App screens — no footer on these
 const NO_FOOTER = [
   '/dashboard',
+  '/hirer',
   '/employer',
   '/messages',
   '/join',
+  '/hirers',
   '/employers',
   '/login',
   '/signup',

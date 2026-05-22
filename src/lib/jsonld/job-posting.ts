@@ -10,7 +10,7 @@
  * Spec: BEACON_1_DISCOVERY.md §H5, §D
  */
 
-import { CANONICAL_HOST, SCHEMA_CONTEXT, employerOrgId, jobPostingId, orgId } from './context.ts'
+import { CANONICAL_HOST, SCHEMA_CONTEXT, hirerOrgId, jobPostingId, orgId } from './context.ts'
 
 export interface JobPostingInput {
   id: string
@@ -28,7 +28,7 @@ export interface JobPostingInput {
   employer_email: string
 }
 
-export interface JobPostingEmployerInput {
+export interface JobPostingHirerInput {
   slug: string | null
   public: boolean
 }
@@ -74,31 +74,31 @@ function buildHtmlDescription(job: JobPostingInput): string {
 
 export function buildJobPostingJsonLd(
   job: JobPostingInput,
-  employer: JobPostingEmployerInput | null,
+  hirer: JobPostingHirerInput | null,
 ): JobPostingJsonLd {
   const url = jobPostingId(job.id)
-  const employerName = job.anonymous
-    ? 'A ShipStacked employer'
-    : (job.company_name || 'ShipStacked employer')
+  const hirerName = job.anonymous
+    ? 'A ShipStacked hirer'
+    : (job.company_name || 'ShipStacked hirer')
 
-  // Reference employer @id only if the employer profile is public (so the
+  // Reference hirer @id only if the hirer profile is public (so the
   // resolved URL would 200). Otherwise reference site-level Organization
   // so the hiringOrganization remains a resolvable @id.
-  const employerIdRef =
-    !job.anonymous && employer?.slug && employer.public
-      ? employerOrgId(employer.slug)
+  const hirerIdRef =
+    !job.anonymous && hirer?.slug && hirer.public
+      ? hirerOrgId(hirer.slug)
       : orgId()
-  const employerSameAs =
-    !job.anonymous && employer?.slug && employer.public
-      ? `${CANONICAL_HOST}/company/${employer.slug}`
+  const hirerSameAs =
+    !job.anonymous && hirer?.slug && hirer.public
+      ? `${CANONICAL_HOST}/company/${hirer.slug}`
       : undefined
 
   const hiringOrg: JobPostingJsonLd['hiringOrganization'] = {
-    '@id': employerIdRef,
+    '@id': hirerIdRef,
     '@type': 'Organization',
-    name: employerName,
+    name: hirerName,
   }
-  if (employerSameAs) hiringOrg.sameAs = employerSameAs
+  if (hirerSameAs) hiringOrg.sameAs = hirerSameAs
 
   const out: JobPostingJsonLd = {
     '@context': SCHEMA_CONTEXT,

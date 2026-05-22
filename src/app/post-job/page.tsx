@@ -56,7 +56,7 @@ export default async function PostJobPage({
 
   return (
     <PostJobForm
-      employerEmail={user.email!}
+      hirerEmail={user.email!}
       jobId={jobId}
       initialData={initialData}
     />

@@ -76,7 +76,7 @@ export default function UpdatePasswordPage() {
           ShipStacked<span style={{ color: '#0071e3' }}>.</span>
         </a>
         <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.03em', marginBottom: '0.5rem', color: '#1d1d1f' }}>Set your password</h1>
-        <p style={{ color: '#6e6e73', fontSize: 14, marginBottom: '2rem' }}>Choose a password to access your ShipStacked employer account.</p>
+        <p style={{ color: '#6e6e73', fontSize: 14, marginBottom: '2rem' }}>Choose a password to access your ShipStacked hirer account.</p>
 
         {checking && (
           <div style={{ background: '#f0f0f5', borderRadius: 10, padding: '0.75rem 1rem', marginBottom: '1rem', fontSize: 14, color: '#6e6e73', textAlign: 'center' }}>

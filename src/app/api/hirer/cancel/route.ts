@@ -46,5 +46,5 @@ export async function POST() {
     .eq('email', user.email)
     .eq('product', 'full_access')
 
-  return NextResponse.redirect(new URL('/employer?cancelled=true', 'https://shipstacked.com'))
+  return NextResponse.redirect(new URL('/hirer?cancelled=true', 'https://shipstacked.com'))
 }

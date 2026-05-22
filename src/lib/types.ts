@@ -45,7 +45,7 @@ export type Skill = {
   name: string
 }
 
-export type EmployerProfile = {
+export type HirerProfile = {
   id?: string
   email: string
   company_name?: string

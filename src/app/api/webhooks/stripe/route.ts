@@ -107,7 +107,10 @@ export async function POST(req: Request) {
       console.error('Failed to send welcome email:', e)
     }
 
-    // Add to Employers segment
+    // Add to Hirers segment.
+    // Env var name kept as RESEND_SEGMENT_EMPLOYERS (legacy from pre-Batch-3
+    // terminology). Renaming requires coordinated Vercel env update;
+    // deferred to a future deploy-coordinated change.
     try {
       const resendForAudience = new Resend(process.env.RESEND_API_KEY)
       const contact = await resendForAudience.contacts.create({ email })

@@ -30,6 +30,6 @@ export type SchemaContext = typeof SCHEMA_CONTEXT
 export const orgId = (): string => `${CANONICAL_HOST}/#org`
 export const websiteId = (): string => `${CANONICAL_HOST}/#website`
 export const personId = (username: string): string => `${CANONICAL_HOST}/u/${username}`
-export const employerOrgId = (slug: string): string => `${CANONICAL_HOST}/company/${slug}`
+export const hirerOrgId = (slug: string): string => `${CANONICAL_HOST}/company/${slug}`
 export const jobPostingId = (id: string): string => `${CANONICAL_HOST}/jobs/${id}`
 export const articleId = (postId: string): string => `${CANONICAL_HOST}/feed/${postId}`

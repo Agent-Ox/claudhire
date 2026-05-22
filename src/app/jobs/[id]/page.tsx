@@ -66,7 +66,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
     alreadyApplied = !!existing
   }
 
-  // Employer profile for company link
+  // Hirer profile for company link
   let companySlug: string | null = null
   if (!job.anonymous) {
     const { data: ep } = await admin

@@ -8,6 +8,7 @@ export default function robots(): MetadataRoute.Robots {
         allow: ['/', '/og'],
         disallow: [
           '/dashboard',
+          '/hirer/',
           '/employer/',
           '/messages',
           '/post-job',

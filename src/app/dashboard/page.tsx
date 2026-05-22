@@ -37,7 +37,7 @@ export default async function DashboardPage({
     .order('created_at', { ascending: false })
     .limit(5)
 
-  const { data: employers } = await supabase
+  const { data: hirers } = await supabase
     .from('employer_profiles')
     .select('*')
     .eq('public', true)
@@ -74,7 +74,7 @@ export default async function DashboardPage({
     <BuilderDashboardClient
       profile={profile}
       applications={applications || []}
-      employers={employers || []}
+      hirers={hirers || []}
       email={user.email!}
       githubData={githubData || null}
       velocityScore={profile?.velocity_score || 0}

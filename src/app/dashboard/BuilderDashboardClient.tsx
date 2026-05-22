@@ -44,7 +44,7 @@ function MessagesCard() {
       <div>
         <p style={{ fontSize: 12, fontWeight: 600, color: '#6e6e73', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '0.3rem' }}>Messages</p>
         <p style={{ fontSize: 14, color: '#1d1d1f' }}>
-          Your conversations with clients and employers.
+          Your conversations with clients and hirers.
           {unread > 0 && <span style={{ marginLeft: '0.5rem', fontSize: 12, fontWeight: 700, background: '#0071e3', color: 'white', borderRadius: 980, padding: '0.1rem 0.5rem' }}>{unread} unread</span>}
         </p>
       </div>
@@ -58,7 +58,7 @@ function MessagesCard() {
 export default function BuilderDashboardClient({
   profile,
   applications,
-  employers,
+  hirers,
   email,
   githubData,
   velocityScore: initialScore,
@@ -69,7 +69,7 @@ export default function BuilderDashboardClient({
 }: {
   profile: any
   applications: any[]
-  employers: any[]
+  hirers: any[]
   email: string
   githubData: any | null
   velocityScore: number
@@ -259,7 +259,7 @@ export default function BuilderDashboardClient({
                   <span style={{ fontSize: 20, flexShrink: 0 }}>📸</span>
                   <div>
                     <p style={{ fontSize: 14, fontWeight: 600, color: '#92400e', marginBottom: '0.1rem' }}>Add a profile photo</p>
-                    <p style={{ fontSize: 12, color: '#a16207', lineHeight: 1.5 }}>Profiles with photos get more employer attention. Takes 10 seconds.</p>
+                    <p style={{ fontSize: 12, color: '#a16207', lineHeight: 1.5 }}>Profiles with photos get more hirer attention. Takes 10 seconds.</p>
                   </div>
                 </div>
                 <a href="/dashboard/edit" style={{ fontSize: 13, padding: '0.4rem 0.875rem', background: '#f59e0b', color: 'white', borderRadius: 980, textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0 }}>
@@ -275,7 +275,7 @@ export default function BuilderDashboardClient({
                   <span style={{ fontSize: 20, flexShrink: 0 }}>💰</span>
                   <div>
                     <p style={{ fontSize: 14, fontWeight: 600, color: '#1e40af', marginBottom: '0.1rem' }}>Set your day rate</p>
-                    <p style={{ fontSize: 12, color: '#3b82f6', lineHeight: 1.5 }}>Employers filter by budget. Let them know what you charge.</p>
+                    <p style={{ fontSize: 12, color: '#3b82f6', lineHeight: 1.5 }}>Hirers filter by budget. Let them know what you charge.</p>
                   </div>
                 </div>
                 <a href="/dashboard/edit" style={{ fontSize: 13, padding: '0.4rem 0.875rem', background: '#0071e3', color: 'white', borderRadius: 980, textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0 }}>
@@ -291,7 +291,7 @@ export default function BuilderDashboardClient({
                   <span style={{ fontSize: 20, flexShrink: 0 }}>✍️</span>
                   <div>
                     <p style={{ fontSize: 14, fontWeight: 600, color: '#5b21b6', marginBottom: '0.1rem' }}>Tell your story</p>
-                    <p style={{ fontSize: 12, color: '#7c3aed', lineHeight: 1.5 }}>Your bio is one line. The About section is your full sell to employers.</p>
+                    <p style={{ fontSize: 12, color: '#7c3aed', lineHeight: 1.5 }}>Your bio is one line. The About section is your full sell to hirers.</p>
                   </div>
                 </div>
                 <a href="/dashboard/edit" style={{ fontSize: 13, padding: '0.4rem 0.875rem', background: '#6c63ff', color: 'white', borderRadius: 980, textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0 }}>
@@ -344,13 +344,13 @@ export default function BuilderDashboardClient({
               </div>
             )}
 
-            {/* Employer directory */}
-            {employers.length > 0 && (
+            {/* Hirer directory */}
+            {hirers.length > 0 && (
               <div style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.5rem', marginBottom: '1rem' }}>
                 <p style={{ fontSize: 12, fontWeight: 600, color: '#6e6e73', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Companies hiring</p>
-                <p style={{ fontSize: 13, color: '#6e6e73', marginBottom: '1rem' }}>These employers are actively looking for AI-native builders.</p>
+                <p style={{ fontSize: 13, color: '#6e6e73', marginBottom: '1rem' }}>These hirers are actively looking for AI-native builders.</p>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '0.75rem' }}>
-                  {employers.map((emp: any) => {
+                  {hirers.map((emp: any) => {
                     const initials = emp.company_name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()
                     return (
                       <a key={emp.id} href={"/company/" + emp.slug} style={{ display: 'block', background: '#f5f5f7', borderRadius: 12, padding: '1rem', textDecoration: 'none', transition: 'background 0.2s' }}

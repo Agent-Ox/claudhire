@@ -102,7 +102,7 @@ export async function POST(req: Request) {
     })
 
     // Generate magic link — destination depends on existing role
-    const inboxPath = existingRole === 'employer' ? '/employer/messages' : existingRole === 'builder' ? '/messages' : '/client/inbox'
+    const inboxPath = existingRole === 'employer' ? '/messages?as=hirer' : existingRole === 'builder' ? '/messages' : '/client/inbox'
     const { data: magicLinkData } = await admin.auth.admin.generateLink({
       type: 'magiclink',
       email,

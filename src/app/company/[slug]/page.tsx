@@ -5,7 +5,7 @@ import { getEntityModes } from '@/lib/user'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import ApplyButton from './ApplyButton'
-import { buildEmployerOrgJsonLd } from '@/lib/jsonld/employer-org'
+import { buildHirerOrgJsonLd } from '@/lib/jsonld/hirer-org'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
@@ -76,8 +76,8 @@ export default async function CompanyProfilePage({ params }: { params: Promise<{
 
   // Beacon 1 — Organization markup with shipstacked: namespace + canonical
   // @id matching the page URL. The page above already filters public=true
-  // so unpublished employer profiles 404 and this code never runs for them.
-  const jsonLd = buildEmployerOrgJsonLd({
+  // so unpublished hirer profiles 404 and this code never runs for them.
+  const jsonLd = buildHirerOrgJsonLd({
     slug,
     company_name: company.company_name,
     about: company.about,

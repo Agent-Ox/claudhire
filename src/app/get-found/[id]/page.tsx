@@ -37,7 +37,7 @@ export default async function GetFoundPage({ params }: { params: Promise<{ id: s
   const steps = [
     { n: '01', title: 'Create your free profile', desc: 'Name, role, one-line bio. Takes two minutes. No CV required.' },
     { n: '02', title: 'Post what you\'ve built', desc: 'Add a real project with an outcome. This is your proof of work — what gets you hired.' },
-    { n: '03', title: 'Apply for this role', desc: 'Once your profile is live, apply directly from the job listing. The employer sees your work immediately.' },
+    { n: '03', title: 'Apply for this role', desc: 'Once your profile is live, apply directly from the job listing. The hirer sees your work immediately.' },
   ]
 
   return (
@@ -122,10 +122,10 @@ export default async function GetFoundPage({ params }: { params: Promise<{ id: s
             ShipStacked is the proof-of-work hiring platform for AI-native builders. No CVs. No recruiters. No commission.
           </p>
           <p style={{ fontSize: 15, color: 'rgba(240,240,245,0.5)', lineHeight: 1.7, marginBottom: '1.5rem' }}>
-            Builders post what they've shipped — real projects, real outcomes. Employers see verified proof of work before they ever make contact. The best builders get found. The best employers get straight to the work.
+            Builders post what they've shipped — real projects, real outcomes. Hirers see verified proof of work before they ever make contact. The best builders get found. The best hirers get straight to the work.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-            {['Free for builders', 'No CV required', 'Verified profiles', 'Direct employer contact', 'Remote — Global'].map(tag => (
+            {['Free for builders', 'No CV required', 'Verified profiles', 'Direct hirer contact', 'Remote — Global'].map(tag => (
               <span key={tag} style={{ fontSize: 12, fontWeight: 600, color: '#6c63ff', background: 'rgba(108,99,255,0.1)', border: '1px solid rgba(108,99,255,0.2)', padding: '0.3rem 0.875rem', borderRadius: 980 }}>{tag}</span>
             ))}
           </div>
@@ -164,7 +164,7 @@ export default async function GetFoundPage({ params }: { params: Promise<{ id: s
           {' · '}
           <a href="/jobs" style={{ color: '#6e6e73', textDecoration: 'none' }}>Browse open roles</a>
           {' · '}
-          <a href="/employers" style={{ color: '#6e6e73', textDecoration: 'none' }}>Post a role</a>
+          <a href="/hirers" style={{ color: '#6e6e73', textDecoration: 'none' }}>Post a role</a>
         </p>
       </div>
     </div>

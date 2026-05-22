@@ -21,14 +21,14 @@ export async function POST(req: Request) {
       html: `
         <div style="font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 2rem;">
           <h1 style="font-size: 24px; font-weight: 700; color: #1d1d1f; letter-spacing: -0.02em;">You're live on ShipStacked.</h1>
-          <p style="color: #6e6e73; font-size: 15px; line-height: 1.6;">Hi ${name}, your profile is published and discoverable by employers looking 
+          <p style="color: #6e6e73; font-size: 15px; line-height: 1.6;">Hi ${name}, your profile is published and discoverable by hirers looking
 for AI-native talent.</p>
           <a href="https://shipstacked.com/u/${username}" 
             style="display: inline-block; margin: 1.5rem 0; padding: 0.75rem 1.5rem; background: #0071e3; color: white; border-radius: 20px; 
 text-decoration: none; font-size: 15px; font-weight: 500;">
             View your profile →
           </a>
-          <p style="color: #6e6e73; font-size: 13px;">Share it on X and WhatsApp to get noticed. The more you share, the more employers find 
+          <p style="color: #6e6e73; font-size: 13px;">Share it on X and WhatsApp to get noticed. The more you share, the more hirers find
 you.</p>
           <hr style="border: none; border-top: 1px solid #e0e0e5; margin: 1.5rem 0;" />
           <p style="color: #aeaeb2; font-size: 12px;">ShipStacked — The hiring platform for AI-native talent.</p>

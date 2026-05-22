@@ -31,8 +31,8 @@ export default async function TalentPage({ searchParams }: { searchParams: Promi
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
-  // Check paid employer subscription
-  let isPaidEmployer = false
+  // Check paid hirer subscription
+  let isPaidHirer = false
   if (user) {
     const now = new Date().toISOString()
     const { data: sub } = await supabase
@@ -43,7 +43,7 @@ export default async function TalentPage({ searchParams }: { searchParams: Promi
       .eq('product', 'full_access')
       .or(`expires_at.is.null,expires_at.gt.${now}`)
       .maybeSingle()
-    isPaidEmployer = !!sub
+    isPaidHirer = !!sub
   }
 
   // Build filtered query
@@ -69,8 +69,8 @@ export default async function TalentPage({ searchParams }: { searchParams: Promi
 
   const profiles = allProfiles || []
   const verifiedCount = profiles.filter((p: any) => p.verified).length
-  const displayProfiles = isPaidEmployer ? profiles : profiles.slice(0, 6)
-  const isTeaser = !isPaidEmployer
+  const displayProfiles = isPaidHirer ? profiles : profiles.slice(0, 6)
+  const isTeaser = !isPaidHirer
 
   // Total unfiltered count for the header (only when filters are active)
   let totalUnfilteredCount = profiles.length
@@ -83,20 +83,20 @@ export default async function TalentPage({ searchParams }: { searchParams: Promi
     totalUnfilteredCount = count || profiles.length
   }
 
-  // Fetch employer profile to check if they have set up their company
-  let hasEmployerProfile = false
-  if (isPaidEmployer && user) {
-    const { data: empProfile } = await admin
+  // Fetch hirer profile to check if they have set up their company
+  let hasHirerProfile = false
+  if (isPaidHirer && user) {
+    const { data: hirerProfile } = await admin
       .from('employer_profiles')
       .select('id, company_name')
       .eq('email', user.email)
       .maybeSingle()
-    hasEmployerProfile = !!(empProfile?.company_name)
+    hasHirerProfile = !!(hirerProfile?.company_name)
   }
 
-  // Fetch saved profile IDs for this employer
+  // Fetch saved profile IDs for this hirer
   let savedIds: string[] = []
-  if (isPaidEmployer && user) {
+  if (isPaidHirer && user) {
     const { data: saved } = await admin
       .from('saved_profiles')
       .select('profile_id')
@@ -129,13 +129,13 @@ export default async function TalentPage({ searchParams }: { searchParams: Promi
         <TalentClient
           profiles={displayProfiles}
           savedIds={savedIds}
-          isPaidEmployer={isPaidEmployer}
+          isPaidHirer={isPaidHirer}
           isTeaser={isTeaser}
           verifiedCount={verifiedCount}
           totalCount={profiles.length}
           totalUnfilteredCount={totalUnfilteredCount}
           user={user}
-          hasEmployerProfile={hasEmployerProfile}
+          hasHirerProfile={hasHirerProfile}
           filters={{ profession: filterProfession, availability: filterAvailability, verified: filterVerified, sort: filterSort }}
         />
       </div>

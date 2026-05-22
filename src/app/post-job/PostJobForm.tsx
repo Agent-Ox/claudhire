@@ -47,8 +47,8 @@ function Section({ title, children }: { title: string, children: React.ReactNode
   )
 }
 
-export default function PostJobForm({ employerEmail, jobId, initialData }: {
-  employerEmail: string
+export default function PostJobForm({ hirerEmail, jobId, initialData }: {
+  hirerEmail: string
   jobId?: string
   initialData?: any
 }) {
@@ -106,13 +106,13 @@ export default function PostJobForm({ employerEmail, jobId, initialData }: {
 
       if (jobId) {
         const { error: updateError } = await supabase
-          .from('jobs').update(payload).eq('id', jobId).eq('employer_email', employerEmail)
+          .from('jobs').update(payload).eq('id', jobId).eq('employer_email', hirerEmail)
         if (updateError) throw updateError
       } else {
         const expires = new Date()
         expires.setDate(expires.getDate() + 30)
         const { data: inserted, error: insertError } = await supabase
-          .from('jobs').insert([{ employer_email: employerEmail, ...payload, status: 'active', expires_at: expires.toISOString() }])
+          .from('jobs').insert([{ employer_email: hirerEmail, ...payload, status: 'active', expires_at: expires.toISOString() }])
           .select('id').single()
         if (insertError) throw insertError
         if (inserted?.id) {
@@ -124,7 +124,7 @@ export default function PostJobForm({ employerEmail, jobId, initialData }: {
             body: JSON.stringify({
               id: inserted.id,
               role_title: roleTitle,
-              company_name: anonymous ? 'A ShipStacked employer' : companyName,
+              company_name: anonymous ? 'A ShipStacked hirer' : companyName,
               location,
               day_rate: dayRate,
               salary_range: salaryRange,
@@ -172,7 +172,7 @@ export default function PostJobForm({ employerEmail, jobId, initialData }: {
           )}
 
           <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href="/employer" style={{ padding: '0.75rem 1.5rem', background: '#0071e3', color: 'white', borderRadius: 20, fontSize: 14, textDecoration: 'none', fontWeight: 500 }}>View on dashboard →</a>
+            <a href="/hirer" style={{ padding: '0.75rem 1.5rem', background: '#0071e3', color: 'white', borderRadius: 20, fontSize: 14, textDecoration: 'none', fontWeight: 500 }}>View on dashboard →</a>
             {shareUrl && (
               <a href={shareUrl} style={{ padding: '0.75rem 1.5rem', background: '#f5f5f7', color: '#1d1d1f', borderRadius: 20, fontSize: 14, textDecoration: 'none', fontWeight: 500 }}>View listing →</a>
             )}

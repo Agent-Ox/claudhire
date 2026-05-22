@@ -578,7 +578,7 @@ function AttestationModal({ onClose }: { onClose: () => void }) {
       >
         <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#1d1d1f' }}>Attestations are coming soon</h3>
         <p style={{ fontSize: 14, color: '#1d1d1f', lineHeight: 1.55, marginTop: '0.75rem' }}>
-          An attestation is when a client, employer, or peer signs off on your receipt.
+          An attestation is when a client, hirer, or peer signs off on your receipt.
           It moves the receipt up to <strong>L3 Externally Attested</strong> on the
           verification ladder — the strongest current trust signal.
         </p>

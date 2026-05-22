@@ -516,14 +516,14 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
               </p>
               
               <a
-                href={`/employer/messages?new=${profile.id}`}
+                href={`/messages?as=hirer&new=${profile.id}`}
                 style={{ display: 'inline-block', padding: '0.7rem 1.5rem', background: 'var(--accent)', color: 'white', borderRadius: 20, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
                 Message {profile.full_name.split(' ')[0]}
               </a>
             </div>
           ) : !resolvedUser ? (
             <div className="fade-up" style={{ background: 'linear-gradient(135deg, rgba(108,99,255,0.15) 0%, rgba(167,139,250,0.08) 100%)', border: '1px solid rgba(108,99,255,0.25)', borderRadius: 16, padding: '2rem', textAlign: 'center', animationDelay: '0.4s' }}>
-              <p style={{ fontSize: 13, color: 'var(--accent2)', fontWeight: 600, letterSpacing: '0.05em', marginBottom: '0.5rem', fontFamily: 'var(--mono)' }}>FOR EMPLOYERS</p>
+              <p style={{ fontSize: 13, color: 'var(--accent2)', fontWeight: 600, letterSpacing: '0.05em', marginBottom: '0.5rem', fontFamily: 'var(--mono)' }}>FOR HIRERS</p>
               <p style={{ fontSize: 17, fontWeight: 600, color: 'var(--text)', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>Looking to hire AI-native talent?</p>
               <p style={{ fontSize: 14, color: 'var(--text2)', marginBottom: '1.25rem', fontWeight: 300 }}>Access our full verified builder directory and contact candidates directly.</p>
               <a href="/#pricing" style={{ display: 'inline-block', padding: '0.7rem 1.5rem', background: 'var(--accent)', color: 'white', borderRadius: 20, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>

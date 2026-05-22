@@ -37,10 +37,10 @@ breaking schema.org consumers.
 | `organization.ts` | `buildOrganizationJsonLd()` | `src/app/layout.tsx` (site-wide) |
 | `website.ts` | `buildWebsiteJsonLd()` | `src/app/page.tsx` (homepage) |
 | `person.ts` | `buildPersonJsonLd(profile, entity, skills, projects, github)` | `src/app/u/[username]/page.tsx` (Noah-gateway-critical) |
-| `job-posting.ts` | `buildJobPostingJsonLd(job, employer)` | `src/app/jobs/[id]/page.tsx` (dormant — 0 active jobs) |
-| `employer-org.ts` | `buildEmployerOrgJsonLd(company)` | `src/app/company/[slug]/page.tsx` |
+| `job-posting.ts` | `buildJobPostingJsonLd(job, hirer)` | `src/app/jobs/[id]/page.tsx` (dormant — 0 active jobs) |
+| `hirer-org.ts` | `buildHirerOrgJsonLd(company)` | `src/app/company/[slug]/page.tsx` |
 | `article.ts` | `buildArticleJsonLd(post, author)` | `src/app/feed/[id]/page.tsx` |
-| `item-list.ts` | `buildItemListJsonLd({listUrl, listName, items})` | `/leaderboard`, `/talent`, `/jobs`, `/employers` |
+| `item-list.ts` | `buildItemListJsonLd({listUrl, listName, items})` | `/leaderboard`, `/talent`, `/jobs`, `/hirers` |
 | `atlas-article.ts` | `buildAtlasArticleJsonLd(wordCount)`, `buildAtlasDefinedTermSetJsonLd(atlasVersion, roleIds)` | `src/app/atlas/page.tsx` |
 
 ## Honest-field hygiene
@@ -73,8 +73,8 @@ One URL keys both V1 and V2 markup of the same resource:
 - `WebSite`: `https://shipstacked.com/#website` → references the Organization
 - `Person`: `https://shipstacked.com/u/<username>` — **same `@id`** the V2
   receipt's `author['@id']` already uses (`src/lib/receipts/jsonld.ts:111`)
-- `Organization` (employer): `https://shipstacked.com/company/<slug>`
-- `JobPosting`: `https://shipstacked.com/jobs/<id>` → references employer `@id`
+- `Organization` (hirer): `https://shipstacked.com/company/<slug>`
+- `JobPosting`: `https://shipstacked.com/jobs/<id>` → references hirer `@id`
 - `Article` (Build Feed post): `https://shipstacked.com/feed/<id>` → references author `@id`
 - `Article` (Atlas): `https://shipstacked.com/atlas`
 - `DefinedTerm` (Atlas role): `https://shipstacked.com/atlas/roles/<id>?v=<version>` — V2, untouched

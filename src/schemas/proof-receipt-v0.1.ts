@@ -242,6 +242,11 @@ export const VerificationEvent = z.object({
 });
 export type VerificationEvent = z.infer<typeof VerificationEvent>;
 
+// Enum value 'employer' kept for storage stability — destructive
+// migration would invalidate existing rows under the CHECK constraint.
+// No attestations rows exist today; when writes start, the new value
+// can be added additively in the same commit. Display copy maps this
+// value to 'Hirer' at render time.
 export const AttestorRole = z.enum(['client', 'employer', 'peer', 'platform']);
 
 export const Attestation = z.object({

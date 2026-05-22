@@ -18,7 +18,7 @@ export default function JobDetailClient({
   const [copied, setCopied] = useState(false)
 
   const isBuilder = modes.builder
-  const isEmployer = modes.hirer || modes.admin
+  const isHirer = modes.hirer || modes.admin
   const isLoggedOut = !modes.builder && !modes.hirer && !modes.client && !modes.admin
   const justApplied = applyState === 'done' && !alreadyApplied
   const shareUrl = `${siteUrl}/jobs/${job.id}`
@@ -187,7 +187,7 @@ export default function JobDetailClient({
                 </Link>
               </div>
             )}
-            {/* Employer — no apply action */}
+            {/* Hirer — no apply action */}
           </div>
         )}
 

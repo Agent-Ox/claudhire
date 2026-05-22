@@ -51,7 +51,7 @@ export async function POST(req: Request) {
   postJobToX({
     id: job.id,
     role_title: job.role_title,
-    company_name: anonymous ? 'A ShipStacked employer' : job.company_name,
+    company_name: anonymous ? 'A ShipStacked hirer' : job.company_name,
     location: job.location,
     day_rate: job.day_rate,
     salary_range: job.salary_range,

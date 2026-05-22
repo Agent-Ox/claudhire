@@ -1,59 +1,7 @@
-import { createServerSupabaseClient } from '@/lib/supabase-server'
-import { redirect } from 'next/navigation'
-import EmployerDashboardClient from './EmployerDashboardClient'
+import { permanentRedirect } from 'next/navigation'
 
-export default async function EmployerDashboardPage() {
-  const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
-
-  const now = new Date().toISOString()
-  const { data: sub } = await supabase
-    .from('subscriptions')
-    .select('*')
-    .eq('email', user.email)
-    .eq('status', 'active')
-    .eq('product', 'full_access')
-    .or(`expires_at.is.null,expires_at.gt.${now}`)
-    .maybeSingle()
-
-  if (!sub) redirect('/#pricing')
-
-  const { data: jobs } = await supabase
-    .from('jobs')
-    .select('*')
-    .eq('employer_email', user.email)
-    .eq('status', 'active')
-    .order('created_at', { ascending: false })
-
-  const { data: employerProfile } = await supabase
-    .from('employer_profiles')
-    .select('*')
-    .eq('email', user.email)
-    .maybeSingle()
-
-  const jobIds = (jobs || []).map(j => j.id)
-  // Join profiles to get username — fixes "View profile" link that was using profile_id as URL slug (404)
-  const { data: applications } = jobIds.length > 0
-    ? await supabase
-        .from('applications')
-        .select('*, profiles(username)')
-        .in('job_id', jobIds)
-        .order('created_at', { ascending: false })
-    : { data: [] }
-
-  const createdAt = new Date(sub.created_at)
-  const renewsAt = new Date(createdAt)
-  renewsAt.setMonth(renewsAt.getMonth() + 1)
-  const renewsString = renewsAt.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
-
-  return (
-    <EmployerDashboardClient
-      email={user.email!}
-      renewsString={renewsString}
-      jobs={jobs || []}
-      employerProfile={employerProfile}
-      applications={applications || []}
-    />
-  )
+// Stub: /employer renamed to /hirer per Batch 3 terminology pass.
+// 308 preserves bookmarks + cached references.
+export default function EmployerStub() {
+  permanentRedirect('/hirer')
 }

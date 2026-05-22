@@ -32,14 +32,14 @@ export default async function JobsPage() {
     .gt('expires_at', new Date().toISOString())
     .order('created_at', { ascending: false })
 
-  // Bulk fetch employer logos
+  // Bulk fetch hirer logos
   const jobList = jobs || []
-  const employerEmails = [...new Set(jobList.map((j: any) => j.employer_email))]
-  const { data: empProfiles } = employerEmails.length > 0
-    ? await admin.from('employer_profiles').select('email, logo_url, slug').in('email', employerEmails)
+  const hirerEmails = [...new Set(jobList.map((j: any) => j.employer_email))]
+  const { data: hirerProfileRows } = hirerEmails.length > 0
+    ? await admin.from('employer_profiles').select('email, logo_url, slug').in('email', hirerEmails)
     : { data: [] }
-  const empMap = Object.fromEntries((empProfiles || []).map((e: any) => [e.email, e]))
-  const jobsWithLogos = jobList.map((j: any) => ({ ...j, employer_profile: empMap[j.employer_email] || null }))
+  const hirerMap = Object.fromEntries((hirerProfileRows || []).map((e: any) => [e.email, e]))
+  const jobsWithLogos = jobList.map((j: any) => ({ ...j, employer_profile: hirerMap[j.employer_email] || null }))
 
   // Builder: which jobs have they already applied to?
   let appliedJobIds: string[] = []

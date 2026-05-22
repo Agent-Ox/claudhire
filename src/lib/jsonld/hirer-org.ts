@@ -1,18 +1,18 @@
 /**
- * Employer Organization markup for /company/[slug].
+ * Hirer Organization markup for /company/[slug].
  *
  * Reconciles the inline Organization at src/app/company/[slug]/page.tsx.
- * The page itself already filters public=true (so unpublished employer
+ * The page itself already filters public=true (so unpublished hirer
  * profiles 404 and this builder is never invoked for them — Tier 0
- * unpublished /company/shipstacked is currently the only employer
- * profile that was public, so today this builder runs for 0 employers).
+ * unpublished /company/shipstacked is currently the only hirer
+ * profile that was public, so today this builder runs for 0 hirers).
  *
  * Spec: BEACON_1_DISCOVERY.md §H7
  */
 
-import { CANONICAL_HOST, SCHEMA_CONTEXT, employerOrgId } from './context.ts'
+import { CANONICAL_HOST, SCHEMA_CONTEXT, hirerOrgId } from './context.ts'
 
-export interface EmployerOrgInput {
+export interface HirerOrgInput {
   slug: string
   company_name: string
   about: string | null
@@ -24,7 +24,7 @@ export interface EmployerOrgInput {
   industry: string | null
 }
 
-export interface EmployerOrgJsonLd {
+export interface HirerOrgJsonLd {
   '@context': typeof SCHEMA_CONTEXT
   '@type': ['Organization', 'shipstacked:Employer']
   '@id': string
@@ -44,14 +44,18 @@ function trim(s: string | null | undefined): string | undefined {
   return t.length > 0 ? t : undefined
 }
 
-export function buildEmployerOrgJsonLd(company: EmployerOrgInput): EmployerOrgJsonLd {
-  const canonical = employerOrgId(company.slug)
+export function buildHirerOrgJsonLd(company: HirerOrgInput): HirerOrgJsonLd {
+  const canonical = hirerOrgId(company.slug)
   const sameAs = [trim(company.website_url), trim(company.linkedin_url), trim(company.x_url)].filter(
     (u): u is string => !!u,
   )
 
-  const out: EmployerOrgJsonLd = {
+  const out: HirerOrgJsonLd = {
     '@context': SCHEMA_CONTEXT,
+    // Kept as 'shipstacked:Employer' for backwards compatibility with any
+    // external JSON-LD consumers that may key off this @type literal. The
+    // canonical spec name is Hirer; revisit when external adoption is
+    // verifiably non-zero or when migrating the shipstacked: namespace.
     '@type': ['Organization', 'shipstacked:Employer'],
     '@id': canonical,
     name: company.company_name,

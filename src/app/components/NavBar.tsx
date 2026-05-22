@@ -29,7 +29,7 @@ export default function NavBar() {
 
   const modes = navUser?.modes ?? EMPTY_MODES
   // Dashboard link priority: client > hirer > builder (mirrors routeAfterAuth)
-  const dashboardLink = modes.client ? '/client/inbox' : modes.hirer ? '/employer' : '/dashboard'
+  const dashboardLink = modes.client ? '/client/inbox' : modes.hirer ? '/hirer' : '/dashboard'
   const isAdmin = modes.admin
   const isHomepage = pathname === '/'
 
@@ -58,7 +58,7 @@ export default function NavBar() {
     // ---- Hirer present ----
     if (modes.hirer) {
       // On hirer-context pages
-      if (pathname.startsWith('/employer')) {
+      if (pathname.startsWith('/hirer')) {
         const links = [
           { label: 'Atlas', href: '/atlas' },
           { label: 'Browse talent', href: '/talent' },
@@ -72,7 +72,7 @@ export default function NavBar() {
         const links = [
           { label: 'Atlas', href: '/atlas' },
           { label: 'Jobs', href: '/jobs' },
-          { label: 'Hirer dashboard', href: '/employer' },
+          { label: 'Hirer dashboard', href: '/hirer' },
         ]
         if (modes.builder) links.push({ label: 'Builder dashboard', href: '/dashboard' })
         return links
@@ -84,7 +84,7 @@ export default function NavBar() {
           { label: 'Build Feed', href: '/feed' },
           { label: 'Jobs', href: '/jobs' },
           { label: 'Edit profile', href: '/dashboard/edit' },
-          { label: 'Hirer dashboard', href: '/employer' },
+          { label: 'Hirer dashboard', href: '/hirer' },
         ]
       }
       // Default hirer nav (all other pages)
@@ -92,7 +92,7 @@ export default function NavBar() {
         { label: 'Atlas', href: '/atlas' },
         { label: 'Browse talent', href: '/talent' },
         { label: 'Jobs', href: '/jobs' },
-        { label: 'Hirer dashboard', href: '/employer' },
+        { label: 'Hirer dashboard', href: '/hirer' },
       ]
       if (modes.builder) links.push({ label: 'Builder dashboard', href: '/dashboard' })
       return links

@@ -1,7 +1,8 @@
 import { permanentRedirect } from 'next/navigation'
 
-// Stub: hirer messaging consolidated into /messages?as=hirer per Batch 2
-// modes refactor. 308 preserves bookmarks + cached references.
+// Stub: /employer/messages was the Batch 2 stub to /messages?as=hirer.
+// Recreated at the old path post-Batch-3 rename to preserve pre-existing
+// bookmarks. The new canonical path is /messages?as=hirer.
 export default function EmployerMessagesStub() {
   permanentRedirect('/messages?as=hirer')
 }
