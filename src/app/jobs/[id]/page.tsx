@@ -1,9 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { notFound, permanentRedirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import JobDetailClient from './JobDetailClient'
 import { buildJobPostingJsonLd } from '@/lib/jsonld/job-posting'
+import { getEntityModes } from '@/lib/user'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
@@ -48,9 +48,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   if (!job) notFound()
   if (job.status !== 'active') permanentRedirect('/jobs')
 
-  const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  const role = (user?.user_metadata?.role as 'builder' | 'employer' | 'admin' | null) ?? null
+  const { user, modes } = await getEntityModes()
 
   // Is this job still active?
   const isExpired = !job.expires_at || new Date(job.expires_at) < new Date()
@@ -58,7 +56,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
   // Has this builder already applied?
   let alreadyApplied = false
-  if (role === 'builder' && user) {
+  if (modes.builder && user) {
     const { data: existing } = await admin
       .from('applications')
       .select('id')
@@ -107,7 +105,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jobLd) }} />
     <JobDetailClient
       job={job}
-      role={role}
+      modes={modes}
       isActive={isActive}
       alreadyApplied={alreadyApplied}
       companySlug={companySlug}

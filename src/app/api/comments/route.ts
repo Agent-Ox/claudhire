@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { Resend } from 'resend'
+import { getEntityModes } from '@/lib/user'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -16,17 +16,21 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { user, modes, profile } = await getEntityModes()
   if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
   const { post_id, content } = await req.json()
   if (!post_id || !content?.trim()) return NextResponse.json({ error: 'post_id and content required' }, { status: 400 })
   const admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
-  const metaRole = user.user_metadata?.role || 'builder'
   let authorName = user.user_metadata?.full_name || user.email || 'Anonymous'
-  const { data: profile } = await admin.from('profiles').select('full_name, role, username').eq('email', user.email).maybeSingle()
   if (profile?.full_name) authorName = profile.full_name
-  const { data: comment, error } = await admin.from('post_comments').insert({ post_id, author_email: user.email, author_name: authorName, author_username: profile?.username || null, author_role: profile?.role || metaRole, content: content.trim() }).select().single()
+  // Derive author_role from modes (replaces the previous metaRole + profile.role conflation).
+  // 'employer' label kept for compatibility with stored historical rows; Batch 3 terminology
+  // pass renames the values.
+  const authorRole =
+    modes.admin ? 'admin'
+    : modes.hirer && !modes.builder ? 'employer'
+    : 'builder'
+  const { data: comment, error } = await admin.from('post_comments').insert({ post_id, author_email: user.email, author_name: authorName, author_username: profile?.username || null, author_role: authorRole, content: content.trim() }).select().single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   try {
     const { data: post } = await admin.from('posts').select('title, profiles(email, full_name)').eq('id', post_id).maybeSingle()

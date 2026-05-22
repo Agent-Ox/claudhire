@@ -1,0 +1,45 @@
+import { type EntityModes } from './user'
+
+/**
+ * Post-auth routing — single source of truth for "where should this user go?"
+ *
+ * Priority (locked per DISCOVERY_batch2_modes_refactor.md §G, 2026-05-22):
+ *   admin > client > hirer > builder
+ *
+ * Optional `redirectTo` honours magic-link explicit destinations (must be
+ * same-origin path starting with /).
+ * Optional `requiresPasswordSet` covers the post-Stripe-checkout onboarding
+ * case — a hirer who hasn't set a password yet goes to /update-password
+ * instead of /employer.
+ */
+export function routeAfterAuth(
+  modes: EntityModes,
+  opts: { redirectTo?: string | null; requiresPasswordSet?: boolean } = {}
+): string {
+  if (opts.redirectTo && opts.redirectTo.startsWith('/')) return opts.redirectTo
+
+  if (modes.admin) return '/admin'
+  if (modes.client) return '/client/inbox'
+  if (modes.hirer) {
+    return opts.requiresPasswordSet ? '/update-password' : '/employer'
+  }
+  if (modes.builder) return '/dashboard'
+  return '/dashboard'
+}
+
+/**
+ * Default `?as=` mode for parameterless /api/messages requests.
+ *
+ * Priority: hirer > builder (mirrors routeAfterAuth() excluding admin and
+ * client — admins don't have message inboxes, and client-mode-only users
+ * are redirected away from /messages to /client/inbox via the complementary
+ * gate per discovery doc §D.5).
+ *
+ * Returns null for users with neither builder nor hirer mode (callers
+ * should treat as 401-ish empty state).
+ */
+export function defaultMessagingMode(modes: EntityModes): 'builder' | 'hirer' | null {
+  if (modes.hirer) return 'hirer'
+  if (modes.builder) return 'builder'
+  return null
+}

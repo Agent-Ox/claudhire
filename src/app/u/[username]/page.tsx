@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase'
-import { getResolvedUser } from '@/lib/user'
+import { getEntityModes } from '@/lib/user'
 import { getPublishedProfile } from '@/lib/profiles'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
@@ -76,7 +76,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   const profileUrl = 'https://shipstacked.com/u/' + profile.username
   const allSkillNames = skills?.map(s => s.name) || []
 
-  const { hasSubscription, user: resolvedUser } = await getResolvedUser()
+  const { hasSubscription, user: resolvedUser } = await getEntityModes()
   const isAdmin = resolvedUser?.email === 'oxleethomas+admin@gmail.com'
   const hasAccess = !!resolvedUser && (resolvedUser.email === profile.email || hasSubscription || isAdmin)
 

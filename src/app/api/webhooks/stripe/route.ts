@@ -43,7 +43,7 @@ export async function POST(req: Request) {
         email,
         email_confirm: true,
         password: Math.random().toString(36).slice(-12) + Math.random().toString(36).slice(-12),
-        user_metadata: { role: 'employer', password_set: false }
+        user_metadata: { password_set: false }
       })
     }
 

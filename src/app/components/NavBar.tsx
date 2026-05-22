@@ -1,14 +1,16 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 import { usePathname } from 'next/navigation'
+import type { EntityModes } from '@/lib/user'
 
 type NavUser = {
   email: string
-  role: 'employer' | 'builder' | 'admin' | 'client' | null
+  modes: EntityModes
 }
+
+const EMPTY_MODES: EntityModes = { builder: false, hirer: false, client: false, admin: false }
 
 export default function NavBar() {
   const [navUser, setNavUser] = useState<NavUser | null>(null)
@@ -25,13 +27,14 @@ export default function NavBar() {
   const mobileBg = isDark ? '#0a0a0f' : 'white'
   const mobileBorder = isDark ? 'rgba(255,255,255,0.08)' : '#f0f0f0'
 
-  const dashboardLink = navUser?.role === 'employer' ? '/employer' : '/dashboard'
-  const isAdmin = navUser?.role === 'admin'
+  const modes = navUser?.modes ?? EMPTY_MODES
+  // Dashboard link priority: client > hirer > builder (mirrors routeAfterAuth)
+  const dashboardLink = modes.client ? '/client/inbox' : modes.hirer ? '/employer' : '/dashboard'
+  const isAdmin = modes.admin
   const isHomepage = pathname === '/'
 
   const getMenuLinks = () => {
     // ---- Unauthenticated homepage ----
-    // Builder-first nav — no $199 pricing link visible to a browsing builder
     if (isHomepage && !navUser) {
       return [
         { label: 'Atlas', href: '/atlas' },
@@ -42,8 +45,8 @@ export default function NavBar() {
       ]
     }
 
-    // ---- Client ----
-    if (navUser?.role === 'client') {
+    // ---- Client-only ----
+    if (modes.client && !modes.builder && !modes.hirer) {
       return []
     }
 
@@ -52,94 +55,137 @@ export default function NavBar() {
       return [{ label: 'Admin dashboard', href: '/admin' }]
     }
 
-    // ---- Employer routes ----
-    if (navUser?.role === 'employer') {
+    // ---- Hirer present ----
+    if (modes.hirer) {
+      // On hirer-context pages
       if (pathname.startsWith('/employer')) {
-        return [
+        const links = [
           { label: 'Atlas', href: '/atlas' },
           { label: 'Browse talent', href: '/talent' },
           { label: 'Jobs', href: '/jobs' },
           { label: 'Post a job', href: '/post-job' },
         ]
+        if (modes.builder) links.push({ label: 'Builder dashboard', href: '/dashboard' })
+        return links
       }
       if (pathname.startsWith('/talent') || pathname.startsWith('/post-job')) {
-        return [
+        const links = [
           { label: 'Atlas', href: '/atlas' },
           { label: 'Jobs', href: '/jobs' },
-          { label: 'Dashboard', href: '/employer' },
+          { label: 'Hirer dashboard', href: '/employer' },
+        ]
+        if (modes.builder) links.push({ label: 'Builder dashboard', href: '/dashboard' })
+        return links
+      }
+      // Builder-side pages while hirer-mode active: expose both
+      if (modes.builder && pathname.startsWith('/dashboard')) {
+        return [
+          { label: 'Atlas', href: '/atlas' },
+          { label: 'Build Feed', href: '/feed' },
+          { label: 'Jobs', href: '/jobs' },
+          { label: 'Edit profile', href: '/dashboard/edit' },
+          { label: 'Hirer dashboard', href: '/employer' },
         ]
       }
-      // All other employer pages
-      return [
+      // Default hirer nav (all other pages)
+      const links = [
         { label: 'Atlas', href: '/atlas' },
         { label: 'Browse talent', href: '/talent' },
         { label: 'Jobs', href: '/jobs' },
-        { label: 'Dashboard', href: '/employer' },
+        { label: 'Hirer dashboard', href: '/employer' },
       ]
+      if (modes.builder) links.push({ label: 'Builder dashboard', href: '/dashboard' })
+      return links
     }
 
-    // ---- Builder routes ----
-    if (pathname.startsWith('/dashboard/edit')) {
-      return [{ label: '← Dashboard', href: '/dashboard' }]
+    // ---- Builder-only ----
+    if (modes.builder) {
+      if (pathname.startsWith('/dashboard/edit')) {
+        return [{ label: '← Dashboard', href: '/dashboard' }]
+      }
+      if (pathname.startsWith('/dashboard')) {
+        return [
+          { label: 'Atlas', href: '/atlas' },
+          { label: 'Build Feed', href: '/feed' },
+          { label: 'Jobs', href: '/jobs' },
+          { label: 'Edit profile', href: '/dashboard/edit' },
+        ]
+      }
+      if (pathname.startsWith('/messages')) {
+        return [{ label: 'Dashboard', href: '/dashboard' }]
+      }
+      if (pathname.startsWith('/feed')) {
+        return [
+          { label: 'Atlas', href: '/atlas' },
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Build Feed', href: '/feed' },
+        ]
+      }
+      if (pathname.startsWith('/jobs')) {
+        return [
+          { label: 'Atlas', href: '/atlas' },
+          { label: 'Dashboard', href: '/dashboard' },
+        ]
+      }
+      if (pathname.startsWith('/u/') || pathname.startsWith('/company/')) {
+        return [
+          { label: 'Atlas', href: '/atlas' },
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Build Feed', href: '/feed' },
+        ]
+      }
+      if (isHomepage) {
+        return [
+          { label: 'Atlas', href: '/atlas' },
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Build Feed', href: '/feed' },
+          { label: 'Jobs', href: '/jobs' },
+        ]
+      }
     }
-    if (pathname.startsWith('/dashboard')) {
-      return [
-        { label: 'Atlas', href: '/atlas' },
-        { label: 'Build Feed', href: '/feed' },
-        { label: 'Jobs', href: '/jobs' },
-        { label: 'Edit profile', href: '/dashboard/edit' },
-      ]
-    }
-    if (pathname.startsWith('/messages')) {
-      return [{ label: 'Dashboard', href: '/dashboard' }]
-    }
-    if (pathname.startsWith('/feed')) {
-      return [
-        { label: 'Atlas', href: '/atlas' },
-        { label: 'Dashboard', href: '/dashboard' },
-        { label: 'Build Feed', href: '/feed' },
-      ]
-    }
-    if (pathname.startsWith('/jobs')) {
-      return [
-        { label: 'Atlas', href: '/atlas' },
-        { label: 'Dashboard', href: '/dashboard' },
-      ]
-    }
-    if (pathname.startsWith('/u/') || pathname.startsWith('/company/')) {
-      return [
-        { label: 'Atlas', href: '/atlas' },
-        { label: 'Dashboard', href: '/dashboard' },
-        { label: 'Build Feed', href: '/feed' },
-      ]
-    }
-    // Homepage logged in as builder
-    if (isHomepage && navUser?.role === 'builder') {
-      return [
-        { label: 'Atlas', href: '/atlas' },
-        { label: 'Dashboard', href: '/dashboard' },
-        { label: 'Build Feed', href: '/feed' },
-        { label: 'Jobs', href: '/jobs' },
-      ]
-    }
-    // Fallback for any other page
-    return [{ label: 'Dashboard', href: dashboardLink }]
+
+    // Fallback for any logged-in user with no other match
+    return navUser ? [{ label: 'Dashboard', href: dashboardLink }] : []
   }
 
   useEffect(() => {
     const supabase = createClient()
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    let cancelled = false
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { setLoading(false); return }
       const user = session.user
-      const metaRole = user.user_metadata?.role as 'employer' | 'builder' | 'admin' | null
-      setNavUser({ email: user.email || '', role: metaRole })
+      const email = user.email || ''
+      const metaRole = user.user_metadata?.role
+
+      const now = new Date().toISOString()
+      const [{ data: sub }, { data: profile }] = await Promise.all([
+        supabase.from('subscriptions').select('id').eq('email', email).eq('status', 'active').eq('product', 'full_access').or(`expires_at.is.null,expires_at.gt.${now}`).maybeSingle(),
+        supabase.from('profiles').select('id').eq('email', email).maybeSingle(),
+      ])
+
+      if (cancelled) return
+      const modes: EntityModes = {
+        builder: !!profile,
+        hirer: !!sub,
+        client: metaRole === 'client',
+        admin: metaRole === 'admin',
+      }
+      setNavUser({ email, modes })
       setLoading(false)
-      // Fetch unread count
+      // Aggregated unread count across all active messaging modes
       fetch('/api/messages/unread').then(r => r.json()).then(({ unread }) => setUnreadCount(unread || 0)).catch(() => {})
     })
+    return () => { cancelled = true }
   }, [])
 
   const menuLinks = getMenuLinks()
+
+  // Resolve messages href: hirer-mode users get ?as=hirer; builders get plain /messages.
+  // Client-only users get /client/inbox (handled in the early return below).
+  const messagesHref =
+    modes.client && !modes.builder && !modes.hirer ? null
+      : modes.hirer && !modes.builder ? '/messages?as=hirer'
+      : '/messages'
 
   return (
     <>
@@ -152,12 +198,10 @@ export default function NavBar() {
         WebkitBackdropFilter: 'saturate(180%) blur(20px)',
         borderBottom: `0.5px solid ${borderColor}`,
       }}>
-        {/* Logo */}
         <a href="/" style={{ fontSize: '1.1rem', fontWeight: 700, color: textColor, textDecoration: 'none', letterSpacing: '-0.02em', flexShrink: 0 }}>
           ShipStacked<span style={{ color: accentColor }}>.</span>
         </a>
 
-        {/* Burger — always visible */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Menu"
@@ -168,7 +212,6 @@ export default function NavBar() {
         </button>
       </nav>
 
-      {/* Dropdown menu */}
       {menuOpen && (
         <div style={{
           position: 'fixed', top: 52, right: 0, zIndex: 99,
@@ -181,7 +224,6 @@ export default function NavBar() {
           minWidth: 220,
           boxShadow: '-4px 4px 24px rgba(0,0,0,0.08)',
         }}>
-          {/* Context links */}
           {menuLinks.map(link => (
             <a key={link.label} href={link.href} onClick={() => setMenuOpen(false)}
               style={{ fontSize: 15, color: textColor, textDecoration: 'none', padding: '0.7rem 0', borderBottom: `0.5px solid ${mobileBorder}` }}>
@@ -189,8 +231,8 @@ export default function NavBar() {
             </a>
           ))}
 
-          {/* Client nav links */}
-          {navUser?.role === 'client' && (
+          {/* Client-only nav links */}
+          {modes.client && !modes.builder && !modes.hirer && (
             <>
               <a href="/client/inbox" onClick={() => setMenuOpen(false)}
                 style={{ fontSize: 15, color: textColor, textDecoration: 'none', padding: '0.7rem 0', borderBottom: `0.5px solid ${mobileBorder}` }}>
@@ -207,7 +249,6 @@ export default function NavBar() {
             </>
           )}
 
-          {/* Auth links */}
           {!loading && (
             navUser ? (
               <>
@@ -217,7 +258,7 @@ export default function NavBar() {
                     Admin dashboard
                   </a>
                 ) : null}
-                {navUser.role !== 'client' && <a href={navUser.role === 'employer' ? '/employer/messages' : '/messages'}
+                {messagesHref && <a href={messagesHref}
                   onClick={() => setMenuOpen(false)}
                   style={{ fontSize: 15, color: textColor, textDecoration: 'none', padding: '0.7rem 0', borderBottom: `0.5px solid ${mobileBorder}`, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   Messages
@@ -248,6 +289,7 @@ export default function NavBar() {
           )}
         </div>
       )}
+
     </>
   )
 }

@@ -1,9 +1,11 @@
 'use client'
 
 import { useState } from 'react'
+import type { EntityModes } from '@/lib/user'
 
 interface FeedPostCTAProps {
-  role: string | null
+  modes: EntityModes
+  isLoggedIn: boolean
   isOwnPost: boolean
   builderFirstName: string
   builderUsername: string
@@ -13,7 +15,8 @@ interface FeedPostCTAProps {
 }
 
 export default function FeedPostCTA({
-  role,
+  modes,
+  isLoggedIn,
   isOwnPost,
   builderFirstName,
   builderUsername,
@@ -29,7 +32,9 @@ export default function FeedPostCTA({
   const [error, setError] = useState('')
 
   if (isOwnPost) return null
-  if (role === 'employer') return null
+  // B.10e — hide CTA only for hirer-only entities. Builder+hirer entities
+  // still see the CTA (their builder side is the relevant identity here).
+  if (isLoggedIn && modes.hirer && !modes.builder) return null
 
   async function handleSubmit() {
     if (!name.trim() || !email.trim() || !message.trim()) {

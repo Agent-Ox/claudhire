@@ -223,16 +223,18 @@ function JobCard({ job, isBuilder, isLoggedOut, alreadyApplied }: {
   )
 }
 
+import type { EntityModes } from '@/lib/user'
+
 export default function JobsClient({
-  jobs, role, appliedJobIds,
+  jobs, modes, appliedJobIds,
 }: {
   jobs: any[]
-  role: 'builder' | 'employer' | 'admin' | null
+  modes: EntityModes
   appliedJobIds: string[]
 }) {
-  const isBuilder = role === 'builder'
-  const isEmployer = role === 'employer' || role === 'admin'
-  const isLoggedOut = role === null
+  const isBuilder = modes.builder
+  const isEmployer = modes.hirer || modes.admin
+  const isLoggedOut = !modes.builder && !modes.hirer && !modes.client && !modes.admin
 
   return (
     <div style={{ minHeight: '100vh', background: '#fbfbfd', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>

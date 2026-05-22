@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase'
+import { routeAfterAuth } from '@/lib/auth-routing'
+import type { EntityModes } from '@/lib/user'
 
 export default function UpdatePasswordPage() {
   const [password, setPassword] = useState('')
@@ -51,8 +53,20 @@ export default function UpdatePasswordPage() {
       setError(error.message)
       setLoading(false)
     } else {
-      window.location.href = '/employer'
+      const { data: { user } } = await supabase.auth.getUser()
+      const modes = user ? await deriveModesClientSide(supabase, user) : { builder: false, hirer: false, client: false, admin: false }
+      window.location.href = routeAfterAuth(modes)
     }
+  }
+
+  async function deriveModesClientSide(supabase: ReturnType<typeof createClient>, user: any): Promise<EntityModes> {
+    const metaRole = user.user_metadata?.role
+    const now = new Date().toISOString()
+    const [{ data: sub }, { data: profile }] = await Promise.all([
+      supabase.from('subscriptions').select('id').eq('email', user.email).eq('status', 'active').eq('product', 'full_access').or(`expires_at.is.null,expires_at.gt.${now}`).maybeSingle(),
+      supabase.from('profiles').select('id').eq('email', user.email).maybeSingle(),
+    ])
+    return { builder: !!profile, hirer: !!sub, client: metaRole === 'client', admin: metaRole === 'admin' }
   }
 
   return (

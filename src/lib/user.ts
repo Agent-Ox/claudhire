@@ -1,28 +1,34 @@
 import { createServerSupabaseClient } from './supabase-server'
 
-export type UserRole = 'employer' | 'builder' | 'client' | 'visitor'
+export type EntityModes = {
+  builder: boolean
+  hirer: boolean
+  client: boolean
+  admin: boolean
+}
 
 export type ResolvedUser = {
   user: any | null
-  role: UserRole
+  modes: EntityModes
   hasProfile: boolean
   hasSubscription: boolean
   profile: any | null
   subscription: any | null
 }
 
-export async function getResolvedUser(): Promise<ResolvedUser> {
+const EMPTY_MODES: EntityModes = { builder: false, hirer: false, client: false, admin: false }
+
+export async function getEntityModes(): Promise<ResolvedUser> {
   try {
     const supabase = await createServerSupabaseClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
-      return { user: null, role: 'visitor', hasProfile: false, hasSubscription: false, profile: null, subscription: null }
+      return { user: null, modes: EMPTY_MODES, hasProfile: false, hasSubscription: false, profile: null, subscription: null }
     }
 
     const now = new Date().toISOString()
 
-    // Check subscription
     const { data: subscription } = await supabase
       .from('subscriptions')
       .select('*')
@@ -32,7 +38,6 @@ export async function getResolvedUser(): Promise<ResolvedUser> {
       .or(`expires_at.is.null,expires_at.gt.${now}`)
       .maybeSingle()
 
-    // Check builder profile
     const { data: profile } = await supabase
       .from('profiles')
       .select('*')
@@ -41,27 +46,17 @@ export async function getResolvedUser(): Promise<ResolvedUser> {
 
     const hasSubscription = !!subscription
     const hasProfile = !!profile
-
-    // Role resolution:
-    // - Has active subscription = employer
-    // - Has builder profile = builder
-    // - Logged in but neither = default to builder (just signed up)
-    // - User metadata role takes precedence if set
     const metaRole = user.user_metadata?.role
-    let role: UserRole = 'visitor'
 
-    if (metaRole === 'employer' || hasSubscription) {
-      role = 'employer'
-    } else if (metaRole === 'client') {
-      role = 'client'
-    } else if (metaRole === 'builder' || hasProfile) {
-      role = 'builder'
-    } else {
-      role = 'builder'
+    const modes: EntityModes = {
+      builder: hasProfile,
+      hirer: hasSubscription,
+      client: metaRole === 'client',
+      admin: metaRole === 'admin',
     }
 
-    return { user, role, hasProfile, hasSubscription, profile, subscription }
+    return { user, modes, hasProfile, hasSubscription, profile, subscription }
   } catch {
-    return { user: null, role: 'visitor', hasProfile: false, hasSubscription: false, profile: null, subscription: null }
+    return { user: null, modes: EMPTY_MODES, hasProfile: false, hasSubscription: false, profile: null, subscription: null }
   }
 }

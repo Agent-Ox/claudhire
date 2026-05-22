@@ -5,7 +5,7 @@ import Link from 'next/link'
 import NativeShareDetailButton from './NativeShareButton'
 import FeedPostCTA from './FeedPostCTA'
 import PostComments from './PostComments'
-import { getResolvedUser } from '@/lib/user'
+import { getEntityModes } from '@/lib/user'
 import { buildArticleJsonLd } from '@/lib/jsonld/article'
 
 export const dynamic = 'force-dynamic'
@@ -78,7 +78,7 @@ export default async function FeedPostPage({ params }: { params: Promise<{ id: s
 
   if (!post) notFound()
 
-  const { role, user: resolvedUser } = await getResolvedUser()
+  const { modes, user: resolvedUser } = await getEntityModes()
   const profile = post.profiles as any
   const initials = profile?.full_name?.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() || '?'
   const isOwnPost = !!resolvedUser?.email && resolvedUser?.email === profile?.email
@@ -219,7 +219,8 @@ export default async function FeedPostPage({ params }: { params: Promise<{ id: s
           </div>
 
           <FeedPostCTA
-            role={role}
+            modes={modes}
+            isLoggedIn={!!resolvedUser}
             isOwnPost={isOwnPost}
             builderFirstName={profile?.full_name?.split(' ')[0] || ''}
             builderUsername={profile?.username || ''}

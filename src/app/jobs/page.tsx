@@ -1,9 +1,9 @@
-import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { createClient } from '@supabase/supabase-js'
 import type { Metadata } from 'next'
 import JobsClient from './JobsClient'
 import { buildItemListJsonLd } from '@/lib/jsonld/item-list'
 import { CANONICAL_HOST, jobPostingId } from '@/lib/jsonld/context'
+import { getEntityModes } from '@/lib/user'
 
 export const metadata: Metadata = {
   title: 'AI-Native Jobs',
@@ -17,9 +17,7 @@ export const metadata: Metadata = {
 }
 
 export default async function JobsPage() {
-  const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  const role = (user?.user_metadata?.role as 'builder' | 'employer' | 'admin' | null) ?? null
+  const { user, modes } = await getEntityModes()
 
   const admin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -45,7 +43,7 @@ export default async function JobsPage() {
 
   // Builder: which jobs have they already applied to?
   let appliedJobIds: string[] = []
-  if (role === 'builder' && user) {
+  if (modes.builder && user) {
     const { data: applications } = await admin
       .from('applications')
       .select('job_id')
@@ -73,7 +71,7 @@ export default async function JobsPage() {
       )}
       <JobsClient
         jobs={jobsWithLogos}
-        role={role}
+        modes={modes}
         appliedJobIds={appliedJobIds}
       />
     </>

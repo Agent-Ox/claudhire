@@ -2,12 +2,13 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import type { EntityModes } from '@/lib/user'
 
 export default function JobDetailClient({
-  job, role, isActive, alreadyApplied, companySlug, siteUrl,
+  job, modes, isActive, alreadyApplied, companySlug, siteUrl,
 }: {
   job: any
-  role: 'builder' | 'employer' | 'admin' | null
+  modes: EntityModes
   isActive: boolean
   alreadyApplied: boolean
   companySlug: string | null
@@ -16,9 +17,9 @@ export default function JobDetailClient({
   const [applyState, setApplyState] = useState<'idle' | 'loading' | 'done' | 'error'>(alreadyApplied ? 'done' : 'idle')
   const [copied, setCopied] = useState(false)
 
-  const isBuilder = role === 'builder'
-  const isEmployer = role === 'employer' || role === 'admin'
-  const isLoggedOut = role === null
+  const isBuilder = modes.builder
+  const isEmployer = modes.hirer || modes.admin
+  const isLoggedOut = !modes.builder && !modes.hirer && !modes.client && !modes.admin
   const justApplied = applyState === 'done' && !alreadyApplied
   const shareUrl = `${siteUrl}/jobs/${job.id}`
 

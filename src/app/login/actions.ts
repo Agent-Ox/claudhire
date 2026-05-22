@@ -3,6 +3,8 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { getEntityModes } from '@/lib/user'
+import { routeAfterAuth } from '@/lib/auth-routing'
 
 function safeReturnToPaste(returnTo: string | null, pastedUrl: string | null): string | null {
   if (!returnTo) return null
@@ -54,31 +56,9 @@ export async function login(formData: FormData) {
   )
   if (returnToTarget) redirect(returnToTarget)
 
-  // Role-based redirect
-  const metaRole = user.user_metadata?.role
-
-  if (metaRole === 'admin') {
-    redirect('/admin')
-  }
-
-  if (metaRole === 'employer') {
-    redirect('/employer')
-  }
-
-  // Check subscription (employer who paid before role was set)
-  const now = new Date().toISOString()
-  const { data: sub } = await supabase
-    .from('subscriptions')
-    .select('id')
-    .eq('email', user.email)
-    .eq('status', 'active')
-    .eq('product', 'full_access')
-    .or(`expires_at.is.null,expires_at.gt.${now}`)
-    .maybeSingle()
-
-  if (sub) {
-    redirect('/employer')
-  }
-
-  redirect('/dashboard')
+  // Mode-aware redirect via getEntityModes() + routeAfterAuth().
+  // Honour password_set onboarding case for hirers.
+  const { modes } = await getEntityModes()
+  const requiresPasswordSet = modes.hirer && user.user_metadata?.password_set !== true
+  redirect(routeAfterAuth(modes, { requiresPasswordSet }))
 }

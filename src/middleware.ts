@@ -105,37 +105,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Employer-only routes — if builder tries to access, redirect to dashboard
-  const employerOnly = ['/employer', '/post-job']
-  if (session && employerOnly.some(route => pathname.startsWith(route))) {
-    const metaRole = session.user.user_metadata?.role
-    // Only redirect if explicitly a builder (not employer)
-    if (metaRole === 'builder') {
-      const url = request.nextUrl.clone()
-      url.pathname = '/dashboard'
-      return NextResponse.redirect(url)
-    }
-  }
-
-  // Builder-only routes — if employer tries to access dashboard, redirect to employer
-  if (session && pathname.startsWith('/dashboard')) {
-    const metaRole = session.user.user_metadata?.role
-    if (metaRole === 'employer') {
-      const url = request.nextUrl.clone()
-      url.pathname = '/employer'
-      return NextResponse.redirect(url)
-    }
-  }
-
-  // Client-only routes — redirect clients away from builder/employer routes
-  if (session && session.user.user_metadata?.role === 'client') {
-    if (pathname.startsWith('/dashboard') || pathname.startsWith('/messages')) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/client/inbox'
-      return NextResponse.redirect(url)
-    }
-  }
-
   return supabaseResponse
 }
 

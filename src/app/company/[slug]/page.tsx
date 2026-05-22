@@ -1,7 +1,7 @@
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { createClient } from '@supabase/supabase-js'
 import { notFound } from 'next/navigation'
-import { getResolvedUser } from '@/lib/user'
+import { getEntityModes } from '@/lib/user'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import ApplyButton from './ApplyButton'
@@ -45,10 +45,10 @@ export default async function CompanyProfilePage({ params }: { params: Promise<{
 
   if (!company) notFound()
 
-  const { role, user: resolvedUser } = await getResolvedUser()
-  const showBuilderCTA = role === 'visitor'
-  const isBuilder = role === 'builder'
-  const isVisitor = role === 'visitor'
+  const { modes, user: resolvedUser } = await getEntityModes()
+  const isVisitor = !resolvedUser
+  const showBuilderCTA = isVisitor
+  const isBuilder = modes.builder
 
   const { data: jobs } = await supabase
     .from('jobs')

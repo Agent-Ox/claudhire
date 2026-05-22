@@ -1,17 +1,20 @@
 import { NextResponse } from 'next/server'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
+import { getEntityModes } from '@/lib/user'
+import { defaultMessagingMode } from '@/lib/auth-routing'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shipstacked.com'
 
-// GET — fetch conversations for current user, or create/get one for ?new=profileId
+// GET — fetch conversations for current user (?as=builder|hirer),
+// or create/get one for ?new=profileId (hirer only)
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const newProfileId = searchParams.get('new')
-  const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const asParam = searchParams.get('as')
+
+  const { user, modes, profile } = await getEntityModes()
   if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
 
   const admin = createClient(
@@ -19,9 +22,10 @@ export async function GET(req: Request) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
-  // Handle ?new=profileId — find existing or create new conversation
+  // Handle ?new=profileId — find existing or create new conversation (hirer only)
   if (newProfileId) {
-    // Check for existing conversation first (NULL job_id breaks upsert unique constraint)
+    if (!modes.hirer) return NextResponse.json({ error: 'Hirer mode required' }, { status: 403 })
+
     const { data: existing } = await admin
       .from('conversations')
       .select('*, profiles!builder_profile_id(username, full_name, avatar_url, verified, velocity_score), jobs(role_title, company_name)')
@@ -34,7 +38,6 @@ export async function GET(req: Request) {
       return NextResponse.json({ conversation: existing })
     }
 
-    // Create new conversation
     const { data: conv } = await admin
       .from('conversations')
       .insert({
@@ -48,11 +51,23 @@ export async function GET(req: Request) {
     return NextResponse.json({ conversation: conv })
   }
 
-  const role = user.user_metadata?.role
+  // Resolve which side the request is fetching for
+  const as = (asParam === 'builder' || asParam === 'hirer')
+    ? asParam
+    : defaultMessagingMode(modes)
+
+  if (!as) return NextResponse.json({ conversations: [] })
+
+  if (as === 'hirer' && !modes.hirer) {
+    return NextResponse.json({ error: 'Hirer mode not active' }, { status: 403 })
+  }
+  if (as === 'builder' && !modes.builder) {
+    return NextResponse.json({ error: 'Builder mode not active' }, { status: 403 })
+  }
 
   let conversations: any[] = []
 
-  if (role === 'employer') {
+  if (as === 'hirer') {
     const { data } = await admin
       .from('conversations')
       .select('*, profiles!builder_profile_id(username, full_name, avatar_url, verified, velocity_score), jobs(role_title)')
@@ -60,13 +75,7 @@ export async function GET(req: Request) {
       .order('last_message_at', { ascending: false })
     conversations = data || []
   } else {
-    // Builder — get their profile first
-    const { data: profile } = await admin
-      .from('profiles')
-      .select('id')
-      .eq('email', user.email)
-      .maybeSingle()
-
+    // as === 'builder' — use the profile already fetched by getEntityModes()
     if (profile) {
       const { data } = await admin
         .from('conversations')
@@ -76,7 +85,6 @@ export async function GET(req: Request) {
 
       const convs = data || []
 
-      // Single bulk query for all employer profiles instead of N queries
       const employerEmails = [...new Set(convs.map((c: any) => c.employer_email))]
       const { data: empProfiles } = employerEmails.length > 0
         ? await admin
@@ -97,21 +105,18 @@ export async function GET(req: Request) {
   let unreadMap: Record<string, number> = {}
 
   if (convIds.length > 0) {
-    // Last message per conversation: fetch all recent messages and pick the latest per conv
     const { data: recentMsgs } = await admin
       .from('messages')
       .select('conversation_id, content, sender_email, created_at')
       .in('conversation_id', convIds)
       .order('created_at', { ascending: false })
 
-    // Keep only the first (most recent) message seen per conversation_id
     for (const msg of (recentMsgs || [])) {
       if (!lastMsgMap[msg.conversation_id]) {
         lastMsgMap[msg.conversation_id] = msg
       }
     }
 
-    // Unread counts: fetch all unread messages not sent by current user, group by conv
     const { data: unreadMsgs } = await admin
       .from('messages')
       .select('conversation_id')
@@ -135,8 +140,7 @@ export async function GET(req: Request) {
 
 // POST — send a message (creates conversation if needed)
 export async function POST(req: Request) {
-  const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { user } = await getEntityModes()
   if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
 
   const body = await req.json()
@@ -151,19 +155,15 @@ export async function POST(req: Request) {
 
   let convId = conversation_id
 
-  // Create conversation if it doesn't exist
   if (!convId) {
     if (!employer_email || !builder_profile_id) {
       return NextResponse.json({ error: 'employer_email and builder_profile_id required for new conversation' }, { status: 400 })
     }
 
-    // Find or create conversation
-    // Note: NULL != NULL in SQL unique constraints, so we handle null job_id separately
     let conv: any = null
     let convError: any = null
 
     if (!job_id) {
-      // Check for existing conversation without a job
       const { data: existing } = await admin
         .from('conversations')
         .select()
@@ -199,7 +199,6 @@ export async function POST(req: Request) {
     convId = conv.id
   }
 
-  // Insert message
   const { data: message, error: msgError } = await admin
     .from('messages')
     .insert([{
@@ -213,20 +212,17 @@ export async function POST(req: Request) {
 
   if (msgError) return NextResponse.json({ error: msgError.message }, { status: 500 })
 
-  // Update conversation last_message_at
   await admin
     .from('conversations')
     .update({ last_message_at: new Date().toISOString() })
     .eq('id', convId)
 
-  // Get conversation to find recipient
   const { data: conv } = await admin
     .from('conversations')
     .select('*, profiles!builder_profile_id(email, full_name, username)')
     .eq('id', convId)
     .maybeSingle()
 
-  // Fetch employer profile for company name in notification email
   let empProfile: any = null
   if (conv) {
     const { data: ep } = await admin
@@ -241,10 +237,8 @@ export async function POST(req: Request) {
   if (conv) {
     const builderEmail = (conv.profiles as any)?.email
     const builderName = (conv.profiles as any)?.full_name
-    const builderUsername = (conv.profiles as any)?.username
     const recipientEmail = user.email === conv.employer_email ? builderEmail : conv.employer_email
 
-    // Check if this is the first message in the conversation (notify recipient)
     const { count: msgCount } = await admin
       .from('messages')
       .select('id', { count: 'exact', head: true })
@@ -252,9 +246,10 @@ export async function POST(req: Request) {
 
     if ((msgCount || 0) <= 1 && recipientEmail) {
       const isEmployerSending = user.email === conv.employer_email
+      // Recipient's inbox URL — unified /messages page with mode tab
       const inboxUrl = isEmployerSending
-        ? `${siteUrl}/messages`
-        : `${siteUrl}/employer/messages`
+        ? `${siteUrl}/messages?as=builder`
+        : `${siteUrl}/messages?as=hirer`
 
       try {
         await resend.emails.send({
