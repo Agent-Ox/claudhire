@@ -350,17 +350,25 @@ COMMIT;
 -- and re-investigate.
 ```
 
-### G.2 — Reversal SQL (safety net)
+### G.2 — Reversal SQL (safety net) — POPULATED 2026-05-22 from §G.0 introspection
 
 **Honest caveat (read before relying on this):** reversal recreates *structure*,
 not *data*. Rows in `claim_submissions` / `hire_intakes` and any values
 previously in `subscriptions.magic_link` are unrecoverable post-execution
-unless backed up before §G.1. Reversal also does not restore RLS policies,
-indexes beyond the primary key, or triggers unless the operator first pastes
-the §G.0 introspection results into the BLANKS below.
+unless backed up before §G.1. RLS policies and triggers were captured via
+introspection — see notes inline below.
 
-Best-effort structure restoration from OpenAPI introspection captured
-2026-05-22:
+Introspection findings (2026-05-22):
+- `claim_submissions`: 6 indexes (1 PK + 5 secondary). Zero RLS policies.
+  Zero triggers.
+- `hire_intakes`: 3 indexes (1 PK + 2 secondary). Zero RLS policies.
+  Zero triggers.
+- `subscriptions`: 3 RLS policies — "Read own subscription", "Service can
+  insert subscriptions", "Users can view own subscriptions". **None of these
+  reference the `magic_link` column**, so the column drop does not require
+  any policy modification. (Separately, the "Users can view own subscriptions"
+  policy has `qual=true` which is the broken-grants pattern; explicitly OUT OF
+  SCOPE for Batch 1 — will be addressed in the broader RLS rollout.)
 
 ```sql
 BEGIN;
@@ -395,9 +403,22 @@ CREATE TABLE public.claim_submissions (
   user_agent           text,
   referrer             text
 );
--- [BLANK — paste §G.0 index DDL for claim_submissions here, if any]
--- [BLANK — paste §G.0 RLS policy DDL for claim_submissions here, if any]
--- [BLANK — paste §G.0 trigger DDL for claim_submissions here, if any]
+-- claim_submissions indexes (reconstructed from §G.0 introspection — these
+-- match the canonical form PostgreSQL emits via pg_indexes.indexdef):
+CREATE INDEX claim_submissions_atlas_roles_idx
+  ON public.claim_submissions USING GIN (atlas_roles);
+CREATE INDEX claim_submissions_created_at_idx
+  ON public.claim_submissions USING btree (created_at DESC);
+CREATE INDEX claim_submissions_routable_idx
+  ON public.claim_submissions USING btree (routable) WHERE routable = true;
+CREATE INDEX claim_submissions_status_idx
+  ON public.claim_submissions USING btree (status);
+CREATE INDEX claim_submissions_verticals_idx
+  ON public.claim_submissions USING GIN (verticals);
+-- claim_submissions RLS: ZERO policies at drop time (§G.0 confirmed).
+--                        Nothing to restore.
+-- claim_submissions triggers: ZERO triggers at drop time (§G.0 confirmed).
+--                             Nothing to restore.
 
 -- Reverse hire_intakes drop
 CREATE TABLE public.hire_intakes (
@@ -419,16 +440,43 @@ CREATE TABLE public.hire_intakes (
   user_agent           text,
   referrer             text
 );
--- [BLANK — paste §G.0 index DDL for hire_intakes here, if any]
--- [BLANK — paste §G.0 RLS policy DDL for hire_intakes here, if any]
--- [BLANK — paste §G.0 trigger DDL for hire_intakes here, if any]
+-- hire_intakes indexes (reconstructed from §G.0 introspection):
+CREATE INDEX hire_intakes_created_at_idx
+  ON public.hire_intakes USING btree (created_at DESC);
+CREATE INDEX hire_intakes_status_idx
+  ON public.hire_intakes USING btree (status);
+-- hire_intakes RLS: ZERO policies at drop time (§G.0 confirmed).
+--                   Nothing to restore.
+-- hire_intakes triggers: ZERO triggers at drop time (§G.0 confirmed).
+--                        Nothing to restore.
 
--- Reverse outreach_pipeline_summary view drop
--- [BLANK — paste §G.0 pg_get_viewdef() output here verbatim, wrapped in
---          CREATE OR REPLACE VIEW public.outreach_pipeline_summary AS …]
+-- Reverse outreach_pipeline_summary view drop — verbatim from §G.0
+-- pg_get_viewdef() output:
+CREATE OR REPLACE VIEW public.outreach_pipeline_summary AS
+ SELECT count(*) AS total_candidates,
+    count(*) FILTER (WHERE status = 'new'::text) AS new_count,
+    count(*) FILTER (WHERE status = 'queued'::text) AS queued_count,
+    count(*) FILTER (WHERE status = 'contacted'::text) AS contacted_count,
+    count(*) FILTER (WHERE status = 'replied'::text) AS replied_count,
+    count(*) FILTER (WHERE status = 'signed_up'::text) AS signed_up_count,
+    count(*) FILTER (WHERE status = 'dismissed'::text) AS dismissed_count,
+    count(*) FILTER (WHERE status = 'blocked'::text) AS blocked_count,
+    count(*) FILTER (WHERE tier = 'PLATINUM'::text) AS platinum_count,
+    count(*) FILTER (WHERE tier = 'GOLD'::text) AS gold_count,
+    count(*) FILTER (WHERE tier = 'SILVER'::text) AS silver_count,
+    count(*) FILTER (WHERE tier = 'BRONZE'::text) AS bronze_count
+   FROM candidates;
 
 COMMIT;
 ```
+
+**Note on index DDL provenance:** the `CREATE INDEX` statements above were
+reconstructed from the operator-paraphrased `pg_indexes` introspection output
+(index name, method, columns, predicate). They match the canonical form
+PostgreSQL emits via `pg_indexes.indexdef` and are structurally identical to
+what was on the tables at drop time. If a discrepancy arises during a
+hypothetical reversal, the literal `pg_indexes.indexdef` strings from §G.0
+take precedence.
 
 ---
 
@@ -593,3 +641,43 @@ would break the next employer signup mid-flight.
 6. **`BuilderDashboardClient` recalc button** — §E locked to E-i (clean
    removal). The alternative (leave the button as a silent 404) was considered
    and rejected; see §E.
+
+---
+
+## M. Commit B execution record
+
+**Executed:** 2026-05-22, via Supabase Dashboard SQL Editor.
+
+**Commit chain:**
+- Discovery doc: `20cbd43`
+- Commit A (code deletions + edits): `c5d46af`
+- Errata (dead `/leaderboard` link cleanup): `9c40fd7`
+- §J production-verification gate: explicitly skipped per operator
+  (Vercel build green on `9c40fd7`, no real paid users, Stripe-webhook flow
+  being substantially replaced in Batch 2)
+
+**DDL applied** (§G.1 transaction committed atomically):
+- `UPDATE public.subscriptions SET magic_link = NULL WHERE magic_link IS NOT NULL`
+- `ALTER TABLE public.subscriptions DROP COLUMN magic_link`
+- `DROP TABLE public.claim_submissions`
+- `DROP TABLE public.hire_intakes`
+- `DROP VIEW IF EXISTS public.outreach_pipeline_summary`
+
+**BEFORE-snapshot counts** (trusted to be 2 / 5 / 8 per earlier discovery
+audits: `claim_submissions` / `hire_intakes` / `subscriptions.magic_link
+NOT NULL`). Supabase Dashboard's last-result-only output behavior meant the
+BEFORE counts inside the transaction were not captured verbatim, but the
+transaction completed atomically — the AFTER verification confirms the
+mutations all applied.
+
+**AFTER verification** (all four checks returned `still_exists = false`):
+
+| Check | Result |
+|---|---|
+| `subscriptions.magic_link still exists?` | `false` ✓ |
+| `claim_submissions still exists?` | `false` ✓ |
+| `hire_intakes still exists?` | `false` ✓ |
+| `outreach_pipeline_summary still exists?` | `false` ✓ |
+
+**Batch 1 KILL pass complete.** All items in §H ticked; all code and DDL
+landed; reversal section §G.2 populated and stays on hand if ever needed.
