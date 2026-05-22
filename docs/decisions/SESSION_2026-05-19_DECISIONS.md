@@ -83,8 +83,12 @@ placement fees.") — not just delete the line.
 6. Auto-enrichment build — new-signup automatic profile→engine path
    (trigger model + persistent idempotency + rate/cost design). Priority
    TBD: before or alongside D2/D3 per CRITICAL OPEN.
-7. D2/D3 company/agent graph build (separate discovery doc).
-8. Backlog: intake seam, write-path consolidation, hygiene.
+7. System-wide alignment audit against the locked Customer/Entity/Mode/Role
+   model — classify every significant surface (pages, API routes, DB tables,
+   lib modules, features) into CORE / WEAK / LEGACY-KILL / MISSING / AMBIGUOUS.
+   Read-only. Output: roadmap input document. Next batch.
+8. D2/D3 company/agent graph build (separate discovery doc).
+9. Backlog: intake seam, write-path consolidation, hygiene.
 
 ## UPDATE 2026-05-19 — User model finalized
 
@@ -331,3 +335,76 @@ universal product quality.
 
 APPLIES IMMEDIATELY TO: 5a composable-modes refactor (routing default to
 /employer per this principle, code precedent already aligns).
+
+## UPDATE 2026-05-22 — Customer/Entity/Mode/Role model (locks the audit yardstick)
+
+Resolves a category error sitting under D4 and D9: "employer" was being treated
+as a profile type alongside builder/team/agent, but it's a TRANSACTION ROLE,
+not an identity. An entity is "in employer/hirer/buyer role" when it's the
+buyer of a specific transaction — not as a permanent identity. Same agency is
+seller on Monday's deal, buyer on Tuesday's.
+
+FINAL LOCKED MENTAL MODEL
+
+- ShipStacked Customer = anyone using the platform, paid or free. The
+  platform's user.
+- Entity = one record per customer. Owns profile + modes + relationships +
+  transaction history (across all roles played).
+- Profile Type (what the entity IS — supply identity):
+  - Solo AI Builder
+  - Team / Agency / Studio
+  - Autonomous Agent
+  Plus: lightweight buyer-only entity for pure hirers who have no supply side
+  (e.g. traditional companies, non-technical founders). Not a profile type —
+  a buyer-only entity with no supply profile attached.
+- Modes (composable, attached to entity):
+  - Builder/Supply — earned via verified proof. Free.
+  - Team/Agency — declarative overlay. Free. Soft proof gate per D10.
+  - Hirer/Buyer — paid toggle. $199/mo. Asymmetric: supply needs proof,
+    demand needs money.
+- Transaction Role (what the entity is DOING in this moment — fluid):
+  - Seller / Supply — free. Showcasing work, being discovered, posting builds.
+  - Buyer / Hirer — paid. Posting jobs, outbound sourcing, browsing full
+    talent graph, hiring dashboard.
+- An entity can hold multiple profile types? NO — one primary identity.
+  But it can activate Buyer Mode on top of any supply identity. Same entity,
+  multiple modes, fluid roles per transaction.
+
+SIGNUP ROUTER (locked — supersedes D4's 4-card structure):
+
+Four cards. First three = supply identities. Fourth = use-case framing
+(deliberately NOT labeled "Hirer" as profile type — that would re-introduce
+the category error this update fixes).
+
+1. Solo AI Builder
+   "I ship AI work. I want my real builds to get me opportunities."
+   → Free supply profile + optional Buyer Mode later
+2. Team / Agency / Studio
+   "We deliver AI implementation for clients. We may also hire specialists."
+   → Free collective supply profile + optional Buyer Mode
+3. Autonomous Agent
+   "I'm an agent with my own wallet, tasks, and outcomes."
+   → Free supply profile + optional Buyer Mode (Phase 2 per D11)
+4. "I'm here to hire, not to sell my own work."
+   → Lightweight buyer-only entity, Buyer Mode active by default
+   (no supply profile required)
+
+VALUE PROPOSITION (replaces existing canonical message; lifted from
+2026-05-22 market scan synthesis):
+
+"ShipStacked — The proof-of-work network for AI implementation. Showcase real
+builds, agent outcomes, and delivery velocity. Hire (or get hired) based on
+what was actually shipped — not what was claimed."
+
+STANDING COPY RULE: "Employer" → "Hirer" or "Buyer" everywhere in product
+surfaces (UI, code, comments, docs, marketing). Encoding the role-vs-identity
+distinction in the language so it cannot drift back to identity framing.
+Applies retroactively (next copy/refactor pass), not as urgent rename.
+
+EVIDENCE: 2026-05-22 market scan validates the supply-first, proof-of-work,
+implementation-focused direction. Specific failure-rate statistics deliberately
+NOT baked into copy without verified provenance.
+
+GOVERNS the system-wide alignment audit (next batch): every surface,
+flow, table, feature, and capability is evaluated against this model. Five
+buckets: CORE / WEAK / LEGACY-KILL / MISSING / AMBIGUOUS.
