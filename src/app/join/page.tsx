@@ -99,7 +99,6 @@ export default function JoinPage() {
         published: true,
         verified: false,
         accepts_project_inquiries: true,
-        velocity_score: 0,
       }])
 
       if (insertError) throw insertError

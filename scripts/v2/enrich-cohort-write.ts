@@ -15,8 +15,7 @@
  *
  * Writes ONLY to: entities, proof_receipts (+ verification_events,
  * ingestion_log, capabilities_vocab side-effects from publishProofReceipt).
- * Does NOT mutate: profiles, posts, projects, claim_submissions,
- * hire_intakes, or anything else.
+ * Does NOT mutate: profiles, posts, projects, or anything else.
  */
 
 import { createClient } from '@supabase/supabase-js'

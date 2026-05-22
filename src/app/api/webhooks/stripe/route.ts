@@ -71,7 +71,6 @@ export async function POST(req: Request) {
       product,
       status: 'active',
       expires_at: expiresAt,
-      magic_link: magicLink
     }])
 
     if (error) {

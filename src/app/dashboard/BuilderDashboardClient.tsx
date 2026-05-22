@@ -5,8 +5,6 @@ import ShareButtons from '@/app/u/[username]/ShareButtons'
 import FeedPostForm from '@/app/feed/FeedPostForm'
 import CollectionToggleCard from './CollectionToggleCard'
 
-const MILESTONE_SCORES = [25, 50, 75, 100]
-
 function VelocityRing({ score }: { score: number }) {
   const r = 38
   const circ = 2 * Math.PI * r
@@ -83,10 +81,7 @@ export default function BuilderDashboardClient({
   const [requestSent, setRequestSent] = useState(false)
   const [requesting, setRequesting] = useState(false)
   const [githubStatus, setGithubStatus] = useState<'idle' | 'just_connected' | 'error'>('idle')
-  const [velocityScore, setVelocityScore] = useState(initialScore)
-  const [scoreBreakdown, setScoreBreakdown] = useState<{ github: number, feed: number, completeness: number } | null>(null)
-  const [milestoneHit, setMilestoneHit] = useState<number | null>(null)
-  const [calculating, setCalculating] = useState(false)
+  const [velocityScore] = useState(initialScore)
   const [acceptsInquiries, setAcceptsInquiries] = useState<boolean>(profile?.accepts_project_inquiries !== false)
   const [savingInquiryPref, setSavingInquiryPref] = useState(false)
   const [apiKeys, setApiKeys] = useState<any[]>([])
@@ -113,31 +108,11 @@ export default function BuilderDashboardClient({
     if (params.get('github') === 'connected') {
       setGithubStatus('just_connected')
       window.history.replaceState({}, '', '/dashboard')
-      // Recalculate score after GitHub connect
-      recalculateScore()
     } else if (params.get('github') === 'error') {
       setGithubStatus('error')
       window.history.replaceState({}, '', '/dashboard')
     }
   }, [])
-
-  const recalculateScore = async () => {
-    setCalculating(true)
-    try {
-      const res = await fetch('/api/velocity/calculate', { method: 'POST' })
-      if (res.ok) {
-        const data = await res.json()
-        const newScore = data.velocity_score
-        setScoreBreakdown(data.breakdown)
-        // Check for milestone
-        const prevScore = velocityScore
-        const milestone = MILESTONE_SCORES.find(m => prevScore < m && newScore >= m)
-        if (milestone) setMilestoneHit(milestone)
-        setVelocityScore(newScore)
-      }
-    } catch {}
-    setCalculating(false)
-  }
 
   const requestVerification = async () => {
     setRequesting(true)
@@ -151,10 +126,6 @@ export default function BuilderDashboardClient({
     } catch {}
     setRequesting(false)
   }
-
-  const milestoneXShare = milestoneHit
-    ? `https://x.com/intent/tweet?text=${encodeURIComponent(`My ShipStacked velocity score just hit ${milestoneHit} 🚀\nshipstacked.com/u/${profile?.username}\n#shipstacked #buildinpublic`)}`
-    : ''
 
   return (
     <div style={{ minHeight: '100vh', background: '#fbfbfd', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
@@ -190,59 +161,12 @@ export default function BuilderDashboardClient({
               </div>
             )}
 
-            {/* Milestone share prompt */}
-            {milestoneHit && (
-              <div style={{ background: 'linear-gradient(135deg, #0f0f18, #1a1a2e)', border: '1px solid rgba(108,99,255,0.4)', borderRadius: 14, padding: '1.25rem 1.5rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
-                <div>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: 'rgba(240,240,245,0.95)', marginBottom: '0.2rem' }}>
-                    🚀 Velocity Score hit {milestoneHit}!
-                  </p>
-                  <p style={{ fontSize: 13, color: 'rgba(167,139,250,0.8)' }}>Share it — builders who share get discovered faster.</p>
-                </div>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <a href={milestoneXShare} target="_blank"
-                    style={{ fontSize: 13, padding: '0.5rem 1rem', background: 'white', color: '#1d1d1f', borderRadius: 980, textDecoration: 'none', fontWeight: 600 }}>
-                    Share on X
-                  </a>
-                  <button onClick={() => setMilestoneHit(null)}
-                    style={{ fontSize: 13, padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', border: 'none', borderRadius: 980, cursor: 'pointer', fontFamily: 'inherit' }}>
-                    Dismiss
-                  </button>
-                </div>
-              </div>
-            )}
-
             {/* Velocity Score card */}
             <div style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.5rem', marginBottom: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <p style={{ fontSize: 12, fontWeight: 600, color: '#6e6e73', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Velocity Score</p>
-                <button onClick={recalculateScore} disabled={calculating}
-                  style={{ fontSize: 12, padding: '0.3rem 0.75rem', background: '#f5f5f7', color: '#1d1d1f', border: 'none', borderRadius: 980, cursor: calculating ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontWeight: 500, opacity: calculating ? 0.6 : 1 }}>
-                  {calculating ? 'Calculating...' : 'Recalculate'}
-                </button>
               </div>
               <VelocityRing score={velocityScore} />
-              {scoreBreakdown && (
-                <div style={{ display: 'flex', gap: '1.5rem', marginTop: '1.25rem', paddingTop: '1rem', borderTop: '0.5px solid #e8e8ed', flexWrap: 'wrap' }}>
-                  <div>
-                    <p style={{ fontSize: 18, fontWeight: 700, color: '#1d1d1f', letterSpacing: '-0.02em' }}>{scoreBreakdown.github}<span style={{ fontSize: 12, color: '#aeaeb2', fontWeight: 400 }}>/40</span></p>
-                    <p style={{ fontSize: 11, color: '#aeaeb2', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>GitHub</p>
-                  </div>
-                  <div>
-                    <p style={{ fontSize: 18, fontWeight: 700, color: '#1d1d1f', letterSpacing: '-0.02em' }}>{scoreBreakdown.feed}<span style={{ fontSize: 12, color: '#aeaeb2', fontWeight: 400 }}>/30</span></p>
-                    <p style={{ fontSize: 11, color: '#aeaeb2', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>Build Feed</p>
-                  </div>
-                  <div>
-                    <p style={{ fontSize: 18, fontWeight: 700, color: '#1d1d1f', letterSpacing: '-0.02em' }}>{scoreBreakdown.completeness}<span style={{ fontSize: 12, color: '#aeaeb2', fontWeight: 400 }}>/30</span></p>
-                    <p style={{ fontSize: 11, color: '#aeaeb2', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>Profile</p>
-                  </div>
-                </div>
-              )}
-              {!scoreBreakdown && (
-                <p style={{ fontSize: 12, color: '#aeaeb2', marginTop: '0.75rem' }}>
-                  Click recalculate to see your breakdown — GitHub (40pts) + Build Feed (30pts) + Profile (30pts)
-                </p>
-              )}
             </div>
 
             {/* Top grid — verification */}
@@ -398,7 +322,7 @@ export default function BuilderDashboardClient({
                 <p style={{ fontSize: 12, fontWeight: 600, color: '#6e6e73', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Build Feed</p>
                 <a href="/feed" style={{ fontSize: 12, color: '#0071e3', textDecoration: 'none', fontWeight: 500 }}>View feed →</a>
               </div>
-              <FeedPostForm onSuccess={recalculateScore} />
+              <FeedPostForm />
             </div>
 
 
