@@ -59,7 +59,6 @@ export default function NavBar() {
           { label: 'Atlas', href: '/atlas' },
           { label: 'Browse talent', href: '/talent' },
           { label: 'Jobs', href: '/jobs' },
-          { label: 'Leaderboard', href: '/leaderboard' },
           { label: 'Post a job', href: '/post-job' },
         ]
       }
@@ -67,16 +66,14 @@ export default function NavBar() {
         return [
           { label: 'Atlas', href: '/atlas' },
           { label: 'Jobs', href: '/jobs' },
-          { label: 'Leaderboard', href: '/leaderboard' },
           { label: 'Dashboard', href: '/employer' },
         ]
       }
-      // All other employer pages (including /leaderboard)
+      // All other employer pages
       return [
         { label: 'Atlas', href: '/atlas' },
         { label: 'Browse talent', href: '/talent' },
         { label: 'Jobs', href: '/jobs' },
-        { label: 'Leaderboard', href: '/leaderboard' },
         { label: 'Dashboard', href: '/employer' },
       ]
     }
@@ -90,7 +87,6 @@ export default function NavBar() {
         { label: 'Atlas', href: '/atlas' },
         { label: 'Build Feed', href: '/feed' },
         { label: 'Jobs', href: '/jobs' },
-        { label: 'Leaderboard', href: '/leaderboard' },
         { label: 'Edit profile', href: '/dashboard/edit' },
       ]
     }

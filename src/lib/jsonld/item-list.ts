@@ -39,9 +39,9 @@ export interface ItemListJsonLd {
 }
 
 export interface ItemListInput {
-  /** Canonical URL of the collection page (e.g. https://shipstacked.com/leaderboard). */
+  /** Canonical URL of the collection page (e.g. https://shipstacked.com/jobs). */
   listUrl: string
-  /** Human-readable name of the list (e.g. "Top builders by Velocity Score"). */
+  /** Human-readable name of the list (e.g. "Open AI roles"). */
   listName: string
   /** Items in order. Returns null when empty (caller should skip the <script>). */
   items: ListItem[]
