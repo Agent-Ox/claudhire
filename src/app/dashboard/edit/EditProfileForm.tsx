@@ -277,6 +277,11 @@ export default function EditProfileForm({ profile, projects: initialProjects, sk
 
       // Fire-and-forget auto-verify check after every profile save
       fetch('/api/profile/verify-check', { method: 'POST' }).catch(() => {})
+
+      // Batch 5: fire auto-enrichment after every profile save. Server-side
+      // /api/enrich applies the D2 material-fields fingerprint check and
+      // short-circuits if nothing relevant changed (no Anthropic call).
+      fetch('/api/enrich', { method: 'POST' }).catch(() => {})
     } catch (e: any) {
       setError(e.message || 'Something went wrong')
     } finally {

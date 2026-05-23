@@ -195,6 +195,11 @@ export default function JoinPage() {
         })
       } catch {}
 
+      // Batch 5: fire auto-enrichment for the new builder profile.
+      // Fire-and-forget — the server-side /api/enrich uses `after` to keep
+      // the enrichment running after returning 202 to the browser.
+      fetch('/api/enrich', { method: 'POST' }).catch(() => {})
+
       setUsername(generatedUsername)
       setView('builder-2')
     } catch (err: any) {

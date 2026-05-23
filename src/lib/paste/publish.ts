@@ -91,6 +91,11 @@ export const PasteDraftSchema = z.object({
   // Optional flags forwarded from the analyzer; used for §3.6 verification
   // level resolution. Defaults preserve the conservative L1-with-artifact rule.
   classifier_reachable: z.boolean().optional(),
+  // Batch 5: optional per-receipt idempotency key. SHA256 of
+  // (subject_id|normalized_artifact_url|event_type). When set, persisted to
+  // proof_receipts.dedupe_key (unique partial index — duplicate writes are
+  // detected as PublishDuplicate result instead of a regular insert error).
+  dedupe_key: z.string().optional(),
 })
 
 export type PasteDraft = z.infer<typeof PasteDraftSchema>
@@ -113,7 +118,17 @@ export interface PublishFailure {
   message: string
 }
 
-export type PublishResult = PublishSuccess | PublishFailure
+// Batch 5: distinguishes "we tried to insert but the dedupe_key already
+// exists" from a generic server error. Callers (the enrichment adapter)
+// treat this as success-with-zero-rows, not failure.
+export interface PublishDuplicate {
+  success: false
+  error: 'duplicate'
+  message: string
+  dedupe_key: string
+}
+
+export type PublishResult = PublishSuccess | PublishFailure | PublishDuplicate
 
 // ─── Helpers ─────────────────────────────────────────────────────────────
 
@@ -248,6 +263,10 @@ export async function publishProofReceipt(input: PublishInput): Promise<PublishR
       },
       issued_at: now,
       updated_at: now,
+      // Batch 5: dedupe_key when set is unique partial-indexed; collision
+      // means "this exact (subject, artifact, event_type) has been
+      // published before" and is handled as PublishDuplicate below.
+      dedupe_key: draft.dedupe_key ?? null,
     }
     const { data: inserted, error } = await admin
       .from('proof_receipts')
@@ -258,6 +277,19 @@ export async function publishProofReceipt(input: PublishInput): Promise<PublishR
       receiptDbId = inserted.id as number
       receiptSlug = inserted.slug as string
       break
+    }
+    if (error?.code === '23505' && /dedupe_key/.test(error.message ?? '')) {
+      // Dedupe race — this (subject, artifact, event_type) has already
+      // been published. Roll back the entity-creation guard and return a
+      // duplicate result so the adapter can treat it as a no-op rather
+      // than a failure.
+      await cleanupEntity()
+      return {
+        success: false,
+        error: 'duplicate',
+        message: `proof_receipt with dedupe_key already exists`,
+        dedupe_key: draft.dedupe_key!,
+      }
     }
     if (error?.code === '23505' && /slug/.test(error.message ?? '')) {
       // Slug race — regenerate and retry.

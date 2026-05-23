@@ -2,6 +2,7 @@ import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import VerifyToggle from './VerifyToggle'
+import EnrichButton from './EnrichButton'
 import AdminActions from './AdminActions'
 
 const ADMIN_EMAIL = 'oxleethomas+admin@gmail.com'
@@ -274,7 +275,10 @@ export default async function AdminPage() {
                       <span style={{ fontSize: 12, fontWeight: 700, color: (p.velocity_score || 0) >= 75 ? '#1a7f37' : (p.velocity_score || 0) >= 50 ? '#0071e3' : '#aeaeb2' }}>{p.velocity_score || 0}</span>
                     </td>
                     <td style={{ padding: '0.75rem 1rem' }}>
-                      <VerifyToggle profileId={p.id} initialVerified={p.verified} builderEmail={p.email} builderName={p.full_name} />
+                      <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                        <VerifyToggle profileId={p.id} initialVerified={p.verified} builderEmail={p.email} builderName={p.full_name} />
+                        <EnrichButton profileId={p.id} />
+                      </div>
                     </td>
                     <td style={{ padding: '0.75rem 1rem', fontSize: 12, color: 'rgba(240,240,245,0.4)' }}>
                       {p.last_seen_at ? new Date(p.last_seen_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'Never'}

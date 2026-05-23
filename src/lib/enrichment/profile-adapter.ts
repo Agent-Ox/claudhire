@@ -39,6 +39,7 @@
  * companion script uses `npx tsx`.
  */
 
+import { createHash } from 'node:crypto'
 import type { SupabaseClient, User } from '@supabase/supabase-js'
 import type {
   EventType,
@@ -61,6 +62,21 @@ import {
 } from '@/services/atlas-classifier'
 import { findOrCreateHumanEntity } from '@/lib/entities'
 import { publishProofReceipt, type PasteDraft } from '@/lib/paste/publish'
+
+// Batch 5: dedupe_key format = sha256(subject_id|normalized_artifact_url|event_type).
+// Both the adapter (write site) and /api/enrich orchestration must use this
+// exact format so the unique partial index on proof_receipts.dedupe_key
+// correctly rejects duplicate enrichments of the same artifact for the same
+// entity at the same event_type.
+export function computeReceiptDedupeKey(
+  subjectId: number,
+  normalizedUrl: string,
+  eventType: EventType,
+): string {
+  return createHash('sha256')
+    .update(`${subjectId}|${normalizedUrl}|${eventType}`)
+    .digest('hex')
+}
 
 // ───────────────────────── post-validateUrl path guard ──────────────────────
 // Catches URLs that validateUrl + new URL() accept but are obviously prose
@@ -740,7 +756,10 @@ export interface WrittenReceipt {
 export interface WriteFailure {
   profile_username: string
   artifact_url: string
-  stage: 'fetch_user' | 'classify_url' | 'analyze' | 'classify_atlas' | 'publish' | 'pipeline'
+  // 'duplicate' is not a real failure — it indicates the receipt already
+  // exists (per dedupe_key unique partial index) and was skipped at the
+  // DB level. Orchestrators count duplicates separately from failures.
+  stage: 'fetch_user' | 'classify_url' | 'analyze' | 'classify_atlas' | 'publish' | 'pipeline' | 'duplicate'
   error: string
 }
 
@@ -911,12 +930,15 @@ async function processArtifactForWrite(
 
   // We need entity_was_created — findOrCreateHumanEntity is invoked inside
   // publishProofReceipt and not surfaced in the result. Call it ourselves
-  // first to capture the flag; publishProofReceipt will call it again and
-  // re-find the just-created entity (idempotent).
+  // first to capture the flag AND to get entity.id for the dedupe_key.
+  // publishProofReceipt will call findOrCreateHumanEntity again and re-find
+  // the just-created entity (idempotent).
   let entityWasCreated = false
+  let entityId: number
   try {
     const eRes = await findOrCreateHumanEntity(admin, user)
     entityWasCreated = eRes.was_created
+    entityId = eRes.entity.id
   } catch (err) {
     return {
       ok: false,
@@ -924,10 +946,16 @@ async function processArtifactForWrite(
     }
   }
 
+  // Batch 5: compute per-receipt dedupe_key BEFORE publish so it lands on
+  // the insert row (atomic — unique partial index rejects duplicates at the
+  // DB level rather than relying on a post-insert UPDATE).
+  const dedupeKey = computeReceiptDedupeKey(entityId, artifact.normalized_url, et.event_type)
+  const draftWithDedupeKey: PasteDraft = { ...draft, dedupe_key: dedupeKey }
+
   // 6. publishProofReceipt
   let publishResult
   try {
-    publishResult = await publishProofReceipt({ admin, user, draft })
+    publishResult = await publishProofReceipt({ admin, user, draft: draftWithDedupeKey })
   } catch (err) {
     return {
       ok: false,
@@ -935,6 +963,14 @@ async function processArtifactForWrite(
     }
   }
   if (!publishResult.success) {
+    if (publishResult.error === 'duplicate') {
+      // Receipt with this dedupe_key already exists. Distinct from a real
+      // failure: orchestrators count duplicates separately.
+      return {
+        ok: false,
+        failure: { stage: 'duplicate', error: publishResult.message },
+      }
+    }
     return {
       ok: false,
       failure: { stage: 'publish', error: `${publishResult.error}: ${publishResult.message}` },
@@ -962,6 +998,53 @@ async function processArtifactForWrite(
     entity_was_created: entityWasCreated,
   }
   return { ok: true, written, entity_was_created: entityWasCreated }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Batch 5 — single-entity enrichment helper.
+//
+// Thin wrapper around runRealWrite that looks up a single profile by id
+// (rather than taking a username array). Used by /api/enrich for signup +
+// post-update triggers. Reuses 100% of the per-builder logic; the only
+// "batch ceremony" skipped is the cohort script's snapshot + per-builder
+// expected-count comparison (those live in scripts/v2/enrich-cohort-write.ts,
+// not in runRealWrite itself).
+//
+// Returns an empty report when the profile doesn't exist (caller treats as
+// no-op — entity may have been deleted between trigger fire and run).
+// ════════════════════════════════════════════════════════════════════════════
+export async function runRealWriteForOne(
+  admin: SupabaseClient,
+  profileId: string,
+  log: (msg: string) => void = () => {},
+): Promise<WriteReport> {
+  const { data: prof, error } = await admin
+    .from('profiles')
+    .select('username')
+    .eq('id', profileId)
+    .maybeSingle()
+  if (error || !prof) {
+    log(`[adapter:one] profile ${profileId} not found`)
+    return {
+      builders_processed: 0,
+      per_builder: [],
+      written_flat: [],
+      skipped: [],
+      failures: [],
+      dedupes: [],
+      totals: {
+        receipts_written: 0,
+        entities_created: 0,
+        artifacts_skipped: 0,
+        artifacts_skipped_by_reason: {},
+        artifacts_failed: 0,
+        artifacts_failed_by_stage: {},
+        dedupes_collapsed: 0,
+        builders_with_zero_receipts: [],
+      },
+    }
+  }
+  return runRealWrite(admin, [prof.username], log)
 }
 
 export async function runRealWrite(
