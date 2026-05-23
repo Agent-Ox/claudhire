@@ -589,3 +589,61 @@ When in doubt about whether to research or design from scratch — research.
 The cost of an unnecessary web search is seconds. The cost of designing 
 a worse version of an already-solved problem is hours plus the rabbit holes 
 of debugging the inevitable gaps.
+
+---
+
+## External framing — three-pillar mental model (added 2026-05-23)
+
+External validation surfaced 2026-05-23 from Nikita Bier (operator-by-relay):
+
+> "It all boils down to:
+> 1. Providing the best tools to create content
+> 2. Incentivizing the highest quality content
+> 3. Ranking that content so it finds its audience
+> Nothing else matters."
+
+**Applied to ShipStacked** (where "content" = proof of shipped work):
+
+**Pillar 1 — Tools to create content:**
+The auto-enrichment engine. Card 1 signup → engine extracts proof receipts 
+from real artifacts (github_url, project URLs, post URLs). Builders don't 
+write CVs; they ship work and the engine generates structured proof. 
+Status: BUILT (Batch 5, commits 702fdb0 + d36f954).
+
+**Pillar 2 — Incentivizing highest quality content:**
+The verification ladder (L0_claimed / L1_artifact_confirmed / 
+L2_technically_checked / L3_externally_attested / L4_cryptographically_signed) 
++ the locked "EARNED Builder mode" (A.3) + ranking-as-reward. Higher-quality 
+proof gets higher visibility; that's the incentive. Status: PARTIALLY BUILT 
+— verification ladder exists (L0/L1 today, L2+ later), the ranking-as-reward 
+loop ships with Batch 7b.
+
+**Pillar 3 — Ranking content so it finds its audience:**
+Quality scoring engine (Formula E per locked proof-of-work scoring discipline) 
++ search facets (Batch 8). Status: DESIGNED NOT BUILT — Batch 7b is the 
+load-bearing next batch; Batch 8 makes filtered discovery work on top of 
+ranked base.
+
+**Implicit fourth dimension worth naming:**
+The audience itself — hirer-side distribution. Today undeveloped. The locked 
+spec acknowledges asymmetry (A.3: "supply needs proof, demand needs money") 
+but the question of how hirers FIND ShipStacked in the first place — SEO, 
+direct sales, content marketing, integration partnerships — is separate from 
+how they rank-and-filter once on the platform. Recorded as future 
+consideration; not in current batch scope.
+
+**Why this framing matters:**
+Cleanest articulation found to date of the platform's North Star. Validates 
+the priority order (build pillar 1 first → pillar 2 second → pillar 3 third 
+→ audience fourth) and confirms 2026-05-23's decision to do Batch 7b 
+(pillar 3) before Batch 8 facets (also pillar 3, but layered on top of 7b). 
+The industry benchmark (BENCHMARK_industry_comparison.md, SHA 94d807f) 
+independently arrived at the same conclusion via different reasoning — 
+"machine-verified proof as ranking substrate" = pillar 2 → pillar 3 done 
+right.
+
+**Application to future batches:**
+Any proposed work must map to one of the four dimensions. Work that doesn't 
+is either internal plumbing (acceptable in moderation), or potentially out 
+of focus. The three-pillar lens + audience layer = the simplest test for 
+"does this batch matter."
