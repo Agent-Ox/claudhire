@@ -18,6 +18,13 @@ Architecture: three-party loop (operator + architect-Claude in chat + terminal C
 - Calibrated friction: reversible single-file ships on operator approval; irreversible/DDL/structural needs full pre-flight gate
 - Never propose decisions based on assumptions; verify against code/DB
 - FK-check is mandatory before any table kill (lesson from 2026-05-23: a Dashboard-applied table + FK chain were invisible to migration-scan)
+- Research-first methodology: for any design problem, web-search established 
+  solutions BEFORE first-principles design. Billions has been spent solving 
+  these problems already; use / adapt / copy from real platforms (GitHub, 
+  Stack Overflow, LinkedIn, etc.) rather than reinventing. First-principles 
+  design is appropriate only for genuinely novel problems unique to this 
+  platform. See SESSION_2026-05-19_DECISIONS.md "Methodology principle — 
+  Research-first, then adapt" for full discipline.
 
 ## Communication style:
 

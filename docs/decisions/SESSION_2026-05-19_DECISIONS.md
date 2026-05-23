@@ -498,3 +498,94 @@ when in doubt; reinventing wheels poorly is expensive.
 **Probable fix:** extend the filter to `atlas_confirmed OR atlas_inferred` with a confidence-tier indicator on results (e.g. an "inferred" chip-style for inferred-only, solid chip for confirmed). Mirrors how `/p/[slug]` already renders both arrays separately (`src/app/p/[slug]/page.tsx:189-201`).
 
 **Out of scope for Batch 6.** Record for a separate later batch — likely bundled with the future attestor-confirmation flow that would actually start populating `atlas_confirmed`.
+
+---
+
+## Methodology principle — Research-first, then adapt (added 2026-05-23)
+
+Operator-locked principle governing how architect-Claude (and any future 
+Claude session) approaches design problems. Surfaced 2026-05-23 after 
+repeated rabbit holes where Claude tried to design from first principles 
+instead of researching existing solutions.
+
+**Operator's exact framing:**
+
+> "we've been trying to re-invent the wheel around this issue and I simply 
+> said go do some research on industry standards (big apps data etc) and 
+> you solved the problem in a flash. The data is out there. Why are we 
+> trying to think our way through problems when it's already all been 
+> figured out for us by huge multibillion dollar apps and you have direct 
+> access to that data. This is a big issue and it's part of the reason 
+> we've gone down many rabbit holes with this project. Trying to think 
+> your way through problems without doing the research, and without basing 
+> decisions on the reality of our code base."
+>
+> "In theory it's simple: we have some objectives we are trying to achieve. 
+> We check who has done this really well already. And then we use / adapt 
+> / copy for our benefit. Billions has been spent on paving the road for 
+> us already. Why start from scratch?"
+
+**The principle:**
+
+For any design problem where established solutions likely exist, web research 
+comes BEFORE first-principles design. Order of operations:
+
+1. **Define the objective.** What are we trying to achieve in plain language?
+2. **Research who has solved this.** Web search for established systems 
+   solving the same or analogous problem. Real platforms shipping to real 
+   users have spent millions debugging the obvious mistakes; their solutions 
+   encode lessons we'd otherwise have to learn the hard way.
+3. **Map their solution to our context.** What's the pattern they use? What 
+   are the constraints they handle that we also have? Where does our context 
+   genuinely differ?
+4. **Adapt, don't invent.** Use / adapt / copy where applicable. Invent only 
+   the genuinely-novel parts our context requires.
+5. **Verify against our codebase reality.** Reading the actual code, schema, 
+   and data we have — not assumptions about what "should" exist.
+
+**What this excludes:**
+
+- Speculative formula tournaments when established scoring systems exist
+- "Let me think through what UX patterns might work" when the patterns are 
+  documented in every major product
+- Designing data validation regex from scratch when battle-tested libraries 
+  exist
+- Choosing between options based on aesthetic preference when one option 
+  matches industry-standard practice
+- Brainstorming algorithmic approaches when the relevant academic or 
+  industry literature is one search away
+
+**When first-principles design IS appropriate:**
+
+- Genuinely novel problems specific to this platform (e.g., the 
+  Customer/Entity/Mode/Role model — that's our unique abstraction)
+- Implementation details inside a researched pattern (e.g., once we know 
+  ranking uses multi-signal anti-gaming, the specific weights for our 
+  context need codebase-grounded calibration)
+- Code-level decisions about how to integrate a researched pattern into 
+  our existing architecture
+
+**Evidence this works (2026-05-23 example):**
+
+Batch 7b formula tournament: spent ~2 hours debating Formula A vs B vs C vs 
+D from first principles, then operator said "do research." One web search 
+returned established patterns from GitHub analyzers, Stack Overflow, LinkedIn 
+Talent Search, GitRank — collectively encoding decades of anti-gaming, 
+diversity, and threshold lessons. The whole "which formula" debate was 
+resolved in 30 minutes by adopting the multi-signal-with-thresholds pattern 
+that real platforms converged on independently. The hours of first-principles 
+debate were waste.
+
+**Application:**
+
+Every architect-Claude or operator-Claude session opens with this lens. When 
+a design problem appears: research first, adapt second, invent third. The 
+research step is non-negotiable; skipping it is a process failure, not an 
+optimization.
+
+**Lesson for future sessions:**
+
+When in doubt about whether to research or design from scratch — research. 
+The cost of an unnecessary web search is seconds. The cost of designing 
+a worse version of an already-solved problem is hours plus the rabbit holes 
+of debugging the inevitable gaps.
