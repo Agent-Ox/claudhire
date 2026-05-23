@@ -408,3 +408,17 @@ NOT baked into copy without verified provenance.
 GOVERNS the system-wide alignment audit (next batch): every surface,
 flow, table, feature, and capability is evaluated against this model. Five
 buckets: CORE / WEAK / LEGACY-KILL / MISSING / AMBIGUOUS.
+
+---
+
+## Known issues — deferred
+
+### Latent bug — `/atlas/roles/[id]` and `/u/[username]` filter recent-receipts on `atlas_confirmed` only (surfaced 2026-05-23 during Batch 6 audit)
+
+**What:** `src/lib/atlas/roles.ts:82` (recent-receipts query for `/atlas/roles/[id]`) and `src/app/u/[username]/page.tsx:436-438` (Atlas-role chip render) both gate on `atlas_confirmed`. With 0 receipts having confirmed roles today (`atlas_confirmed` is populated only via the `/paste/review` user-confirmation path; the enrichment adapter writes only `atlas_inferred` — see `src/lib/enrichment/profile-adapter.ts:831-833`), both surfaces render empty "recent receipts" / role-chip blocks for every role and every engine-enriched builder.
+
+**Why it's latent and not urgent:** the surfaces don't crash — they just render empty sections. No user has ever filed it because the V2 receipts surface is still pre-launch.
+
+**Probable fix:** extend the filter to `atlas_confirmed OR atlas_inferred` with a confidence-tier indicator on results (e.g. an "inferred" chip-style for inferred-only, solid chip for confirmed). Mirrors how `/p/[slug]` already renders both arrays separately (`src/app/p/[slug]/page.tsx:189-201`).
+
+**Out of scope for Batch 6.** Record for a separate later batch — likely bundled with the future attestor-confirmation flow that would actually start populating `atlas_confirmed`.
