@@ -11,6 +11,60 @@ the locked spec calls for in `SESSION_2026-05-19_DECISIONS.md` UPDATE
 Prepared at HEAD `7b88014` on 2026-05-23. No code mutation. No DDL. No
 new recommendations beyond what's already locked in spec.
 
+> **POST-AUDIT UPDATE 2026-05-23 (Batch 7b-pre):** The scraper-DM outreach
+> engine — 8 code files + 3 DB tables — has since been KILLED per operator
+> decision. See the new "§0 — Killed (post-audit)" section below. The
+> AMBIGUOUS bucket count dropped from 12 to 4. The table inventory in §3
+> reflects the kill. A third engine table (`outreach_drafts`) that NEITHER
+> this audit nor the kill discovery doc had enumerated was surfaced ONLY by
+> the mandatory FK-check protocol — see §0 for the lesson.
+
+---
+
+## §0 — Killed (post-audit) — Batch 7b-pre, 2026-05-23
+
+The 8 scraper-DM outreach engine items in AMBIGUOUS were killed after operator
+review. Recorded here; the rows below in §1/§2/§3 are annotated `[KILLED §0]`.
+
+**Code kill:** commit `bcc9f6f` (8 files, 1,719 LOC deleted) — `npx tsc --noEmit`
++ `npm run build` both clean; pushed to origin/main.
+
+| Killed item | Type |
+|---|---|
+| `src/app/admin/candidates/page.tsx` | route (server gate) |
+| `src/app/admin/candidates/OutreachQueueClient.tsx` | client UI (not in original audit; found in kill discovery) |
+| `src/app/admin/candidates/import/page.tsx` | route (server gate) |
+| `src/app/admin/candidates/import/ImportClient.tsx` | client UI (not in original audit; found in kill discovery) |
+| `src/app/api/admin/candidates/draft/route.ts` | API |
+| `src/app/api/admin/candidates/import/route.ts` | API |
+| `src/app/api/admin/candidates/log/route.ts` | API |
+| `src/app/api/admin/candidates/next/route.ts` | API |
+| `public.outreach_log` | DB table |
+| `public.outreach_drafts` | DB table — **surfaced only by FK-check** (see lesson below) |
+| `public.candidates` | DB table |
+
+**DDL kill:** all 3 tables dropped via Supabase Dashboard SQL Editor at end of
+session 2026-05-23. **All 3 tables had 0 rows at drop** — the engine shipped
+code + infrastructure but never wrote a single production row. Drop order
+(children first, no CASCADE): `outreach_log` → `outreach_drafts` → `candidates`.
+AFTER state confirmed: all three `to_regclass()` returned NULL.
+
+**Recovery artifact:** `/tmp/outreach_engine_recovery_2026-05-23.sql` (external
+to repo — schema-only, code-reconstructed; no data to recover since all tables
+were empty).
+
+**Lesson — FK-check must be mandatory before any table kill.** This audit (§3)
+enumerated tables from `supabase/migrations/` + the prior architecture-map doc.
+Both `outreach_drafts` and the full FK chain (`outreach_log` → `candidates`,
+`outreach_log` → `outreach_drafts`, `outreach_drafts` → `candidates`,
+`candidates` → `profiles`) were INVISIBLE to that method — `outreach_drafts`
+is a Dashboard-applied table no prior doc listed, and it's referenced in code
+only inside two routes that were themselves on the kill list. The
+`pg_constraint` FK-check in the kill discovery doc's Phase 2 §D.2 surfaced it
+before any DROP ran. **Any future table kill MUST run the inbound-FK check
+first** — code-grep + migration-scan alone will miss Dashboard-applied tables
+and FK dependents.
+
 ---
 
 ## Bucket definitions (per A.9)
@@ -69,8 +123,8 @@ Spec references used throughout:
 | `/employers` | CORE | 308 stub → `/hirers` | A.7 transition |
 | `/company/[slug]` | CORE | Hirer company public profile (reads `employer_profiles`) | Doc A |
 | `/admin` | CORE | Admin operational console (operator-only) | operational |
-| `/admin/candidates` | **AMBIGUOUS** | Outreach queue UI; unclear if locked-spec-aligned post-2026-05-22 (the "outreach engine" predates the Customer/Entity/Mode/Role model) | — |
-| `/admin/candidates/import` | **AMBIGUOUS** | Same — admin candidate import path | — |
+| `/admin/candidates` | **KILLED §0** | Outreach queue UI; predated the Customer/Entity/Mode/Role model. Killed in `bcc9f6f` (+ co-located `OutreachQueueClient.tsx`) | — |
+| `/admin/candidates/import` | **KILLED §0** | Admin candidate import path. Killed in `bcc9f6f` (+ co-located `ImportClient.tsx`) | — |
 | `/api-docs` | **WEAK** | References "Velocity Score" + "Builder API" framing; D12 flags Velocity Score as "vanity"; copy drift not yet swept | D12, A.7 |
 | `/auth/callback` | CORE | OAuth callback | universal |
 | `/client/inbox` | **AMBIGUOUS** | "Client" inbox path; predates the A.4 terminology fix (should be "Buyer" per A.7); unclear if functionally distinct from `/hirer/messages` or duplication | A.4, A.7 |
@@ -83,7 +137,7 @@ Spec references used throughout:
 | `/update-password` | CORE | Auth flow | universal |
 | `/success` | CORE | Stripe checkout success | A.3 paid toggle |
 
-**Counts:** CORE 32, WEAK 4, LEGACY-KILL 0, MISSING 0 (see §4 for missing capabilities), AMBIGUOUS 4.
+**Counts (post-7b-pre kill):** CORE 32, WEAK 4, LEGACY-KILL 0, MISSING 0 (see §4 for missing capabilities), AMBIGUOUS 2, KILLED 2 (`/admin/candidates`, `/admin/candidates/import` → §0).
 
 ---
 
@@ -144,12 +198,12 @@ Spec references used throughout:
 | `/api/hire-confirm/count` | CORE | Hire count (homepage badge) — note: badge was killed per Batch 1; endpoint may be dead reader | Batch 1 |
 | `/api/hire-confirm/nudge` | CORE | Hire confirmation reminder (cron-secret gated) | operational |
 | `/api/admin/verify` | CORE | Admin manual verify-flag toggle | operational |
-| `/api/admin/candidates/draft` | **AMBIGUOUS** | Admin draft generation for outreach candidate | — |
-| `/api/admin/candidates/import` | **AMBIGUOUS** | Admin candidate import | — |
-| `/api/admin/candidates/log` | **AMBIGUOUS** | Admin outreach log | — |
-| `/api/admin/candidates/next` | **AMBIGUOUS** | Admin next-candidate (sort by tier + priority + velocity) | — |
+| `/api/admin/candidates/draft` | **KILLED §0** | Admin draft generation; wrote `outreach_drafts`. Killed in `bcc9f6f` | — |
+| `/api/admin/candidates/import` | **KILLED §0** | Admin candidate import; wrote `candidates`. Killed in `bcc9f6f` | — |
+| `/api/admin/candidates/log` | **KILLED §0** | Admin outreach log; wrote `outreach_log`. Killed in `bcc9f6f` | — |
+| `/api/admin/candidates/next` | **KILLED §0** | Admin next-candidate sort; read `candidates`. Killed in `bcc9f6f` | — |
 
-**Counts:** CORE 47, WEAK 2, LEGACY-KILL 0, MISSING 0 (see §4), AMBIGUOUS 6.
+**Counts (post-7b-pre kill):** CORE 47, WEAK 2, LEGACY-KILL 0, MISSING 0 (see §4), AMBIGUOUS 2, KILLED 4 (`/api/admin/candidates/{draft,import,log,next}` → §0).
 
 ---
 
@@ -191,10 +245,11 @@ Tables in `supabase/migrations/` (10 V2 tables explicitly created) plus V1 table
 | `comment_likes` | CORE | Comment reactions | Doc A |
 | `hire_confirmations` | **LEGACY-KILL** | 0 rows (per SITE_AUDIT); badge that referenced it was killed in Batch 1; readers may still exist | Batch 1 |
 | `claim_submissions` | **LEGACY-KILL** | LIVE writer at `/api/intakes/claim` but `/claim` route was killed in Batch 1; no in-code reader survives (per SHIPSTACKED_ARCHITECTURE_MAP.md §4.2) | Batch 1, Doc B SUPERSEDED |
-| `outreach_log` | **AMBIGUOUS** | Operational outreach tracking; not in locked spec | — |
-| `candidates` | **AMBIGUOUS** | Operational outreach candidate queue; `velocity_score` column here is separate from `profiles.velocity_score` | — |
+| `outreach_log` | **KILLED §0** | Outreach action history (0 rows). Dropped via Dashboard 2026-05-23 | — |
+| `outreach_drafts` | **KILLED §0** | LLM draft store (0 rows). **NOT enumerated by this audit originally — surfaced by FK-check.** Dropped via Dashboard 2026-05-23 | — |
+| `candidates` | **KILLED §0** | Outreach candidate queue (0 rows). Dropped via Dashboard 2026-05-23 | — |
 
-**Counts:** CORE 19, WEAK 2, LEGACY-KILL 2, MISSING (see §4), AMBIGUOUS 2.
+**Counts (post-7b-pre kill):** CORE 19, WEAK 2, LEGACY-KILL 2 (`hire_confirmations`, `claim_submissions`), MISSING (see §4), AMBIGUOUS 0, KILLED 3 (`outreach_log`, `outreach_drafts`, `candidates` → §0). Note: `outreach_drafts` was not in the original audit inventory — surfaced by FK-check during the kill.
 
 ---
 
@@ -315,7 +370,7 @@ Ordered by spec-violation severity. Note: most are blocked by other work (named 
 
 4. **`api-docs/page.tsx` Velocity Score references** + **`/api/v1/profile` + `/api/v1/me` velocity_score field in output.** D12 drift. Contradicts A.7 (Velocity Score → flagged-vanity terminology). **Blocks removal:** Batch 7 quality scoring lands; replace `velocity_score` with `quality_score` in API output; update api-docs copy.
 
-5. **`/api/admin/candidates/*` outreach engine** (4 endpoints + `outreach_log` + `candidates` tables). Predates the A.4 Customer/Entity/Mode/Role lock; operational tooling that may or may not align with current direction. **Blocks removal:** operator confirmation — is the outreach engine current strategy or a pre-2026-05-22 artifact? Currently classified AMBIGUOUS pending that call.
+5. **[RESOLVED — KILLED 2026-05-23]** ~~`/api/admin/candidates/*` outreach engine~~ — operator confirmed kill (Batch 7b-pre, commit `bcc9f6f` + Dashboard DDL drop). 8 code files + 3 tables (`outreach_log`, `outreach_drafts`, `candidates`) removed, all 0 rows. See §0. **Replacement slot in this top-5 list:** the next LEGACY-KILL candidate is `/api/hire-confirm/count` (may serve dead data from the now-LEGACY-KILL `hire_confirmations` table — verify reader before removal).
 
 ---
 
@@ -325,7 +380,7 @@ Ordered by spec-violation severity. Note: most are blocked by other work (named 
 |---|---|---|
 | `/client/inbox` + `/api/client-magic-link` | Is "Client" the legacy term for what A.4 now calls "Buyer"? If so → standing copy rule (A.7) retroactive rename applies. Or is "Client" semantically distinct (a builder's hiring contact)? | A.4, A.7 |
 | `/get-found/[id]` | Purpose of this route is unclear from name + brief inspection (reads `jobs`). Is it part of a reverse-discovery flow (builders found by hirers via job match)? In locked spec or legacy? | — |
-| `/admin/candidates`, `/admin/candidates/import`, `/api/admin/candidates/*` (4 endpoints), `outreach_log`, `candidates` table | The outreach engine — keep, kill, or migrate? Currently operational tooling. Not in 2026-05-22 lock. | — |
+| ~~outreach engine~~ | **RESOLVED — KILLED 2026-05-23 (Batch 7b-pre). See §0.** | — |
 | `/api/jobs/xpost` | Auto-cross-post jobs to X. Not in locked spec. Operator distribution mechanism or legacy? | A.8 prioritization principle context |
 | `claim_submissions` table data retention | If LEGACY-KILL #2 proceeds, retain rows or DELETE? 2 known test rows from operator's own email per SITE_AUDIT. | Batch 1 |
 | `hire_confirmations` table data retention | Same question — 0 rows so easy, but the table itself + `/api/hire-confirm` writer suggest hire-tracking is intentional, just not active. Is hire-tracking part of A.3 "Hired (past engagement)" relationship? | A.3 |
@@ -336,23 +391,28 @@ Ordered by spec-violation severity. Note: most are blocked by other work (named 
 
 Aggregated across §1 (routes), §2 (APIs), §3 (tables), §4 (modes/roles), §5 (features). Items appear in only one section.
 
+Post-Batch-7b-pre kill (2026-05-23). The original counts are struck where changed.
+
 | Bucket | Routes | APIs | Tables | Modes/Roles | Features | **Total** |
 |---|---:|---:|---:|---:|---:|---:|
 | **CORE** | 32 | 47 | 19 | 5 | 13 | **116** |
 | **WEAK** | 4 | 2 | 2 | 3 | 5 | **16** |
 | **LEGACY-KILL** | 0 | 0 | 2 | 0 | 1 | **3** |
 | **MISSING** | 0 | 0 | 0 | 5 | 4 | **9** |
-| **AMBIGUOUS** | 4 | 6 | 2 | 0 | 0 | **12** |
+| **AMBIGUOUS** | 2 | 2 | 0 | 0 | 0 | **4** |
+| **KILLED §0** | 2 | 4 | 2 | 0 | 0 | **8** |
 
-**Total items audited: 156.**
+**Total originally-counted items audited: 156** (unchanged — the 8 KILLED items moved out of AMBIGUOUS, not out of the count). AMBIGUOUS dropped 12 → 4.
 
-CORE represents **74.4%** of inventory — the platform is mostly aligned. The 16 WEAK items and 9 MISSING items are concentrated in two clusters:
+**Plus 3 items NOT in the original 156** (audit blind spots, all killed in §0): `outreach_drafts` table + `OutreachQueueClient.tsx` + `ImportClient.tsx`. These were never inventoried — the table was Dashboard-applied (invisible to migration-scan) and surfaced only by the FK-check; the two client components are co-located React files (not routes/APIs, so invisible to the directory inventory). Full engine kill footprint: **8 code files + 3 DB tables = 11 items**.
+
+CORE represents **74.4%** of the originally-counted inventory — the platform is mostly aligned. The 16 WEAK items and 9 MISSING items are concentrated in two clusters:
 - Ranking + engine-surfacing (§5 features tied to A.3 EARNED mode + A.1 engine visibility)
 - Relationships / entity graph (§4 modes/roles tied to A.2 + A.4)
 
 LEGACY-KILL items (3) are bounded and mostly blocked by Batch 7 quality scoring landing.
 
-AMBIGUOUS items (12) cluster around the outreach engine (5 of 12) — single operator decision unblocks most.
+AMBIGUOUS items now number **4** (down from 12): `/client/inbox` + `/api/client-magic-link` (terminology), `/get-found/[id]` (unclear purpose), `/api/jobs/xpost` (distribution mechanism), plus the 2 data-retention questions (`claim_submissions`, `hire_confirmations`). The outreach-engine cluster that dominated the original 12 is resolved.
 
 ---
 
