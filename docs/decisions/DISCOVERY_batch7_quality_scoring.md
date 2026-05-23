@@ -73,7 +73,17 @@ Which engine outputs feed the score?
 Each step up adds defensibility AND fragility (more knobs to tune;
 more chances to mis-tune).
 
-### D2 — Scoring formula shape
+### D2 — Scoring formula shape — ⚠ SUPERSEDED: needs Formula E before §H lock
+
+> **UPDATE 2026-05-23:** Formulas A/B/C/D below were DIAGNOSTIC, not final.
+> Per the locked "Proof-of-work scoring discipline" principle
+> (`SESSION_2026-05-19_DECISIONS.md`, added 2026-05-23), none of A-D satisfy
+> all six required signals (breadth / median-confidence / reachability /
+> event-type diversity / recency decay / minimum-threshold gating). **D2
+> cannot be locked at §H until a Formula E is specified** that implements
+> all six. See new §F.6. The A-D options below are retained as the tournament
+> baseline that surfaced the gap (Formula D promoting `nnekaewalu847` to rank 2
+> on 2 receipts at a single portfolio host was the tell).
 
 How are the inputs combined into a single 0-100 score?
 
@@ -199,6 +209,13 @@ block. With a quality score, where does manual override fit?
 
 ## C. Out of scope (explicit)
 
+- **Any formula that does not satisfy all six required signals** of the
+  locked "Proof-of-work scoring discipline" principle (added 2026-05-23 to
+  `SESSION_2026-05-19_DECISIONS.md`): breadth (distinct hosts, not raw count),
+  median-confidence (not avg), reachability ratio, event-type diversity,
+  recency decay, and minimum-threshold gating. A single-metric or
+  avg-confidence-primary formula is OUT OF SCOPE — it would contradict a
+  locked principle. The final formula is **Formula E** per §F.6.
 - **Batch 8 filter facet UI** — separate batch; will run on
   quality-sorted base.
 - **Removing the `verified` or `velocity_score` columns.** Both stay
@@ -597,6 +614,48 @@ ORDER BY GREATEST(
 This produces the full 42-row table with all four scores side by
 side, sorted by max(A, B) descending. Operator reads it once and can
 see which formula best matches intuition.
+
+### F.6 — Formula E (proof-of-work compliant) — THE FINAL FORMULA
+
+> **Added 2026-05-23 after operator pushback.** A/B/C/D were diagnostic.
+> The tournament surfaced the gap: Formula D promoted `nnekaewalu847` to
+> rank 2 on 2 receipts at a single portfolio host — volume + confidence
+> without breadth or reachability scrutiny. Operator's framing: *"anyone
+> can claim they shipped an excellent thing. that's the point of
+> 'proof of work'. hence our algo needs to go further than the claim."*
+
+Formula E is not yet a single SQL expression — it is the **set of six
+hard requirements** the final formula must satisfy, per the locked
+"Proof-of-work scoring discipline" principle in
+`SESSION_2026-05-19_DECISIONS.md` (added 2026-05-23):
+
+1. **Breadth, not volume.** Score on `count(DISTINCT artifact_host)` (or
+   distinct projects), not raw `count(receipts)`. Five receipts on one host
+   ≠ five shipping events.
+2. **Consistency, not peaks.** `median(atlas_confidence)`, NOT `avg`. Median
+   resists single-lucky-receipt inflation. (All A-D used avg — this is the
+   single biggest change.)
+3. **Reachability non-optional.** `L1_artifact_confirmed` ratio is first-class;
+   dead links (`L0_orphaned`, when Batch 7c ships) reduce score.
+4. **Event-type diversity.** Distinct event types demonstrate range;
+   `5x published_repo` is one thing repeated.
+5. **Recency decay.** Receipts older than ~180d lose weight.
+6. **Minimum-threshold gating.** Below a floor (e.g. `< 3 receipts AND
+   < 2 distinct hosts`), a builder is "not yet ranked" — shown but unranked,
+   not low-ranked (Stack Overflow model).
+
+**Status:** Formula E must be designed (SQL expression + weights) BEFORE the
+§H D2 lock. The next step after this doc update is: design Formula E against
+the six requirements, re-run the tournament with E alongside A-D for
+comparison, then lock §H. The §F.5 combined query above should be extended
+with a `score_E` column at that point — it currently lacks the distinct-host,
+median-confidence, event-diversity, and threshold-gating terms.
+
+**SQL building blocks Formula E will need (not in F.5 yet):**
+- `count(DISTINCT split_part(replace(replace(artifacts->0->>'url','https://',''),'http://',''),'/',1))` — distinct artifact host count
+- `percentile_cont(0.5) WITHIN GROUP (ORDER BY atlas_confidence)` — median confidence
+- `count(DISTINCT event_type)` — event-type diversity
+- A `CASE` threshold gate returning NULL/"unranked" below the floor
 
 ---
 

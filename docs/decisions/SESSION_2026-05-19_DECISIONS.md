@@ -411,6 +411,82 @@ buckets: CORE / WEAK / LEGACY-KILL / MISSING / AMBIGUOUS.
 
 ---
 
+## Architectural principle — Proof-of-work scoring discipline (added 2026-05-23)
+
+Surfaced during Batch 7b quality-scoring discovery. Operator-locked principle 
+that governs all future ranking, sorting, and discovery algorithms.
+
+**Core principle:** The platform's positioning ("proof-of-work, not what was 
+claimed") requires the scoring engine to enforce proof, not count claims. 
+A single high-confidence receipt is a claim until verified across multiple 
+dimensions. Real proof requires breadth, consistency, and reachability.
+
+**Required signals in any quality/ranking formula:**
+
+1. **Breadth, not just volume.** Count of distinct artifact hosts (or unique 
+   projects), not raw receipt count. Five receipts on one host ≠ five 
+   independent shipping events. Anti-gaming against same-artifact-multiple-receipts.
+
+2. **Consistency, not peaks.** Use median(confidence) not avg(confidence). 
+   Median resists single-receipt inflation. A builder with one 0.88 and four 
+   0.2 receipts has a median of 0.2, not an avg of 0.34. Lucky outliers 
+   shouldn't drive ranking.
+
+3. **Reachability is non-optional.** L1_artifact_confirmed ratio is a 
+   first-class signal. Dead links (L0_orphaned, when implemented) reduce 
+   score. Future re-verification (Batch 7c) is part of this principle, not 
+   optional polish.
+
+4. **Event-type diversity.** A builder shipping shipped_agent + shipped_app + 
+   published_repo demonstrates range. A builder with 5x published_repo 
+   demonstrates one thing repeated. Both can exist on the platform but they 
+   should not rank identically.
+
+5. **Recency decay.** Stale receipts (180+ days) lose weight. Proof-of-work 
+   degrades over time; the engine must reflect that.
+
+6. **Minimum threshold for "ranked at all."** Below threshold (e.g., < 3 
+   receipts AND < 2 distinct hosts), builders are shown but not ranked. 
+   "Rank 30 of 42" implies measured quality; thin profiles should be "not 
+   yet ranked," not low-ranked. This is how Stack Overflow handles 
+   sub-threshold users; the platform should do the same.
+
+**What this principle excludes:**
+
+- Single-metric ranking (e.g., velocity_score alone, receipt_count alone, 
+  confidence alone). No single signal is proof.
+- Linear scaling on receipt count. Use log-scaling so spam is bounded.
+- Avg-confidence as primary signal (use median instead).
+- Treating verified=true as the primary partition. Verified is operator-vouched 
+  legitimacy; quality is engine-derived. Both exist; neither subsumes the other.
+
+**Application to Batch 7b and beyond:**
+
+Batch 7b's formula must implement all six required signals. Formulas A through 
+D from the §F tournament are incomplete on their own — they were diagnostic, 
+not final. The §H lock for Batch 7b operates against a Formula E (or named 
+successor) that incorporates breadth, median-confidence, reachability ratio, 
+event-type diversity, recency decay, and minimum-threshold gating.
+
+Any future ranking surface (talent search facets, leaderboards, featured 
+sections, MCP discovery) must respect this principle. Surfaces that contradict 
+it (e.g., sorting by raw receipt count) are LEGACY-KILL.
+
+**Source of insight:** Operator pushback during 2026-05-23 Batch 7b tournament 
+discussion. Confirmed by web research into established ranking systems 
+(GitHub analyzers, Stack Overflow reputation, LinkedIn talent search, GitRank, 
+GitHub Awards). All real-world ranking systems use multi-signal anti-gaming 
+approaches with explicit thresholds. Architect-Claude initially proposed 
+single-formula approaches; operator's "anyone can claim they shipped an 
+excellent thing" reframing surfaced the gap.
+
+**Lesson recorded:** When operator pushes back on a technical-seeming choice 
+("formula A vs D"), the right next move is to investigate whether the choice 
+itself is the wrong frame — not to defend the framing. Web research is cheap 
+when in doubt; reinventing wheels poorly is expensive.
+
+---
+
 ## Known issues — deferred
 
 ### Latent bug — `/atlas/roles/[id]` and `/u/[username]` filter recent-receipts on `atlas_confirmed` only (surfaced 2026-05-23 during Batch 6 audit)
