@@ -19,7 +19,7 @@ import { generateUniqueSlug, normalizeSlug } from './paste/slug.ts';
 export interface EntityRow {
   id: number;
   external_id: string;
-  kind: 'human' | 'operator' | 'fleet' | 'agent';
+  kind: 'human' | 'operator' | 'fleet' | 'agent' | 'team';
   display_name: string;
   slug: string;
   owner_user_id: string;
@@ -239,4 +239,179 @@ export async function findOrCreateHumanEntity(
 
 export async function deleteEntity(admin: SupabaseClient, id: number): Promise<void> {
   await admin.from('entities').delete().eq('id', id);
+}
+
+/**
+ * Resolve the agent entity for this user, creating it if missing.
+ *
+ * Batch 4 / Card 3 (D8=a). Unlike `findOrCreateHumanEntity`, agents:
+ *   - have no V1 profile contract (no verbatim-username-as-slug rule)
+ *   - may co-exist with a human entity owned by the same user (an agent is
+ *     a distinct entity even if the operator behind it has a human profile)
+ *
+ * Slug is derived from user_metadata.full_name or email prefix.
+ */
+export async function findOrCreateAgentEntity(
+  admin: SupabaseClient,
+  user: User,
+): Promise<FindOrCreateResult> {
+  // Existing agent entity for this owner?
+  const { data: existing, error: existingErr } = await admin
+    .from('entities')
+    .select('id, external_id, kind, display_name, slug, owner_user_id, profile_id')
+    .eq('owner_user_id', user.id)
+    .eq('kind', 'agent')
+    .limit(1)
+    .maybeSingle();
+  if (existingErr && existingErr.code !== 'PGRST116') {
+    throw new Error(`agent entity lookup failed: ${existingErr.message}`);
+  }
+  if (existing) return { entity: existing as EntityRow, was_created: false };
+
+  const displayName = deriveDisplayName(user);
+  const slugBase = deriveSlugBase(user, displayName);
+  const slug = await generateUniqueSlug(admin, 'entities', slugBase);
+
+  const row = {
+    external_id: entityExternalId(),
+    kind: 'agent' as const,
+    display_name: displayName,
+    slug,
+    owner_user_id: user.id,
+  };
+
+  const { data: inserted, error: insertErr } = await admin
+    .from('entities')
+    .insert(row)
+    .select('id, external_id, kind, display_name, slug, owner_user_id, profile_id')
+    .single();
+
+  if (insertErr || !inserted) {
+    if (insertErr?.code === '23505') {
+      // Race — another agent insert for the same owner just landed.
+      const { data: raceWinner } = await admin
+        .from('entities')
+        .select('id, external_id, kind, display_name, slug, owner_user_id, profile_id')
+        .eq('owner_user_id', user.id)
+        .eq('kind', 'agent')
+        .limit(1)
+        .maybeSingle();
+      if (raceWinner) return { entity: raceWinner as EntityRow, was_created: false };
+    }
+    throw new Error(`agent entity insert failed: ${insertErr?.message ?? 'unknown'}`);
+  }
+
+  return { entity: inserted as EntityRow, was_created: true };
+}
+
+/**
+ * Create a team entity for Card 2 (Team / Agency / Studio).
+ *
+ * Batch 4 / Card 2 (D7=b, kind='team' added to CHECK constraint).
+ * Minimal field scope per D4=(a): team name + owner user. No profile link.
+ *
+ * One team entity per owner_user_id for now (member-linking is Batch 5+,
+ * so a user can only "own" one team at signup). Slug derived from team name.
+ */
+export async function findOrCreateTeamEntity(
+  admin: SupabaseClient,
+  user: User,
+  teamName: string,
+): Promise<FindOrCreateResult> {
+  const cleanName = teamName.trim();
+  if (!cleanName) throw new Error('team name is required');
+
+  // Existing team entity for this owner?
+  const { data: existing, error: existingErr } = await admin
+    .from('entities')
+    .select('id, external_id, kind, display_name, slug, owner_user_id, profile_id')
+    .eq('owner_user_id', user.id)
+    .eq('kind', 'team')
+    .limit(1)
+    .maybeSingle();
+  if (existingErr && existingErr.code !== 'PGRST116') {
+    throw new Error(`team entity lookup failed: ${existingErr.message}`);
+  }
+  if (existing) return { entity: existing as EntityRow, was_created: false };
+
+  const slugBase = normalizeSlug(cleanName);
+  const slug = await generateUniqueSlug(admin, 'entities', slugBase || 'team');
+
+  const row = {
+    external_id: entityExternalId(),
+    kind: 'team' as const,
+    display_name: cleanName,
+    slug,
+    owner_user_id: user.id,
+  };
+
+  const { data: inserted, error: insertErr } = await admin
+    .from('entities')
+    .insert(row)
+    .select('id, external_id, kind, display_name, slug, owner_user_id, profile_id')
+    .single();
+
+  if (insertErr || !inserted) {
+    if (insertErr?.code === '23505') {
+      const { data: raceWinner } = await admin
+        .from('entities')
+        .select('id, external_id, kind, display_name, slug, owner_user_id, profile_id')
+        .eq('owner_user_id', user.id)
+        .eq('kind', 'team')
+        .limit(1)
+        .maybeSingle();
+      if (raceWinner) return { entity: raceWinner as EntityRow, was_created: false };
+    }
+    throw new Error(`team entity insert failed: ${insertErr?.message ?? 'unknown'}`);
+  }
+
+  return { entity: inserted as EntityRow, was_created: true };
+}
+
+/**
+ * Create the buyer-only entity for Card 4 (Batch 4 / D1=b).
+ *
+ * Card 4 is the proactive equivalent of the reactive `/api/inquiry` client
+ * (same data shape: kind='human' entity with no profile link). The user
+ * has user_metadata.role='client' set by the calling endpoint.
+ *
+ * One buyer-only entity per owner_user_id. Slug from user_metadata or
+ * email prefix.
+ */
+export async function findOrCreateBuyerEntity(
+  admin: SupabaseClient,
+  user: User,
+): Promise<FindOrCreateResult> {
+  // Buyer-only entity uses kind='human' (it's a person who hires). Check by
+  // owner_user_id only — there's at most one human entity per owner.
+  const existingByOwner = await fetchEntityByOwner(admin, user.id);
+  if (existingByOwner) return { entity: existingByOwner, was_created: false };
+
+  const displayName = deriveDisplayName(user);
+  const slugBase = deriveSlugBase(user, displayName);
+  const slug = await generateUniqueSlug(admin, 'entities', slugBase);
+
+  const row = {
+    external_id: entityExternalId(),
+    kind: 'human' as const,
+    display_name: displayName,
+    slug,
+    owner_user_id: user.id,
+  };
+
+  const { data: inserted, error: insertErr } = await admin
+    .from('entities')
+    .insert(row)
+    .select('id, external_id, kind, display_name, slug, owner_user_id, profile_id')
+    .single();
+
+  if (insertErr || !inserted) {
+    if (insertErr?.code === '23505') {
+      const raceWinner = await fetchEntityByOwner(admin, user.id);
+      if (raceWinner) return { entity: raceWinner, was_created: false };
+    }
+    throw new Error(`buyer entity insert failed: ${insertErr?.message ?? 'unknown'}`);
+  }
+
+  return { entity: inserted as EntityRow, was_created: true };
 }

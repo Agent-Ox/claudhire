@@ -1,6 +1,7 @@
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import HirerDashboardClient from './HirerDashboardClient'
+import BuyerOnlyEmptyState from './BuyerOnlyEmptyState'
 
 export default async function HirerDashboardPage() {
   const supabase = await createServerSupabaseClient()
@@ -17,7 +18,17 @@ export default async function HirerDashboardPage() {
     .or(`expires_at.is.null,expires_at.gt.${now}`)
     .maybeSingle()
 
-  if (!sub) redirect('/#pricing')
+  if (!sub) {
+    // Batch 4 D3=(b): Card 4 buyer-only users (no subscription, came in via
+    // the /join Card 4 path with user_metadata.role='client') see a dedicated
+    // empty state instead of the /#pricing bounce. Buyer Mode activates on
+    // first paid action via /api/checkout (D1=b).
+    const metaRole = user.user_metadata?.role
+    if (metaRole === 'client') {
+      return <BuyerOnlyEmptyState email={user.email!} />
+    }
+    redirect('/#pricing')
+  }
 
   const { data: jobs } = await supabase
     .from('jobs')

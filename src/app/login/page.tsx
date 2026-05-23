@@ -20,7 +20,7 @@ export default async function LoginPage({
         <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-0.03em', marginBottom: '0.4rem', color: '#1d1d1f' }}>Sign in</h1>
         <p style={{ color: '#6e6e73', fontSize: 15, marginBottom: '2rem' }}>
           New here?{' '}
-          <Link href="/signup" style={{ color: '#0071e3', textDecoration: 'none', fontWeight: 500 }}>Create an account →</Link>
+          <Link href="/join" style={{ color: '#0071e3', textDecoration: 'none', fontWeight: 500 }}>Create an account →</Link>
         </p>
 
         {error && (
@@ -66,7 +66,7 @@ export default async function LoginPage({
 
         <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: 13, color: '#6e6e73' }}>
           Want to showcase your AI work?{' '}
-          <Link href="/signup" style={{ color: '#0071e3', textDecoration: 'none', fontWeight: 500 }}>Create a builder profile →</Link>
+          <Link href="/join" style={{ color: '#0071e3', textDecoration: 'none', fontWeight: 500 }}>Create a builder profile →</Link>
         </p>
       </div>
     </div>

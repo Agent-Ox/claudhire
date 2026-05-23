@@ -276,7 +276,7 @@ export default async function CompanyProfilePage({ params }: { params: Promise<{
               <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.5)', marginBottom: '1.25rem', fontWeight: 300 }}>
                 Create a free verified profile and let companies find you.
               </p>
-              <Link href="/signup" style={{ display: 'inline-block', padding: '0.7rem 1.5rem', background: '#6c63ff', color: 'white', borderRadius: 20, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
+              <Link href="/join" style={{ display: 'inline-block', padding: '0.7rem 1.5rem', background: '#6c63ff', color: 'white', borderRadius: 20, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
                 Create free profile →
               </Link>
             </div>

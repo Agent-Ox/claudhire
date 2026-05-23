@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { createClient } from '@supabase/supabase-js'
 import { createHash, randomBytes } from 'crypto'
+import { findOrCreateAgentEntity } from '@/lib/entities'
 
 const admin = () => createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -74,6 +75,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Failed to initialise profile' }, { status: 500 })
     }
     profile = newProfile
+
+    // Batch 4 D8=(a): also create the kind='agent' entity for this user.
+    // Fire-and-forget — entity creation failure should not block key
+    // generation (we can backfill later if needed).
+    try {
+      await findOrCreateAgentEntity(db, user)
+    } catch (e) {
+      console.error('[keys] agent entity creation failed (non-blocking):', e)
+    }
   }
 
   // Max 5 keys per profile

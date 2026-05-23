@@ -280,7 +280,7 @@ export default function NavBar() {
                   style={{ fontSize: 15, color: textColor, textDecoration: 'none', padding: '0.7rem 0', borderBottom: `0.5px solid ${mobileBorder}` }}>
                   Sign in
                 </a>
-                <a href="/signup" onClick={() => setMenuOpen(false)}
+                <a href="/join" onClick={() => setMenuOpen(false)}
                   style={{ fontSize: 15, color: accentColor, textDecoration: 'none', padding: '0.7rem 0', fontWeight: 500 }}>
                   Create free profile
                 </a>

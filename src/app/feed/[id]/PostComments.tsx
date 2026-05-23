@@ -172,7 +172,7 @@ export default function PostComments({ postId, isLoggedIn }: { postId: string, i
           <p style={{ fontSize: 13, color: '#6e6e73' }}>Sign in to join the conversation.</p>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <a href="/login" style={{ fontSize: 13, padding: '0.4rem 0.875rem', background: '#f5f5f7', color: '#1d1d1f', borderRadius: 980, textDecoration: 'none', fontWeight: 500 }}>Sign in</a>
-            <a href="/signup" style={{ fontSize: 13, padding: '0.4rem 0.875rem', background: '#0071e3', color: 'white', borderRadius: 980, textDecoration: 'none', fontWeight: 500 }}>Create account</a>
+            <a href="/join" style={{ fontSize: 13, padding: '0.4rem 0.875rem', background: '#0071e3', color: 'white', borderRadius: 980, textDecoration: 'none', fontWeight: 500 }}>Create account</a>
           </div>
         </div>
       )}

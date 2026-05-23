@@ -83,7 +83,7 @@ export default async function GetFoundPage({ params }: { params: Promise<{ id: s
 
         {/* Main CTA */}
         <div className="fade-2" style={{ marginBottom: '4rem' }}>
-          <a href="/signup" className="cta-btn" style={{
+          <a href="/join" className="cta-btn" style={{
             display: 'inline-flex', alignItems: 'center', gap: '0.75rem',
             background: '#0071e3', color: 'white', padding: '1rem 2rem',
             borderRadius: 980, fontSize: 16, fontWeight: 700, textDecoration: 'none',
@@ -139,7 +139,7 @@ export default async function GetFoundPage({ params }: { params: Promise<{ id: s
           <p style={{ fontSize: 16, color: 'rgba(240,240,245,0.5)', marginBottom: '2rem' }}>
             Ship. Get hired.
           </p>
-          <a href="/signup" className="cta-btn" style={{
+          <a href="/join" className="cta-btn" style={{
             display: 'inline-flex', alignItems: 'center', gap: '0.75rem',
             background: '#0071e3', color: 'white', padding: '1rem 2.5rem',
             borderRadius: 980, fontSize: 16, fontWeight: 700, textDecoration: 'none',
