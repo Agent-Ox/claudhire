@@ -278,11 +278,16 @@ export async function publishProofReceipt(input: PublishInput): Promise<PublishR
       receiptSlug = inserted.slug as string
       break
     }
-    if (error?.code === '23505' && /dedupe_key/.test(error.message ?? '')) {
+    if (error?.code === '23505' && /dedupe/i.test(error.message ?? '')) {
       // Dedupe race — this (subject, artifact, event_type) has already
       // been published. Roll back the entity-creation guard and return a
       // duplicate result so the adapter can treat it as a no-op rather
       // than a failure.
+      //
+      // Match the constraint NAME (idx_receipts_dedupe) — Postgres
+      // reports the index/constraint name in the error message, not the
+      // column name. The /dedupe/ pattern matches "idx_receipts_dedupe"
+      // and any future dedupe-named indexes.
       await cleanupEntity()
       return {
         success: false,
