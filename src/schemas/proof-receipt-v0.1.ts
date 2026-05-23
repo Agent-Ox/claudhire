@@ -105,7 +105,7 @@ export const EntityRef = z.object({
   id: z.string().regex(/^shipstacked:entity:[0-9A-HJKMNP-TV-Z]{26}$/),
   kind: EntityKind,
   display_name: z.string().min(1).max(120),
-  canonical_url: z.string().url(),
+  canonical_url: z.string().trim().url().refine(s => !/\s/.test(s), 'URL must not contain whitespace'),
 });
 export type EntityRef = z.infer<typeof EntityRef>;
 
@@ -130,7 +130,7 @@ export const ArtifactKind = z.enum([
 
 export const Artifact = z.object({
   kind: ArtifactKind,
-  url: z.string().url(),
+  url: z.string().trim().url().refine(s => !/\s/.test(s), 'URL must not contain whitespace'),
   title: z.string().max(160).optional(),
   description: z.string().max(500).optional(),
   fetched_at: z.string().datetime().optional(),
@@ -270,7 +270,7 @@ export const ProofReceipt = z.object({
 
   // ── Identity ───────────────────────────────────────────────────────────
   id: z.string().regex(/^shipstacked:proof:[0-9A-HJKMNP-TV-Z]{26}$/),
-  canonical_url: z.string().url(),
+  canonical_url: z.string().trim().url().refine(s => !/\s/.test(s), 'URL must not contain whitespace'),
   slug: z.string().regex(/^[a-z0-9][a-z0-9-]{1,80}$/),
   issued_at: z.string().datetime(),
   updated_at: z.string().datetime(),
@@ -306,8 +306,8 @@ export const ProofReceipt = z.object({
 
   // ── Distribution ───────────────────────────────────────────────────────
   visibility: z.enum(['public', 'unlisted', 'private']),
-  embed_card_url: z.string().url(),              // OG image, auto-generated
-  jsonld_url: z.string().url(),                  // schema.org JSON-LD endpoint
+  embed_card_url: z.string().trim().url().refine(s => !/\s/.test(s), 'URL must not contain whitespace'),              // OG image, auto-generated
+  jsonld_url: z.string().trim().url().refine(s => !/\s/.test(s), 'URL must not contain whitespace'),                  // schema.org JSON-LD endpoint
 
   // ── Provenance ─────────────────────────────────────────────────────────
   ingestion_source: IngestionSource,

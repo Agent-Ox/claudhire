@@ -32,7 +32,7 @@ function receiptOgUrl(slug: string): string {
 
 const ArtifactSchema = z.object({
   kind: z.enum(['url', 'repo', 'deployment', 'screenshot', 'video', 'doc', 'diagram']),
-  url: z.string().url(),
+  url: z.string().trim().url().refine(s => !/\s/.test(s), 'URL must not contain whitespace'),
   title: z.string().max(160).optional(),
   description: z.string().max(500).optional(),
   fetched_at: z.string().datetime().optional(),
@@ -69,7 +69,7 @@ const SourceEnum = z.enum([
 ])
 
 export const PasteDraftSchema = z.object({
-  url: z.string().url(),
+  url: z.string().trim().url().refine(s => !/\s/.test(s), 'URL must not contain whitespace'),
   source: SourceEnum,
   event_type: EventTypeEnum,
   title: z.string().min(1).max(80),

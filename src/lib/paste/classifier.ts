@@ -58,6 +58,16 @@ export function validateUrl(raw: string): URL {
   if (raw.length > 2048) {
     throw new InvalidUrlError('URL is too long (max 2048 chars)');
   }
+  // Yuki-class guard (Batch 7a): reject any whitespace in the raw string
+  // before `new URL()` silently percent-encodes it. Covers leading/trailing
+  // whitespace AND interior whitespace (space between URL and trailing prose,
+  // tabs, newlines, etc.). `\s` matches all Unicode whitespace.
+  if (raw.trim() !== raw) {
+    throw new InvalidUrlError('URL has leading or trailing whitespace');
+  }
+  if (/\s/.test(raw)) {
+    throw new InvalidUrlError('URL contains whitespace');
+  }
   let parsed: URL;
   try {
     parsed = new URL(raw);

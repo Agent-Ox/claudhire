@@ -78,17 +78,25 @@ export function computeReceiptDedupeKey(
     .digest('hex')
 }
 
-// ───────────────────────── post-validateUrl path guard ──────────────────────
+// ───────────────────────── post-validateUrl URL guard ──────────────────────
 // Catches URLs that validateUrl + new URL() accept but are obviously prose
-// garbage with `https://` accidentally on the front (Yuki-class). Conservative:
-// only fires on path contents that are virtually never legitimate.
+// garbage with `https://` accidentally on the front (Yuki-class).
+//
+// Batch 7a expansion: the original guard checked url.pathname only, but the
+// Yuki receipt (id=45) stored its trailing prose in the query string — junk
+// hid in url.search, the pathname was just "/", the guard let it through.
+// Now checks pathname + search + hash, plus the raw string for any literal
+// whitespace (defense in depth on top of validateUrl's whitespace rejection).
 
-function isPathSuspect(url: URL): { suspect: boolean; reason?: string } {
-  const path = url.pathname
-  if (/%20/i.test(path)) {
-    return { suspect: true, reason: 'path contains encoded whitespace (%20…)' }
+export function isUrlSuspect(url: URL, raw: string): { suspect: boolean; reason?: string } {
+  if (/\s/.test(raw)) {
+    return { suspect: true, reason: 'raw URL string contains whitespace' }
   }
-  if (/\.{4,}/.test(path)) {
+  const components = url.pathname + url.search + url.hash
+  if (/%20/i.test(components)) {
+    return { suspect: true, reason: 'URL components contain encoded whitespace (%20…)' }
+  }
+  if (/\.{4,}/.test(url.pathname)) {
     return { suspect: true, reason: 'path contains "…." (4+ consecutive dots)' }
   }
   return { suspect: false }
@@ -359,9 +367,9 @@ function validateAndGuard(rawUrl: string): ValidationOutcome {
     const detail = err instanceof InvalidUrlError ? err.reason : String(err)
     return { ok: false, skip: { reason: 'malformed_url', detail } }
   }
-  const path = isPathSuspect(parsed)
-  if (path.suspect) {
-    return { ok: false, skip: { reason: 'malformed_url_path_suspect', detail: path.reason ?? 'suspect path' } }
+  const suspect = isUrlSuspect(parsed, rawUrl.trim())
+  if (suspect.suspect) {
+    return { ok: false, skip: { reason: 'malformed_url_path_suspect', detail: suspect.reason ?? 'suspect URL' } }
   }
   return { ok: true, url: parsed }
 }
