@@ -6,6 +6,7 @@ import type { Metadata } from 'next'
 import ShareButtons from './ShareButtons'
 import { ProfileViewTracker, MessageButton } from './ProfileAnalytics'
 import { buildPersonJsonLd } from '@/lib/jsonld/person'
+import { extractHost, isSharedDocHost } from '@/lib/ranking/quality-score'
 
 export async function generateMetadata(
   { params }: { params: Promise<{ username: string }> }
@@ -59,17 +60,23 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
     .order('created_at', { ascending: false })
     .limit(5)
 
-  // V2 proof receipts (Tier 1 merge — additive). Renders only when the profile
-  // is linked to an entity AND there is ≥1 public receipt to display, so any
-  // existing profile with no receipts looks byte-identical to before the merge.
-  const { data: receipts } = profile.entity_id ? await supabase
+  // V2 proof receipts (Tier 1 merge — additive). Only surface L1-verified,
+  // non-shared-doc receipts — the same bar a receipt must clear to count toward
+  // ranking breadth, so engine and surface stay aligned (dead L0 + shared-doc
+  // artifacts are not shown as "proof of work"). Hidden entirely when none.
+  const { data: rawReceipts } = profile.entity_id ? await supabase
     .from('proof_receipts')
-    .select('id, slug, title, description, event_type, atlas_confirmed, verification_level, issued_at')
+    .select('id, slug, title, description, event_type, atlas_confirmed, verification_level, issued_at, artifacts')
     .eq('subject_id', profile.entity_id)
     .eq('visibility', 'public')
+    .eq('verification_level', 'L1_artifact_confirmed')
     .order('issued_at', { ascending: false })
     .limit(10)
     : { data: null }
+  const receipts = (rawReceipts ?? []).filter((r: any) => {
+    const host = extractHost(r.artifacts?.[0]?.url)
+    return !host || !isSharedDocHost(host)
+  })
 
 
   const byCategory = (cat: string) => skills?.filter(s => s.category === cat).map(s => s.name) || []
@@ -262,12 +269,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                     <p style={{ fontSize: 14, color: 'var(--text)', fontWeight: 500 }}>{profile.timezone}</p>
                   </div>
                 )}
-                {profile.velocity_score > 0 && (
-                  <div>
-                    <p style={{ fontSize: 10, fontWeight: 600, color: 'var(--text3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.25rem', fontFamily: 'var(--mono)' }}>Velocity Score</p>
-                    <p style={{ fontSize: 14, color: 'var(--accent2)', fontWeight: 700 }}>⚡ {profile.velocity_score}<span style={{ fontSize: 11, color: 'var(--text3)', fontWeight: 400 }}>/100</span></p>
-                  </div>
-                )}
                 {profile.languages && profile.languages.length > 0 && (
                   <div>
                     <p style={{ fontSize: 10, fontWeight: 600, color: 'var(--text3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.25rem', fontFamily: 'var(--mono)' }}>Languages</p>
@@ -320,7 +321,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
             <div className="fade-up card" style={{ padding: '1.75rem', marginBottom: '1.5rem', animationDelay: '0.2s' }}>
               <p className="section-label">AI use cases</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                {claudeSkills.map((s: string) => <span key={s} className="tag-claude">{s}</span>)}
+                {claudeSkills.slice(0, 12).map((s: string) => <span key={s} className="tag-claude">{s}</span>)}
+                {claudeSkills.length > 12 && <span className="tag-skill">+{claudeSkills.length - 12} more</span>}
               </div>
             </div>
           )}
@@ -345,10 +347,12 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                   <p style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.02em' }}>{githubData.commits_90d}</p>
                   <p style={{ fontSize: 11, color: 'var(--text3)', fontFamily: 'var(--mono)', letterSpacing: '0.06em' }}>COMMITS / 90D</p>
                 </div>
-                <div>
-                  <p style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.02em' }}>{githubData.repos_count}</p>
-                  <p style={{ fontSize: 11, color: 'var(--text3)', fontFamily: 'var(--mono)', letterSpacing: '0.06em' }}>PUBLIC REPOS</p>
-                </div>
+                {githubData.repos_count > 0 && (
+                  <div>
+                    <p style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.02em' }}>{githubData.repos_count}</p>
+                    <p style={{ fontSize: 11, color: 'var(--text3)', fontFamily: 'var(--mono)', letterSpacing: '0.06em' }}>PUBLIC REPOS</p>
+                  </div>
+                )}
                 {githubData.top_languages?.length > 0 && (
                   <div>
                     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 2 }}>
@@ -462,7 +466,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                   <div key={label}>
                     <p style={{ fontSize: 11, color: 'var(--text3)', fontWeight: 600, letterSpacing: '0.08em', marginBottom: '0.5rem', fontFamily: 'var(--mono)' }}>{label.toUpperCase()}</p>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                      {items.map((s: string) => <span key={s} className="tag-skill">{s}</span>)}
+                      {items.slice(0, 12).map((s: string) => <span key={s} className="tag-skill">{s}</span>)}
+                      {items.length > 12 && <span className="tag-skill">+{items.length - 12} more</span>}
                     </div>
                   </div>
                 ))}
@@ -502,7 +507,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
           {/* Share */}
           <div className="fade-up card" style={{ padding: '1.75rem', marginBottom: '1.5rem', animationDelay: '0.35s' }}>
             <p className="section-label">Share this profile</p>
-            <ShareButtons name={profile.full_name} url={profileUrl} role={profile.role || profile.primary_profession} verified={profile.verified} velocityScore={profile.velocity_score} />
+            <ShareButtons name={profile.full_name} url={profileUrl} role={profile.role || profile.primary_profession} verified={profile.verified} />
             <ProfileViewTracker username={profile.username} />
           </div>
 

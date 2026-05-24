@@ -15,13 +15,12 @@ const btnStyle = {
   fontFamily: 'inherit',
 } as const
 
-export default function ShareButtons({ name, url, role, verified, velocityScore }: { name: string, url: string, role?: string, verified?: boolean, velocityScore?: number }) {
+export default function ShareButtons({ name, url, role, verified }: { name: string, url: string, role?: string, verified?: boolean }) {
   const [copied, setCopied] = useState(false)
 
   const tweetText = [
     `~/ship → ${name}${verified ? ' ✓' : ''}`,
     role ? role : 'AI-native builder',
-    velocityScore ? `⚡ ${velocityScore}/100 velocity` : '',
     '',
     'Proof-of-work hiring for the vibe coding generation.',
     '',
