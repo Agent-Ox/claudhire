@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase'
+import FeedbackCard from './FeedbackCard'
 
 type HirerProfile = {
   id?: string
@@ -534,6 +535,8 @@ export default function HirerDashboardClient({
             </div>
           </div>
         </div>
+
+        <FeedbackCard email={email} />
 
       </div>
     </div>
