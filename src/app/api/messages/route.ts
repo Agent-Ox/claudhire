@@ -140,7 +140,7 @@ export async function GET(req: Request) {
 
 // POST — send a message (creates conversation if needed)
 export async function POST(req: Request) {
-  const { user } = await getEntityModes()
+  const { user, modes } = await getEntityModes()
   if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
 
   const body = await req.json()
@@ -158,6 +158,14 @@ export async function POST(req: Request) {
   if (!convId) {
     if (!employer_email || !builder_profile_id) {
       return NextResponse.json({ error: 'employer_email and builder_profile_id required for new conversation' }, { status: 400 })
+    }
+
+    // Paywall: only a paid hirer, acting as themselves, may START a conversation.
+    if (!modes.hirer) {
+      return NextResponse.json({ error: 'An active hirer subscription is required to message builders' }, { status: 403 })
+    }
+    if (employer_email !== user.email) {
+      return NextResponse.json({ error: 'employer_email must match the authenticated user' }, { status: 403 })
     }
 
     let conv: any = null
@@ -197,6 +205,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: convError?.message || 'Failed to create conversation' }, { status: 500 })
     }
     convId = conv.id
+  } else {
+    // Reply into an existing conversation — sender must be a participant (the
+    // hirer/client on employer_email, or the builder). Blocks injecting messages
+    // into threads you're not part of. No paywall here so builders (and inquiry
+    // clients) can always reply.
+    const { data: existingConv } = await admin
+      .from('conversations')
+      .select('employer_email, profiles!builder_profile_id(email)')
+      .eq('id', convId)
+      .maybeSingle()
+    if (!existingConv) {
+      return NextResponse.json({ error: 'Conversation not found' }, { status: 404 })
+    }
+    const builderEmail = (existingConv as any).profiles?.email
+    if (user.email !== existingConv.employer_email && user.email !== builderEmail) {
+      return NextResponse.json({ error: 'Not a participant in this conversation' }, { status: 403 })
+    }
   }
 
   const { data: message, error: msgError } = await admin

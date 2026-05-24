@@ -299,8 +299,9 @@ function MessagesInner() {
       <div style={{ minHeight: '100vh', background: '#fbfbfd', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
         <div style={{ textAlign: 'center', maxWidth: 400 }}>
           <p style={{ fontSize: 28, marginBottom: '0.75rem' }}>💬</p>
-          <p style={{ fontSize: 16, fontWeight: 600, color: '#1d1d1f', marginBottom: '0.4rem' }}>No messages yet</p>
-          <p style={{ fontSize: 14, color: '#6e6e73' }}>Create a builder profile or activate hirer mode to start messaging.</p>
+          <p style={{ fontSize: 16, fontWeight: 600, color: '#1d1d1f', marginBottom: '0.4rem' }}>Subscribe to message builders</p>
+          <p style={{ fontSize: 14, color: '#6e6e73', marginBottom: '1.25rem' }}>Get full access to the verified builder directory and message builders directly — $199/month.</p>
+          <a href="/#pricing" style={{ display: 'inline-block', padding: '0.7rem 1.5rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>Get full access — $199/month</a>
         </div>
       </div>
     )
