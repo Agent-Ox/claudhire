@@ -62,3 +62,42 @@ Read the most recent SESSION_<date>.md for the live to-do. Top of the queue at l
 - **Hardcoded Stripe price ID** in `src/app/api/checkout/route.ts:7` — should move to env var. Not blocking. Refactor when bandwidth permits.
 
 - **`current_period_end` clause duplication** — currently in canonical `getEntityModes()` only. The 9 inline `.eq('status', 'active')` checks across the codebase should consolidate into the canonical helper (separate batch).
+
+## Deploy-time + manual verification checklist (do once, after current session ships)
+
+These accumulated through Session N+1 — none are blocking outreach but each is a 1-2 minute check that closes a real gap.
+
+### Vercel environment variable verification
+
+Confirm in Vercel Dashboard → ShipStacked project → Settings → Environment Variables → Production scope:
+- `SUPABASE_SERVICE_ROLE_KEY` — needed by the new `/api/builders/ranked` route (Task 2) and the webhook (Task 3). Should already exist.
+- `STRIPE_SECRET_KEY` — Task 3 webhook needs to retrieve subscription.current_period_end on checkout completion
+- `STRIPE_WEBHOOK_SECRET` — verified matching Stripe Dashboard live endpoint signing secret (OX agent confirmed)
+- `RESEND_API_KEY` — Task 4 feedback widget needs this
+- `INTAKE_NOTIFY_EMAIL` — Task 4 feedback widget routes to this
+
+If any are missing in Vercel but present in `.env.local`, copy them over.
+
+### Live behavior smoke tests (after Vercel deploy completes)
+
+Run these in order, ~5 min total:
+
+1. **Formula E ranking live** — hit `https://shipstacked.com/api/builders/ranked?limit=6` in browser. Expect: `{builders:[...]}` JSON with 6 builders. If 500 → env var missing.
+2. **Homepage + /hirers builder grids** — load each, confirm 6 builder cards render (no infinite loading state, no empty grid).
+3. **/talent anonymous top-6** — load while logged out. Confirm top-6 order: ryangrant144, aniketaslaliya801, janwinum9, sumitdongardive9, sunnyzheng606, joedias995. Confirm "Top ranked" sort label (not "Velocity"), "Ranked by proof of work" header (not "✓ Verified builders").
+4. **/talent as paid hirer** — log in with an existing test subscription email. Scroll to confirm "Not yet ranked" badge appears on sub-threshold cards.
+5. **Hirer feedback widget** — load `/hirer` as a paying hirer, scroll to the feedback card at the bottom. Submit a test message ("test from launch verification, please ignore"). Confirm it lands in `INTAKE_NOTIFY_EMAIL` inbox within ~30 seconds.
+
+If any step fails, that's the priority bug to fix before outreach.
+
+### Stripe webhook lifecycle test (deferred — see SESSION_2026-05-23.md)
+
+Full 5-scenario Stripe CLI test plan deferred to a later session. Code shipped SHA `04373c7`, events subscribed in Stripe Dashboard, signing secret confirmed matching. Run before first real cancellation if possible; definitely before customer count >10.
+
+### Optional cleanup items (do anytime — none blocking)
+
+- 6 ambiguous-item decisions from `AUDIT_alignment_5_bucket.md`: `/client/inbox`, `/api/client-magic-link`, `/get-found/[id]`, `/api/jobs/xpost`, `claim_submissions` retention, `hire_confirmations` retention
+- batch5-test profile cleanup (below-threshold test row sitting in published profiles)
+- British/American spelling unification on `subscriptions.status`
+- Hardcoded Stripe price ID → env var refactor
+- Consolidate 9 inline `status='active'` checks into canonical `getEntityModes()`
