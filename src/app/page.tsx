@@ -4,8 +4,10 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import BuilderMap from './components/BuilderMap'
 import { buildWebsiteJsonLd } from '@/lib/jsonld/website'
+import posthog from 'posthog-js'
 
 async function goToCheckout() {
+  posthog.capture('subscribe_clicked', { source: 'homepage' })
   const res = await fetch('/api/checkout', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

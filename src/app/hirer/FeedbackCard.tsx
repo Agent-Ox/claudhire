@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import posthog from 'posthog-js'
 
 // In-dashboard feedback widget. Auto-sends the logged-in hirer's email (passed
 // as a prop, never shown in the form) so the operator knows who reported what.
@@ -24,6 +25,7 @@ export default function FeedbackCard({ email }: { email: string }) {
       })
       if (!res.ok) throw new Error('Failed')
       setSent(true)
+      posthog.capture('feedback_submitted')
     } catch {
       setError('Something went wrong. Please try again.')
     } finally {

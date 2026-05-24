@@ -101,3 +101,12 @@ Full 5-scenario Stripe CLI test plan deferred to a later session. Code shipped S
 - British/American spelling unification on `subscriptions.status`
 - Hardcoded Stripe price ID → env var refactor
 - Consolidate 9 inline `status='active'` checks into canonical `getEntityModes()`
+
+## Analytics
+
+- **Tool:** PostHog (free tier, cookieless mode, US region)
+- **Dashboard:** https://us.posthog.com (project: ShipStacked)
+- **Project API key:** stored in `NEXT_PUBLIC_POSTHOG_KEY` (`.env.local` + Vercel Production scope)
+- **Events instrumented:** `talent_page_viewed`, `profile_viewed`, `subscribe_clicked`, `message_button_clicked`, `feedback_submitted`, `hirer_dashboard_viewed`
+- **GA4 removed** during Task 5 (replaced by PostHog single-tool model — measurement ID `G-Z6MBHJVV7S` no longer wired)
+- **Session replay:** intentionally disabled (privacy-aligned, no consent banner)

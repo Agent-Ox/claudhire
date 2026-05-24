@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState, useTransition } from 'react'
+import React, { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import posthog from 'posthog-js'
 import { SaveButton } from './SaveButton'
 
 const PROFESSIONS = ['Developer', 'Designer', 'Product Manager', 'Consultant', 'Marketer', 'Operator', 'Founder', 'Other']
@@ -197,7 +198,7 @@ function ProfileCard({ profile, isPaidHirer, hasHirerProfile, isSaved, onToggleS
         </span>
         {isPaidHirer && (
           hasHirerProfile ? (
-            <a href={'/messages?as=hirer&new=' + profile.id} onClick={e => e.stopPropagation()} style={{ fontSize: 12, padding: '0.4rem 0.875rem', background: '#0071e3', color: 'white', borderRadius: 980, textDecoration: 'none', fontWeight: 500, flexShrink: 0 }}>
+            <a href={'/messages?as=hirer&new=' + profile.id} onClick={e => { e.stopPropagation(); posthog.capture('message_button_clicked', { username: profile.username, source: 'talent' }) }} style={{ fontSize: 12, padding: '0.4rem 0.875rem', background: '#0071e3', color: 'white', borderRadius: 980, textDecoration: 'none', fontWeight: 500, flexShrink: 0 }}>
               Message →
             </a>
           ) : (
@@ -227,6 +228,9 @@ export default function TalentClient({
   filters: { profession: string; availability: string; verified: boolean; sort: string }
 }) {
   const router = useRouter()
+  useEffect(() => {
+    posthog.capture('talent_page_viewed', { is_paid_hirer: isPaidHirer })
+  }, [isPaidHirer])
   const [isPending, startTransition] = useTransition()
   const [tab, setTab] = useState<'all' | 'shortlist'>('all')
   const [savedIds, setSavedIds] = useState<string[]>(initialSavedIds)
@@ -444,7 +448,7 @@ export default function TalentClient({
               Get full access to every verified ShipStacked builder. Read their Build Feed, see their proof of work, and message them directly — $199/month flat.
             </p>
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <a href="/#pricing" style={{ padding: '0.875rem 2rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>
+              <a href="/#pricing" onClick={() => posthog.capture('subscribe_clicked', { source: 'talent_teaser' })} style={{ padding: '0.875rem 2rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>
                 Get full access — $199/mo
               </a>
               {!user && (

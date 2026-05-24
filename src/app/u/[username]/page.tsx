@@ -4,6 +4,7 @@ import { getPublishedProfile } from '@/lib/profiles'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import ShareButtons from './ShareButtons'
+import { ProfileViewTracker, MessageButton } from './ProfileAnalytics'
 import { buildPersonJsonLd } from '@/lib/jsonld/person'
 
 export async function generateMetadata(
@@ -502,6 +503,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
           <div className="fade-up card" style={{ padding: '1.75rem', marginBottom: '1.5rem', animationDelay: '0.35s' }}>
             <p className="section-label">Share this profile</p>
             <ShareButtons name={profile.full_name} url={profileUrl} role={profile.role || profile.primary_profession} verified={profile.verified} velocityScore={profile.velocity_score} />
+            <ProfileViewTracker username={profile.username} />
           </div>
 
           {/* Role-aware CTA */}
@@ -515,11 +517,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                 Send them a message directly via email.
               </p>
               
-              <a
-                href={`/messages?as=hirer&new=${profile.id}`}
-                style={{ display: 'inline-block', padding: '0.7rem 1.5rem', background: 'var(--accent)', color: 'white', borderRadius: 20, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
-                Message {profile.full_name.split(' ')[0]}
-              </a>
+              <MessageButton profileId={profile.id} username={profile.username} label={`Message ${profile.full_name.split(' ')[0]}`} />
             </div>
           ) : !resolvedUser ? (
             <div className="fade-up" style={{ background: 'linear-gradient(135deg, rgba(108,99,255,0.15) 0%, rgba(167,139,250,0.08) 100%)', border: '1px solid rgba(108,99,255,0.25)', borderRadius: 16, padding: '2rem', textAlign: 'center', animationDelay: '0.4s' }}>

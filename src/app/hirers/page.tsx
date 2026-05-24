@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import BuilderMap from '../components/BuilderMap'
+import posthog from 'posthog-js'
 
 import { useState, useEffect } from 'react'
 
@@ -38,6 +39,7 @@ export default function HirersPage() {
   const displayPosts = feedPosts
 
   const goToCheckout = async () => {
+    posthog.capture('subscribe_clicked', { source: 'hirers' })
     setLoading(true)
     try {
       const res = await fetch('/api/checkout', {

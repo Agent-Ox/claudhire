@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { createClient } from '@/lib/supabase'
+import posthog from 'posthog-js'
 import FeedbackCard from './FeedbackCard'
 
 type HirerProfile = {
@@ -65,6 +66,10 @@ export default function HirerDashboardClient({
   const isPublic = profile.public || false
   const hasProfile = !!initial?.id
   const [profileSaved, setProfileSaved] = useState(false)
+
+  useEffect(() => {
+    posthog.capture('hirer_dashboard_viewed')
+  }, [])
 
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '0.7rem 1rem', border: '1px solid #d2d2d7', borderRadius: 10,
