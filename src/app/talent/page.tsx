@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import TalentClient from './TalentClient'
 import { buildItemListJsonLd } from '@/lib/jsonld/item-list'
 import { CANONICAL_HOST, personId } from '@/lib/jsonld/context'
+import { getRankedBuilders } from '@/lib/ranking/get-ranked-builders'
 
 export const metadata: Metadata = {
   title: 'AI-Native Builder Directory | ShipStacked',
@@ -21,7 +22,7 @@ export default async function TalentPage({ searchParams }: { searchParams: Promi
   const filterProfession = params.profession || ''
   const filterAvailability = params.availability || ''
   const filterVerified = params.verified === 'true'
-  const filterSort = params.sort || 'velocity'
+  const filterSort = params.sort || 'quality'
 
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -46,42 +47,30 @@ export default async function TalentPage({ searchParams }: { searchParams: Promi
     isPaidHirer = !!sub
   }
 
-  // Build filtered query
-  let query = admin
-    .from('profiles')
-    .select('id, username, full_name, role, location, bio, avatar_url, verified, availability, velocity_score, primary_profession, skills(*)')
-    .eq('published', true)
+  // Quality-ranked builders (Formula E) — replaces the frozen velocity sort.
+  // Ranked first (quality_score DESC), then "not yet ranked" builders below.
+  const { ranked, belowThreshold } = await getRankedBuilders()
+  const allBuilders = [...ranked, ...belowThreshold] as any[]
+  const totalPublished = allBuilders.length
 
-  if (filterVerified) query = query.eq('verified', true)
-  if (filterProfession) query = query.eq('primary_profession', filterProfession)
-  if (filterAvailability) query = query.eq('availability', filterAvailability)
+  // Filters applied in JS (small dataset; keeps one ranking source of truth).
+  // `verified` is a filter + badge only — no longer a sort key (D3).
+  let profiles = allBuilders
+  if (filterVerified) profiles = profiles.filter((p: any) => p.verified)
+  if (filterProfession) profiles = profiles.filter((p: any) => p.primary_profession === filterProfession)
+  if (filterAvailability) profiles = profiles.filter((p: any) => p.availability === filterAvailability)
 
-  // Sort: always verified first, then by chosen sort
-  query = query.order('verified', { ascending: false })
+  // Default sort is the quality order from getRankedBuilders; "newest" overrides.
   if (filterSort === 'newest') {
-    query = query.order('created_at', { ascending: false })
-  } else {
-    // default: velocity
-    query = query.order('velocity_score', { ascending: false }).order('created_at', { ascending: false })
+    profiles = [...profiles].sort((a: any, b: any) => Date.parse(b.created_at) - Date.parse(a.created_at))
   }
-
-  const { data: allProfiles } = await query
-
-  const profiles = allProfiles || []
   const verifiedCount = profiles.filter((p: any) => p.verified).length
   const displayProfiles = isPaidHirer ? profiles : profiles.slice(0, 6)
   const isTeaser = !isPaidHirer
 
   // Total unfiltered count for the header (only when filters are active)
-  let totalUnfilteredCount = profiles.length
   const hasFilters = !!(filterProfession || filterAvailability || filterVerified)
-  if (hasFilters) {
-    const { count } = await admin
-      .from('profiles')
-      .select('id', { count: 'exact', head: true })
-      .eq('published', true)
-    totalUnfilteredCount = count || profiles.length
-  }
+  const totalUnfilteredCount = hasFilters ? totalPublished : profiles.length
 
   // Fetch hirer profile to check if they have set up their company
   let hasHirerProfile = false

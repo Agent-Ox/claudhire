@@ -107,7 +107,7 @@ function FilterDrawer({
         <div style={{ marginBottom: '1.5rem' }}>
           <p style={{ fontSize: 12, fontWeight: 600, color: '#6e6e73', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Sort by</p>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <SheetChip label="Velocity" active={!draft.sort || draft.sort === 'velocity'} onClick={() => setDraft(d => ({ ...d, sort: 'velocity' }))} />
+            <SheetChip label="Top ranked" active={!draft.sort || draft.sort === 'quality'} onClick={() => setDraft(d => ({ ...d, sort: 'quality' }))} />
             <SheetChip label="Newest" active={draft.sort === 'newest'} onClick={() => setDraft(d => ({ ...d, sort: 'newest' }))} />
           </div>
         </div>
@@ -125,7 +125,7 @@ function FilterDrawer({
         <div style={{ display: 'flex', gap: '0.75rem' }}>
           {activeCount > 0 && (
             <button
-              onClick={() => { const reset = { profession: '', availability: '', verified: false, sort: 'velocity' }; setDraft(reset); onApply(reset) }}
+              onClick={() => { const reset = { profession: '', availability: '', verified: false, sort: 'quality' }; setDraft(reset); onApply(reset) }}
               style={{ flex: 1, padding: '0.875rem', borderRadius: 12, border: '1.5px solid #d2d2d7', background: 'white', fontSize: 15, fontWeight: 500, color: '#3d3d3f', cursor: 'pointer', fontFamily: 'inherit' }}
             >
               Clear all
@@ -169,10 +169,14 @@ function ProfileCard({ profile, isPaidHirer, hasHirerProfile, isSaved, onToggleS
             {profile.role}{profile.location ? ` · ${profile.location}` : ''}
           </div>
         </div>
-        {(profile.velocity_score || 0) > 0 && (
+        {profile.ranked && typeof profile.quality_score === 'number' ? (
           <div style={{ flexShrink: 0, textAlign: 'center' }}>
-            <div style={{ fontSize: 16, fontWeight: 800, color: vColor(profile.velocity_score), lineHeight: 1 }}>{profile.velocity_score}</div>
-            <div style={{ fontSize: 9, color: '#aeaeb2', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>velocity</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: vColor(profile.quality_score), lineHeight: 1 }}>{profile.quality_score}</div>
+            <div style={{ fontSize: 9, color: '#aeaeb2', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>quality</div>
+          </div>
+        ) : (
+          <div style={{ flexShrink: 0, textAlign: 'center', maxWidth: 60 }}>
+            <div style={{ fontSize: 9.5, color: '#aeaeb2', fontWeight: 600, lineHeight: 1.25, letterSpacing: '0.02em' }}>Not yet<br />ranked</div>
           </div>
         )}
       </div>
@@ -238,7 +242,7 @@ export default function TalentClient({
     if (merged.profession) p.set('profession', merged.profession)
     if (merged.availability) p.set('availability', merged.availability)
     if (merged.verified) p.set('verified', 'true')
-    if (merged.sort && merged.sort !== 'velocity') p.set('sort', merged.sort)
+    if (merged.sort && merged.sort !== 'quality') p.set('sort', merged.sort)
     const qs = p.toString()
     startTransition(() => { router.push('/talent' + (qs ? '?' + qs : '')) })
   }
@@ -253,7 +257,7 @@ export default function TalentClient({
     if (f.profession) p.set('profession', f.profession)
     if (f.availability) p.set('availability', f.availability)
     if (f.verified) p.set('verified', 'true')
-    if (f.sort && f.sort !== 'velocity') p.set('sort', f.sort)
+    if (f.sort && f.sort !== 'quality') p.set('sort', f.sort)
     const qs = p.toString()
     startTransition(() => { router.push('/talent' + (qs ? '?' + qs : '')) })
   }
@@ -336,7 +340,7 @@ export default function TalentClient({
           <div style={{ width: 1, height: 20, background: '#e0e0e5', flexShrink: 0, margin: '0 0.2rem' }} />
           <FilterChip label="✓ Verified only" active={filters.verified} onClick={() => pushFilters({ verified: !filters.verified })} />
           <div style={{ width: 1, height: 20, background: '#e0e0e5', flexShrink: 0, margin: '0 0.2rem' }} />
-          <FilterChip label="↑ Velocity" active={filters.sort === 'velocity' || !filters.sort} onClick={() => pushFilters({ sort: 'velocity' })} />
+          <FilterChip label="↑ Top ranked" active={filters.sort === 'quality' || !filters.sort} onClick={() => pushFilters({ sort: 'quality' })} />
           <FilterChip label="Newest" active={filters.sort === 'newest'} onClick={() => pushFilters({ sort: 'newest' })} />
         </div>
         {hasActiveFilters && (
@@ -368,10 +372,10 @@ export default function TalentClient({
           )}
         </button>
         <button
-          onClick={() => pushFilters({ sort: filters.sort === 'newest' ? 'velocity' : 'newest' })}
+          onClick={() => pushFilters({ sort: filters.sort === 'newest' ? 'quality' : 'newest' })}
           style={{ padding: '0.55rem 1rem', borderRadius: 980, border: '1.5px solid #d2d2d7', cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 500, background: 'white', color: '#3d3d3f' }}
         >
-          {filters.sort === 'newest' ? '↑ Newest' : '↑ Velocity'}
+          {filters.sort === 'newest' ? '↑ Newest' : '↑ Top ranked'}
         </button>
         {hasActiveFilters && (
           <button onClick={clearAll} style={{ fontSize: 13, color: '#0071e3', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: '0.55rem 0', fontWeight: 500 }}>
@@ -414,28 +418,16 @@ export default function TalentClient({
 
       {(tab === 'all' || shortlisted.length > 0) && displayProfiles.length > 0 && (
         <>
-          {tab === 'all' && verifiedCount > 0 && (
+          {tab === 'all' && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-              <span style={{ fontSize: 12, fontWeight: 600, color: '#0071e3', letterSpacing: '0.05em', textTransform: 'uppercase' }}>✓ Verified builders</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#0071e3', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Ranked by proof of work</span>
               <div style={{ flex: 1, height: '0.5px', background: '#e0e0e5' }} />
             </div>
           )}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px, 100%), 1fr))', gap: '1rem' }}>
-            {displayProfiles.map((profile: any, index: number) => {
-              const prev = displayProfiles[index - 1]
-              const showDivider = tab === 'all' && index > 0 && !profile.verified && prev?.verified
-              return (
-                <React.Fragment key={profile.id}>
-                  {showDivider && (
-                    <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: '0.75rem', margin: '0.5rem 0' }}>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: '#aeaeb2', letterSpacing: '0.05em', textTransform: 'uppercase' }}>All builders</span>
-                      <div style={{ flex: 1, height: '0.5px', background: '#e0e0e5' }} />
-                    </div>
-                  )}
-                  <ProfileCard profile={profile} isPaidHirer={isPaidHirer} hasHirerProfile={hasHirerProfile} isSaved={savedIds.includes(profile.id)} onToggleSave={handleToggleSave} />
-                </React.Fragment>
-              )
-            })}
+            {displayProfiles.map((profile: any) => (
+              <ProfileCard key={profile.id} profile={profile} isPaidHirer={isPaidHirer} hasHirerProfile={hasHirerProfile} isSaved={savedIds.includes(profile.id)} onToggleSave={handleToggleSave} />
+            ))}
           </div>
         </>
       )}
@@ -449,7 +441,7 @@ export default function TalentClient({
               {totalCount > 6 ? `+${totalCount - 6} more builders` : 'Full directory access'}
             </h2>
             <p style={{ fontSize: 15, color: '#6e6e73', maxWidth: 400, margin: '0 auto 1.75rem', lineHeight: 1.6 }}>
-              Get full access to every verified ShipStacked builder. Read their Build Feed, see their Velocity Score, and message them directly — $199/month flat.
+              Get full access to every verified ShipStacked builder. Read their Build Feed, see their proof of work, and message them directly — $199/month flat.
             </p>
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               <a href="/#pricing" style={{ padding: '0.875rem 2rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>

@@ -27,34 +27,11 @@ export default function HirersPage() {
       })
       .catch(() => {})
 
-    // Profiles — featured first via direct Supabase, fill with high velocity
-    import('@/lib/supabase').then(({ createClient }) => {
-      const supabase = createClient()
-      supabase.from('profiles').select('*, skills(*)')
-        .eq('published', true)
-        .eq('featured', true)
-        .order('featured_order', { ascending: true, nullsFirst: false })
-        .limit(6)
-        .then(async ({ data: featured }: any) => {
-          const featuredCount = featured?.length ?? 0
-          if (featuredCount >= 6) {
-            setRealProfiles(featured ?? [])
-            return
-          }
-          const featuredIds = (featured ?? []).map((p: any) => p.id)
-          const remaining = 6 - featuredCount
-          const { data: fill } = await supabase.from('profiles').select('*, skills(*)')
-            .eq('published', true)
-            .order('velocity_score', { ascending: false, nullsFirst: false })
-            .order('created_at', { ascending: false })
-            .limit(remaining + featuredIds.length)
-          const fillFiltered = (fill ?? [])
-            .filter((p: any) => !featuredIds.includes(p.id))
-            .slice(0, remaining)
-          const combined = [...(featured ?? []), ...fillFiltered]
-          if (combined.length >= 6) setRealProfiles(combined)
-        })
-    })
+    // Builders — quality-ranked (Formula E), server-computed.
+    fetch('/api/builders/ranked?limit=6')
+      .then(r => r.json())
+      .then(({ builders }) => { if (builders?.length) setRealProfiles(builders) })
+      .catch(() => {})
   }, [])
 
   const displayProfiles = realProfiles

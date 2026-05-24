@@ -657,6 +657,65 @@ median-confidence, event-diversity, and threshold-gating terms.
 - `count(DISTINCT event_type)` — event-type diversity
 - A `CASE` threshold gate returning NULL/"unranked" below the floor
 
+### F.7 — Formula E specification (the proof-of-work-compliant formula)
+
+> **Added 2026-05-23 (Batch 7b resume).** Implements all six required signals
+> from the locked "Proof-of-work scoring discipline." Weights below are
+> **TOURNAMENT CANDIDATES, not locked** — the tournament run (§F.5-equivalent,
+> Step 2) decides final weights against real production data. The doc specifies
+> the *shape* and *signals*; the data picks the *coefficients*.
+
+**The six signals → SQL building blocks:**
+
+| # | Principle | SQL term | Range |
+|---|---|---|---|
+| 1 | Breadth not volume | `log(2, 1 + count(DISTINCT host))` where `host = split_part(regexp_replace(lower(artifacts->0->>'url'),'^https?://(www\.)?',''),'/',1)` | log curve; 1 host→1.0, 2→1.58, 4→2.32, 8→3.17 |
+| 2 | Consistency not peaks | `percentile_cont(0.5) WITHIN GROUP (ORDER BY atlas_confidence)` (median) | 0.0–1.0 |
+| 3 | Reachability | `count(*) FILTER (WHERE verification_level='L1_artifact_confirmed')::numeric / NULLIF(count(*),0)` | 0.0–1.0 |
+| 4 | Event-type diversity | `log(2, 1 + count(DISTINCT event_type))` | log curve; 1 type→1.0, 2→1.58, 4→2.32 |
+| 5 | Recency decay | `GREATEST(0, 1 - days_since_max_issued / 180)` (linear, same as Formula A) | 0.0–1.0 |
+| 6 | Threshold gate | `CASE WHEN receipts < THRESH_R AND distinct_hosts < THRESH_H THEN below-threshold` | gate, not score term |
+
+**The formula (with tournament-candidate weights):**
+
+```
+score_E =
+  CASE
+    WHEN receipts < 3 AND distinct_hosts < 2   -- principle 6: threshold gate
+      THEN 0   -- (operator may prefer NULL / 'below-threshold' label instead of 0)
+    ELSE LEAST(100, ROUND(
+        w1 * log(2, 1 + distinct_hosts)        -- (1) breadth, log-scaled
+      + w2 * (median_conf * 100)               -- (2) consistency, median not avg
+      + w3 * (l1_ratio * 100)                  -- (3) reachability ratio
+      + w4 * log(2, 1 + event_diversity)       -- (4) event-type diversity, log-scaled
+      + w5 * recency                           -- (5) recency decay, 0–1
+    ))
+  END
+
+-- Tournament-candidate weights (NOT LOCKED — Step 2 tournament tunes these):
+--   w1 = 14    breadth        (log hosts; up to ~44 at 8 hosts before cap)
+--   w2 = 0.30  median conf    (median×100 → up to 30)
+--   w3 = 0.18  reachability   (l1_ratio×100 → up to 18)
+--   w4 = 8     event diversity (log; up to ~19 at 4 types)
+--   w5 = 12    recency        (0–1 → up to 12)
+-- Rough cap: strong realistic builder lands high-80s/90s; only multi-host,
+-- high-median, fully-reachable, diverse, recent builders approach 100.
+```
+
+**Open weight options for the tournament (operator-pickable):**
+- **Quality-dominant:** raise w2 (median conf) + w3 (reachability) so a small
+  but high-confidence/reachable builder beats a broad-but-shallow one.
+- **Breadth-dominant:** raise w1 (distinct hosts) so range across independent
+  artifacts dominates — anti-single-portfolio-host gaming.
+- **Balanced (above):** the candidate weights as written.
+- **Threshold tuning:** the gate `(< 3 receipts AND < 2 hosts)` is operator-
+  pickable. Tighter (`< 5 AND < 3`) ranks fewer; looser (`< 2 AND < 1`) ranks
+  almost everyone. The tournament shows where the cut lands in the real data.
+
+**What the tournament decides (not this doc):** final w1–w5, the threshold
+cut, and whether below-threshold builders score `0` or get an explicit
+`'below-threshold'` label (D2/D5 lock).
+
 ---
 
 ## G. Invariant proposals
