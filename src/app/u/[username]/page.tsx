@@ -424,11 +424,12 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
             </div>
           )}
 
-          {/* Proof receipts (V2 — additive; hidden when empty so existing
-              profiles with no receipts render identical to pre-merge) */}
+          {/* Proof of work — canonical section: L1-filtered receipts. The Build
+              Feed block below renders ONLY as a fallback when this is empty, so
+              the same build never appears twice (posts enrich into receipts). */}
           {receipts && receipts.length > 0 && (
             <div className="fade-up" style={{ marginBottom: '1.5rem', animationDelay: '0.28s' }}>
-              <p className="section-label">Proof receipts <span style={{ color: 'var(--text3)', fontWeight: 400 }}>({receipts.length})</span></p>
+              <p className="section-label">Proof of work <span style={{ color: 'var(--text3)', fontWeight: 400 }}>({receipts.length})</span></p>
               {receipts.map((r: any) => (
                 <a key={r.id} href={`/p/${r.slug}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
                   <div className="card" style={{ padding: '1.25rem 1.5rem', marginBottom: '0.75rem' }}>
@@ -476,7 +477,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
           )}
 
           {/* Build Feed */}
-          {feedPosts && feedPosts.length > 0 && (
+          {/* Fallback: shown only when the builder has no receipts yet
+              (unenriched / unlinked) — else the receipts above are canonical. */}
+          {receipts.length === 0 && feedPosts && feedPosts.length > 0 && (
             <div className="fade-up" style={{ marginBottom: '1.5rem', animationDelay: '0.33s' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
                 <p className="section-label" style={{ margin: 0 }}>Build Feed <span style={{ color: 'var(--text3)', fontWeight: 400 }}>({feedPosts.length})</span></p>
