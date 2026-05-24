@@ -34,7 +34,7 @@ export default function BuyerOnlyEmptyState({ email }: { email: string }) {
             <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6e6e73', marginBottom: '0.5rem' }}>Buyer Mode</p>
             <h3 style={{ fontSize: 17, fontWeight: 700, color: '#1d1d1f', marginBottom: '0.3rem' }}>Activate when ready</h3>
             <p style={{ fontSize: 13, color: '#6e6e73', lineHeight: 1.5, marginBottom: '1rem' }}>$199/mo. Cancel anytime. Activates on first message-builder or post-job action.</p>
-            <a href="/#pricing" style={{ fontSize: 13, padding: '0.5rem 1rem', background: '#f5f5f7', color: '#1d1d1f', borderRadius: 980, textDecoration: 'none', fontWeight: 500, display: 'inline-block' }}>See pricing</a>
+            <a href="/hirers#pricing" style={{ fontSize: 13, padding: '0.5rem 1rem', background: '#f5f5f7', color: '#1d1d1f', borderRadius: 980, textDecoration: 'none', fontWeight: 500, display: 'inline-block' }}>See pricing</a>
           </div>
           <div style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.5rem' }}>
             <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6e6e73', marginBottom: '0.5rem' }}>Build Feed</p>

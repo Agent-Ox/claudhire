@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     metadata: { product },
     subscription_data: { metadata: { product } },
     success_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://shipstacked.com'}/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://shipstacked.com'}/#pricing`,
+    cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://shipstacked.com'}/hirers#pricing`,
   })
 
   return NextResponse.json({ url: session.url })

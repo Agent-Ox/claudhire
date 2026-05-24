@@ -32,7 +32,7 @@ export default function FooterBar() {
   const isHome = pathname === '/'
   const howHref = isHome ? '#how' : '/#how'
   const communityHref = isHome ? '#builders' : '/#builders'
-  const hireHref = isHome ? '#pricing' : '/#pricing'
+  const hireHref = '/for-hirers'
 
   return (
     <footer style={{

@@ -101,6 +101,7 @@ Full 5-scenario Stripe CLI test plan deferred to a later session. Code shipped S
 - British/American spelling unification on `subscriptions.status`
 - Hardcoded Stripe price ID → env var refactor
 - Consolidate 9 inline `status='active'` checks into canonical `getEntityModes()`
+- **`/hirer` vs `/hirers` route collision** — singular = paid dashboard, plural = marketing landing. Typo-prone for users; both routes exist and serve different purposes. Defer naming consolidation; for now both stay as-is. Future: consider renaming dashboard to `/dashboard/hirer` or similar.
 
 ## Analytics
 

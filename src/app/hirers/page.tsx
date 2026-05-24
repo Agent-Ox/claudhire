@@ -192,7 +192,7 @@ export default function HirersPage() {
             <strong>Traditional hiring platforms can't see them.</strong> The filters were built for a different era. CVs don't capture what someone shipped at midnight. GitHub doesn't show what was built with AI. Recruiters don't know what questions to ask.
           </p>
           <p>
-            ShipStacked was built for this gap. Every profile is proof of work. Every Build Feed post is a verified outcome. <strong>You're not reading a CV — you're watching someone build in real time.</strong>
+            ShipStacked was built for this gap. Every profile is backed by verified proof of work. <strong>You're not reading a CV — you're watching someone build in real time.</strong>
           </p>
         </div>
       </section>
@@ -206,7 +206,7 @@ export default function HirersPage() {
             <div className="step">
               <p className="step-num">01 — Browse</p>
               <h3>Explore verified talent</h3>
-              <p>Filter by skills, tools, availability, and Velocity Score. Every profile shows real work, real outcomes, and real GitHub activity — not claims.</p>
+              <p>Filter by Atlas role, what they've shipped, skills, and availability — ranked by machine-verified proof of work. Every profile shows real work, real outcomes, and real GitHub activity — not claims.</p>
             </div>
             <div className="step">
               <p className="step-num">02 — Post</p>
@@ -337,7 +337,7 @@ export default function HirersPage() {
               'Unlimited job postings',
               'Company profile page',
               'Application inbox',
-              'Velocity Score rankings and filters',
+              'Proof-of-work ranking + filters',
               'Build Feed — watch builders ship in real time',
             ].map(item => (
               <div key={item} className="pricing-feature">

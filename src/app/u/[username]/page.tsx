@@ -299,7 +299,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                   </div>
                   <div className="locked-cta">
                     <p style={{ fontSize: 13, color: 'var(--text2)', textAlign: 'center' }}>🔒 Contact details visible to Full Access subscribers</p>
-                    <a href="/#pricing" style={{ padding: '0.5rem 1.25rem', background: 'var(--accent)', color: 'white', borderRadius: 20, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
+                    <a href="/hirers#pricing" style={{ padding: '0.5rem 1.25rem', background: 'var(--accent)', color: 'white', borderRadius: 20, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
                       Get full access
                     </a>
                   </div>
@@ -532,7 +532,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
               <p style={{ fontSize: 13, color: 'var(--accent2)', fontWeight: 600, letterSpacing: '0.05em', marginBottom: '0.5rem', fontFamily: 'var(--mono)' }}>FOR HIRERS</p>
               <p style={{ fontSize: 17, fontWeight: 600, color: 'var(--text)', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>Looking to hire AI-native talent?</p>
               <p style={{ fontSize: 14, color: 'var(--text2)', marginBottom: '1.25rem', fontWeight: 300 }}>Access our full verified builder directory and contact candidates directly.</p>
-              <a href="/#pricing" style={{ display: 'inline-block', padding: '0.7rem 1.5rem', background: 'var(--accent)', color: 'white', borderRadius: 20, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
+              <a href="/hirers#pricing" style={{ display: 'inline-block', padding: '0.7rem 1.5rem', background: 'var(--accent)', color: 'white', borderRadius: 20, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
                 Get full access
               </a>
             </div>
@@ -541,7 +541,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
               <p style={{ fontSize: 13, color: 'var(--accent2)', fontWeight: 600, letterSpacing: '0.05em', marginBottom: '0.5rem', fontFamily: 'var(--mono)' }}>FOR HIRERS</p>
               <p style={{ fontSize: 17, fontWeight: 600, color: 'var(--text)', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>Subscribe to message {profile.full_name.split(' ')[0]}</p>
               <p style={{ fontSize: 14, color: 'var(--text2)', marginBottom: '1.25rem', fontWeight: 300 }}>Full access to the verified builder directory + direct messaging — $199/month.</p>
-              <a href="/#pricing" style={{ display: 'inline-block', padding: '0.7rem 1.5rem', background: 'var(--accent)', color: 'white', borderRadius: 20, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
+              <a href="/hirers#pricing" style={{ display: 'inline-block', padding: '0.7rem 1.5rem', background: 'var(--accent)', color: 'white', borderRadius: 20, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
                 Get full access
               </a>
             </div>

@@ -25,7 +25,7 @@ export default async function PostJobPage({
     .maybeSingle()
 
   if (!sub) {
-    redirect('/#pricing')
+    redirect('/hirers#pricing')
   }
 
   // Edit mode — read ?edit=jobId, fetch that job, pass as initialData

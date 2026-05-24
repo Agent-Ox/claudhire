@@ -513,7 +513,7 @@ export default function TalentClient({
               Get full access to every verified ShipStacked builder. Read their Build Feed, see their proof of work, and message them directly — $199/month flat.
             </p>
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <a href="/#pricing" onClick={() => posthog.capture('subscribe_clicked', { source: 'talent_teaser' })} style={{ padding: '0.875rem 2rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>
+              <a href="/hirers#pricing" onClick={() => posthog.capture('subscribe_clicked', { source: 'talent_teaser' })} style={{ padding: '0.875rem 2rem', background: '#0071e3', color: 'white', borderRadius: 980, fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>
                 Get full access — $199/mo
               </a>
               {!user && (

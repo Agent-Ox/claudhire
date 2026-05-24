@@ -41,7 +41,7 @@ export default function NavBar() {
         { label: 'How it works', href: '#how' },
         { label: 'Build Feed', href: '/feed' },
         { label: 'Jobs', href: '/jobs' },
-        { label: 'Hire talent', href: '#hire' },
+        { label: 'Hire talent', href: '/for-hirers' },
       ]
     }
 
@@ -242,7 +242,7 @@ export default function NavBar() {
                 style={{ fontSize: 15, color: textColor, textDecoration: 'none', padding: '0.7rem 0', borderBottom: `0.5px solid ${mobileBorder}` }}>
                 Showcase your work
               </a>
-              <a href="/#pricing" onClick={() => setMenuOpen(false)}
+              <a href="/for-hirers" onClick={() => setMenuOpen(false)}
                 style={{ fontSize: 15, color: textColor, textDecoration: 'none', padding: '0.7rem 0', borderBottom: `0.5px solid ${mobileBorder}` }}>
                 Hire talent
               </a>
