@@ -3,10 +3,14 @@
 import React, { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import posthog from 'posthog-js'
+import { CLUSTER_LABELS, SHIPPED_LABEL, bucketsForEvents } from '@/lib/ranking/facets'
 import { SaveButton } from './SaveButton'
 
 const PROFESSIONS = ['Developer', 'Designer', 'Product Manager', 'Consultant', 'Marketer', 'Operator', 'Founder', 'Other']
 const AVAILABILITIES = ['freelance', 'full-time', 'contract', 'part-time', 'open']
+
+type FacetOpt = { value: string; label: string; count: number }
+type TalentFilters = { profession: string; availability: string; verified: boolean; sort: string; cluster: string; shipped: string }
 
 function vColor(score: number) {
   return score >= 75 ? '#1a7f37' : score >= 50 ? '#0071e3' : score >= 25 ? '#bf7e00' : '#6e6e73'
@@ -31,20 +35,22 @@ function FilterChip({ label, active, onClick }: { label: string; active: boolean
 }
 
 function FilterDrawer({
-  open, onClose, filters, onApply,
+  open, onClose, filters, onApply, clusterFacets, shippedFacets,
 }: {
   open: boolean
   onClose: () => void
-  filters: { profession: string; availability: string; verified: boolean; sort: string }
-  onApply: (f: { profession: string; availability: string; verified: boolean; sort: string }) => void
+  filters: TalentFilters
+  onApply: (f: TalentFilters) => void
+  clusterFacets: FacetOpt[]
+  shippedFacets: FacetOpt[]
 }) {
   const [draft, setDraft] = useState(filters)
 
   React.useEffect(() => {
     setDraft(filters)
-  }, [filters.profession, filters.availability, filters.verified, filters.sort])
+  }, [filters.profession, filters.availability, filters.verified, filters.sort, filters.cluster, filters.shipped])
 
-  const activeCount = [draft.profession, draft.availability, draft.verified].filter(Boolean).length
+  const activeCount = [draft.profession, draft.availability, draft.verified, draft.cluster, draft.shipped].filter(Boolean).length
 
   function SheetChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
     return (
@@ -105,6 +111,30 @@ function FilterDrawer({
           </div>
         </div>
 
+        {clusterFacets.length > 0 && (
+          <div style={{ marginBottom: '1.5rem' }}>
+            <p style={{ fontSize: 12, fontWeight: 600, color: '#6e6e73', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Atlas role</p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <SheetChip label="Any" active={!draft.cluster} onClick={() => setDraft(d => ({ ...d, cluster: '' }))} />
+              {clusterFacets.map(f => (
+                <SheetChip key={f.value} label={`${f.label} (${f.count})`} active={draft.cluster === f.value} onClick={() => setDraft(d => ({ ...d, cluster: d.cluster === f.value ? '' : f.value }))} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {shippedFacets.length > 0 && (
+          <div style={{ marginBottom: '1.5rem' }}>
+            <p style={{ fontSize: 12, fontWeight: 600, color: '#6e6e73', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Shipped</p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <SheetChip label="Any" active={!draft.shipped} onClick={() => setDraft(d => ({ ...d, shipped: '' }))} />
+              {shippedFacets.map(f => (
+                <SheetChip key={f.value} label={`${f.label} (${f.count})`} active={draft.shipped === f.value} onClick={() => setDraft(d => ({ ...d, shipped: d.shipped === f.value ? '' : f.value }))} />
+              ))}
+            </div>
+          </div>
+        )}
+
         <div style={{ marginBottom: '1.5rem' }}>
           <p style={{ fontSize: 12, fontWeight: 600, color: '#6e6e73', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Sort by</p>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -126,7 +156,7 @@ function FilterDrawer({
         <div style={{ display: 'flex', gap: '0.75rem' }}>
           {activeCount > 0 && (
             <button
-              onClick={() => { const reset = { profession: '', availability: '', verified: false, sort: 'quality' }; setDraft(reset); onApply(reset) }}
+              onClick={() => { const reset = { profession: '', availability: '', verified: false, sort: 'quality', cluster: '', shipped: '' }; setDraft(reset); onApply(reset) }}
               style={{ flex: 1, padding: '0.875rem', borderRadius: 12, border: '1.5px solid #d2d2d7', background: 'white', fontSize: 15, fontWeight: 500, color: '#3d3d3f', cursor: 'pointer', fontFamily: 'inherit' }}
             >
               Clear all
@@ -192,6 +222,16 @@ function ProfileCard({ profile, isPaidHirer, hasHirerProfile, isSaved, onToggleS
           {otherSkills.map((s: any) => <span key={s.id} style={{ fontSize: 11, padding: '0.2rem 0.55rem', background: '#f0f0f5', borderRadius: 980, color: '#3d3d3f', fontWeight: 500 }}>{s.name}</span>)}
         </div>
       )}
+      {((profile.atlasClusters?.length || 0) > 0 || (profile.eventTypes?.length || 0) > 0) && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, width: '100%' }}>
+          {(profile.atlasClusters || []).slice(0, 2).map((c: string) => (
+            <span key={'c-' + c} style={{ fontSize: 10, padding: '0.15rem 0.5rem', background: '#f0ecff', borderRadius: 980, color: '#6c4cff', fontWeight: 600 }}>{CLUSTER_LABELS[c] || c}</span>
+          ))}
+          {bucketsForEvents(profile.eventTypes || []).slice(0, 2).map((b: string) => (
+            <span key={'s-' + b} style={{ fontSize: 10, padding: '0.15rem 0.5rem', background: '#e8f5ec', borderRadius: 980, color: '#1a7f37', fontWeight: 600 }}>{SHIPPED_LABEL[b] || b}</span>
+          ))}
+        </div>
+      )}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '0.25rem', width: '100%' }}>
         <span style={{ fontSize: 11, color: '#6e6e73', textTransform: 'capitalize', background: '#f5f5f7', padding: '0.2rem 0.6rem', borderRadius: 980, fontWeight: 500 }}>
           {profile.availability || 'open'}
@@ -215,6 +255,7 @@ function ProfileCard({ profile, isPaidHirer, hasHirerProfile, isSaved, onToggleS
 export default function TalentClient({
   profiles, savedIds: initialSavedIds, isPaidHirer, isTeaser,
   verifiedCount, totalCount, totalUnfilteredCount, user, hasHirerProfile = false, filters,
+  clusterFacets, shippedFacets,
 }: {
   profiles: any[]
   savedIds: string[]
@@ -225,7 +266,9 @@ export default function TalentClient({
   totalUnfilteredCount: number
   user: any
   hasHirerProfile?: boolean
-  filters: { profession: string; availability: string; verified: boolean; sort: string }
+  filters: TalentFilters
+  clusterFacets: FacetOpt[]
+  shippedFacets: FacetOpt[]
 }) {
   const router = useRouter()
   useEffect(() => {
@@ -240,12 +283,14 @@ export default function TalentClient({
     setSavedIds(prev => saved ? [...prev, profileId] : prev.filter(id => id !== profileId))
   }
 
-  function pushFilters(next: { profession?: string; availability?: string; verified?: boolean; sort?: string }) {
+  function pushFilters(next: Partial<TalentFilters>) {
     const merged = { ...filters, ...next }
     const p = new URLSearchParams()
     if (merged.profession) p.set('profession', merged.profession)
     if (merged.availability) p.set('availability', merged.availability)
     if (merged.verified) p.set('verified', 'true')
+    if (merged.cluster) p.set('cluster', merged.cluster)
+    if (merged.shipped) p.set('shipped', merged.shipped)
     if (merged.sort && merged.sort !== 'quality') p.set('sort', merged.sort)
     const qs = p.toString()
     startTransition(() => { router.push('/talent' + (qs ? '?' + qs : '')) })
@@ -255,19 +300,21 @@ export default function TalentClient({
     startTransition(() => { router.push('/talent') })
   }
 
-  function handleDrawerApply(f: { profession: string; availability: string; verified: boolean; sort: string }) {
+  function handleDrawerApply(f: TalentFilters) {
     setDrawerOpen(false)
     const p = new URLSearchParams()
     if (f.profession) p.set('profession', f.profession)
     if (f.availability) p.set('availability', f.availability)
     if (f.verified) p.set('verified', 'true')
+    if (f.cluster) p.set('cluster', f.cluster)
+    if (f.shipped) p.set('shipped', f.shipped)
     if (f.sort && f.sort !== 'quality') p.set('sort', f.sort)
     const qs = p.toString()
     startTransition(() => { router.push('/talent' + (qs ? '?' + qs : '')) })
   }
 
-  const hasActiveFilters = !!(filters.profession || filters.availability || filters.verified)
-  const activeFilterCount = [filters.profession, filters.availability, filters.verified].filter(Boolean).length
+  const hasActiveFilters = !!(filters.profession || filters.availability || filters.verified || filters.cluster || filters.shipped)
+  const activeFilterCount = [filters.profession, filters.availability, filters.verified, filters.cluster, filters.shipped].filter(Boolean).length
   const shortlisted = profiles.filter(p => savedIds.includes(p.id))
   const displayProfiles = tab === 'shortlist' ? shortlisted : profiles
 
@@ -347,6 +394,24 @@ export default function TalentClient({
           <FilterChip label="↑ Top ranked" active={filters.sort === 'quality' || !filters.sort} onClick={() => pushFilters({ sort: 'quality' })} />
           <FilterChip label="Newest" active={filters.sort === 'newest'} onClick={() => pushFilters({ sort: 'newest' })} />
         </div>
+        {clusterFacets.length > 0 && (
+          <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.6rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <span style={{ fontSize: 11, color: '#aeaeb2', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginRight: '0.2rem' }}>Role</span>
+            <FilterChip label="Any" active={!filters.cluster} onClick={() => pushFilters({ cluster: '' })} />
+            {clusterFacets.map(f => (
+              <FilterChip key={f.value} label={`${f.label} (${f.count})`} active={filters.cluster === f.value} onClick={() => pushFilters({ cluster: filters.cluster === f.value ? '' : f.value })} />
+            ))}
+          </div>
+        )}
+        {shippedFacets.length > 0 && (
+          <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.6rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <span style={{ fontSize: 11, color: '#aeaeb2', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginRight: '0.2rem' }}>Shipped</span>
+            <FilterChip label="Any" active={!filters.shipped} onClick={() => pushFilters({ shipped: '' })} />
+            {shippedFacets.map(f => (
+              <FilterChip key={f.value} label={`${f.label} (${f.count})`} active={filters.shipped === f.value} onClick={() => pushFilters({ shipped: filters.shipped === f.value ? '' : f.value })} />
+            ))}
+          </div>
+        )}
         {hasActiveFilters && (
           <button onClick={clearAll} style={{ marginTop: '0.6rem', fontSize: 12, color: '#0071e3', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>
             Clear all filters
@@ -388,7 +453,7 @@ export default function TalentClient({
         )}
       </div>
 
-      <FilterDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} filters={filters} onApply={handleDrawerApply} />
+      <FilterDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} filters={filters} onApply={handleDrawerApply} clusterFacets={clusterFacets} shippedFacets={shippedFacets} />
 
       {/* Tabs */}
       {isPaidHirer && (

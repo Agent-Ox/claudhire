@@ -5,6 +5,7 @@ import TalentClient from './TalentClient'
 import { buildItemListJsonLd } from '@/lib/jsonld/item-list'
 import { CANONICAL_HOST, personId } from '@/lib/jsonld/context'
 import { getRankedBuilders } from '@/lib/ranking/get-ranked-builders'
+import { CLUSTER_LABELS, CLUSTER_ORDER, SHIPPED_BUCKETS, bucketsForEvents } from '@/lib/ranking/facets'
 
 export const metadata: Metadata = {
   title: 'AI-Native Builder Directory | ShipStacked',
@@ -22,6 +23,8 @@ export default async function TalentPage({ searchParams }: { searchParams: Promi
   const filterProfession = params.profession || ''
   const filterAvailability = params.availability || ''
   const filterVerified = params.verified === 'true'
+  const filterCluster = params.cluster || ''   // Atlas cluster letter (Batch 8)
+  const filterShipped = params.shipped || ''    // Shipped bucket key (Batch 8)
   const filterSort = params.sort || 'quality'
 
   const supabase = await createServerSupabaseClient()
@@ -59,17 +62,29 @@ export default async function TalentPage({ searchParams }: { searchParams: Promi
   if (filterVerified) profiles = profiles.filter((p: any) => p.verified)
   if (filterProfession) profiles = profiles.filter((p: any) => p.primary_profession === filterProfession)
   if (filterAvailability) profiles = profiles.filter((p: any) => p.availability === filterAvailability)
+  // Batch 8 facets — ANY-match: builder kept if any of their clusters / shipped buckets match.
+  if (filterCluster) profiles = profiles.filter((p: any) => (p.atlasClusters || []).includes(filterCluster))
+  if (filterShipped) profiles = profiles.filter((p: any) => bucketsForEvents(p.eventTypes || []).includes(filterShipped))
 
   // Default sort is the quality order from getRankedBuilders; "newest" overrides.
   if (filterSort === 'newest') {
     profiles = [...profiles].sort((a: any, b: any) => Date.parse(b.created_at) - Date.parse(a.created_at))
   }
+
+  // Facet chips: render values present in the full published set; counts reflect
+  // the current filtered set ("Operators (3)" when another filter narrows it).
+  const clusterFacets = CLUSTER_ORDER
+    .filter(c => allBuilders.some((p: any) => (p.atlasClusters || []).includes(c)))
+    .map(c => ({ value: c, label: CLUSTER_LABELS[c], count: profiles.filter((p: any) => (p.atlasClusters || []).includes(c)).length }))
+  const shippedFacets = SHIPPED_BUCKETS
+    .filter(b => allBuilders.some((p: any) => bucketsForEvents(p.eventTypes || []).includes(b.key)))
+    .map(b => ({ value: b.key, label: b.label, count: profiles.filter((p: any) => bucketsForEvents(p.eventTypes || []).includes(b.key)).length }))
   const verifiedCount = profiles.filter((p: any) => p.verified).length
   const displayProfiles = isPaidHirer ? profiles : profiles.slice(0, 6)
   const isTeaser = !isPaidHirer
 
   // Total unfiltered count for the header (only when filters are active)
-  const hasFilters = !!(filterProfession || filterAvailability || filterVerified)
+  const hasFilters = !!(filterProfession || filterAvailability || filterVerified || filterCluster || filterShipped)
   const totalUnfilteredCount = hasFilters ? totalPublished : profiles.length
 
   // Fetch hirer profile to check if they have set up their company
@@ -125,7 +140,9 @@ export default async function TalentPage({ searchParams }: { searchParams: Promi
           totalUnfilteredCount={totalUnfilteredCount}
           user={user}
           hasHirerProfile={hasHirerProfile}
-          filters={{ profession: filterProfession, availability: filterAvailability, verified: filterVerified, sort: filterSort }}
+          clusterFacets={clusterFacets}
+          shippedFacets={shippedFacets}
+          filters={{ profession: filterProfession, availability: filterAvailability, verified: filterVerified, sort: filterSort, cluster: filterCluster, shipped: filterShipped }}
         />
       </div>
     </div>

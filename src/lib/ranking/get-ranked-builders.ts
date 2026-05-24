@@ -8,6 +8,7 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { computeQualityScore, type ReceiptForScoring } from './quality-score.ts'
+import { clusterOf } from './facets.ts'
 
 // Public-safe projection only — this shape is serialized to anonymous clients
 // via /api/builders/ranked. No email / private columns.
@@ -25,6 +26,8 @@ export interface RankedBuilder {
   featured: boolean
   created_at: string
   skills: Array<{ id: number; name: string; category: string | null }>
+  atlasClusters: string[]   // distinct Atlas cluster letters across the builder's receipts
+  eventTypes: string[]      // distinct raw event_types across the builder's receipts
   quality_score: number | null
   ranked: boolean
 }
@@ -55,12 +58,13 @@ export async function getRankedBuilders(
     admin.from('profiles').select(PROFILE_FIELDS).eq('published', true),
     admin
       .from('proof_receipts')
-      .select('subject_id, atlas_confidence, verification_level, event_type, artifacts, issued_at')
+      .select('subject_id, atlas_confidence, verification_level, event_type, artifacts, issued_at, atlas_inferred')
       .eq('visibility', 'public'),
   ])
 
   // Group receipts by entity (subject_id). Key as string to avoid bigint/number drift.
   const receiptsByEntity = new Map<string, ReceiptForScoring[]>()
+  const facetsByEntity = new Map<string, { clusters: Set<string>; events: Set<string> }>()
   for (const r of (receipts ?? []) as any[]) {
     const key = String(r.subject_id)
     const list = receiptsByEntity.get(key)
@@ -73,11 +77,21 @@ export async function getRankedBuilders(
     }
     if (list) list.push(rec)
     else receiptsByEntity.set(key, [rec])
+
+    // Facet derivation (Batch 8) — distinct Atlas clusters + event types per entity.
+    let f = facetsByEntity.get(key)
+    if (!f) { f = { clusters: new Set(), events: new Set() }; facetsByEntity.set(key, f) }
+    if (r.event_type) f.events.add(r.event_type)
+    for (const role of (Array.isArray(r.atlas_inferred) ? r.atlas_inferred : [])) {
+      const c = clusterOf(role)
+      if (c) f.clusters.add(c)
+    }
   }
 
   const scored: Array<RankedBuilder & { _receiptCount: number }> = (profiles ?? []).map((p: any) => {
-    const builderReceipts =
-      p.entity_id != null ? receiptsByEntity.get(String(p.entity_id)) ?? [] : []
+    const ek = p.entity_id != null ? String(p.entity_id) : null
+    const builderReceipts = ek ? receiptsByEntity.get(ek) ?? [] : []
+    const facets = ek ? facetsByEntity.get(ek) : undefined
     const result = computeQualityScore(builderReceipts, { featured: !!p.featured })
     return {
       id: p.id,
@@ -93,6 +107,8 @@ export async function getRankedBuilders(
       featured: !!p.featured,
       created_at: p.created_at,
       skills: Array.isArray(p.skills) ? p.skills : [],
+      atlasClusters: facets ? [...facets.clusters] : [],
+      eventTypes: facets ? [...facets.events] : [],
       quality_score: result.score,
       ranked: result.ranked,
       _receiptCount: builderReceipts.length,
