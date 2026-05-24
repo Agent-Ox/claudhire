@@ -6,6 +6,21 @@ import { Resend } from 'resend'
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+// Stripe subscription status -> our subscriptions.status vocabulary.
+// The gate (src/lib/user.ts) only grants access on status='active'.
+function mapStatus(s: Stripe.Subscription.Status): string {
+  if (s === 'active' || s === 'trialing') return 'active'
+  if (s === 'past_due' || s === 'unpaid') return 'past_due'
+  if (s === 'canceled' || s === 'incomplete_expired') return 'canceled'
+  return s // incomplete / paused — stored raw; not 'active', so no access
+}
+
+// Stripe SDK v21: current_period_end moved off the Subscription onto its items.
+function periodEndISO(sub: Stripe.Subscription): string | null {
+  const ts = sub.items?.data?.[0]?.current_period_end
+  return ts ? new Date(ts * 1000).toISOString() : null
+}
+
 export async function POST(req: Request) {
   const body = await req.text()
   const sig = req.headers.get('stripe-signature')!
@@ -19,6 +34,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: `Webhook error: ${err.message}` }, { status: 400 })
   }
 
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  // Idempotency — record the event id first; a duplicate delivery short-circuits.
+  // (Stripe re-delivers on timeout/retry.) On a unique-violation the event was
+  // already processed, so return 200 without re-running side effects.
+  const { error: evErr } = await supabase.from('stripe_events').insert({ id: event.id, type: event.type })
+  if (evErr) {
+    if ((evErr as any).code === '23505') return NextResponse.json({ received: true, duplicate: true })
+    console.error('stripe_events insert error:', evErr) // non-fatal — continue processing
+  }
+
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
 
@@ -26,11 +55,6 @@ export async function POST(req: Request) {
     const email = session.customer_email
       || session.customer_details?.email
       || 'unknown@shipstacked.com'
-
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shipstacked.com'
 
@@ -56,6 +80,21 @@ export async function POST(req: Request) {
 
     const magicLink = linkData?.properties?.action_link || null
 
+    // Capture the Stripe subscription id + current period end so the lifecycle
+    // branches below (updated/deleted/payment_failed) can find this row by id.
+    const subscriptionId = typeof session.subscription === 'string'
+      ? session.subscription
+      : session.subscription?.id ?? null
+    let currentPeriodEnd: string | null = null
+    if (subscriptionId) {
+      try {
+        const sub = await stripe.subscriptions.retrieve(subscriptionId)
+        currentPeriodEnd = periodEndISO(sub)
+      } catch (e) {
+        console.error('subscription retrieve failed:', e)
+      }
+    }
+
     // Write subscription row
     let expiresAt = null
     if (product === 'job_post') {
@@ -68,12 +107,17 @@ export async function POST(req: Request) {
       email,
       stripe_customer_id: session.customer as string || 'unknown',
       stripe_session_id: session.id,
+      stripe_subscription_id: subscriptionId,
       product,
       status: 'active',
       expires_at: expiresAt,
+      current_period_end: currentPeriodEnd,
     }])
 
     if (error) {
+      // Roll back the idempotency record so Stripe's retry re-processes this
+      // event (otherwise the failed insert would never grant access).
+      await supabase.from('stripe_events').delete().eq('id', event.id)
       console.error('Supabase insert error:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
@@ -119,6 +163,40 @@ export async function POST(req: Request) {
       }
     } catch (e) {
       console.error('Resend audience error:', e)
+    }
+  }
+
+  // Subscription renewed / changed / cancel-at-period-end toggled.
+  if (event.type === 'customer.subscription.updated') {
+    const sub = event.data.object as Stripe.Subscription
+    const { error } = await supabase.from('subscriptions').update({
+      status: mapStatus(sub.status),
+      current_period_end: periodEndISO(sub),
+      canceled_at: sub.canceled_at ? new Date(sub.canceled_at * 1000).toISOString() : null,
+    }).eq('stripe_subscription_id', sub.id)
+    if (error) console.error('subscription.updated update error:', error)
+  }
+
+  // Subscription fully canceled (period ended or canceled immediately).
+  if (event.type === 'customer.subscription.deleted') {
+    const sub = event.data.object as Stripe.Subscription
+    const { error } = await supabase.from('subscriptions').update({
+      status: 'canceled',
+      canceled_at: new Date().toISOString(),
+    }).eq('stripe_subscription_id', sub.id)
+    if (error) console.error('subscription.deleted update error:', error)
+  }
+
+  // Renewal payment failed — mark past_due so the gate stops granting access.
+  if (event.type === 'invoice.payment_failed') {
+    const invoice = event.data.object as Stripe.Invoice
+    const subRef = invoice.parent?.subscription_details?.subscription // SDK v21 path
+    const subId = typeof subRef === 'string' ? subRef : subRef?.id ?? null
+    if (subId) {
+      const { error } = await supabase.from('subscriptions').update({
+        status: 'past_due',
+      }).eq('stripe_subscription_id', subId)
+      if (error) console.error('invoice.payment_failed update error:', error)
     }
   }
 

@@ -36,6 +36,10 @@ export async function getEntityModes(): Promise<ResolvedUser> {
       .eq('status', 'active')
       .eq('product', 'full_access')
       .or(`expires_at.is.null,expires_at.gt.${now}`)
+      // Belt-and-suspenders: even if a lifecycle event was missed and status
+      // is still 'active', access expires at the paid-through period end.
+      // Backwards-compatible — existing rows have NULL current_period_end.
+      .or(`current_period_end.is.null,current_period_end.gt.${now}`)
       .maybeSingle()
 
     const { data: profile } = await supabase
