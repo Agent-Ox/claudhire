@@ -269,6 +269,10 @@ export function buildAgentCard(): AgentCard {
       'shipstacked:interactiveAgent': false,
       'shipstacked:respondsToA2AMessages': false,
       'shipstacked:namespace': SHIPSTACKED_NS,
+      // Phase 3: pointer to the authenticated write/action surface (auth.md open
+      // protocol). Additive only — the card stays a read-only data-publisher card;
+      // this just lets agents discover the action surface in one hop.
+      'shipstacked:agentAuth': `${CANONICAL_HOST}/auth.md`,
       'shipstacked:graphNote':
         'All public surfaces share one @id graph keyed by canonical URLs. ' +
         'A builder Person @id at /u/<username> is the same @id used in receipt author refs at /p/<slug> ' +

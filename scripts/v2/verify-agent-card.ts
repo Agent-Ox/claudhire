@@ -380,6 +380,19 @@ async function main(): Promise<void> {
     }
   }
 
+  // ─── 6b. Agent-auth pointer (Phase 3) — REQUIRED from Phase 3 onward ─
+  // The card must point at the authenticated action surface (auth.md). NOTE:
+  // running this against prod (--base https://shipstacked.com) FAILS this gate
+  // by design until Phase 3 deploys — known-temporary. Local + post-deploy pass.
+  console.log('\n6b. Agent-auth pointer (Phase 3)')
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const agentAuth = (card.metadata as any)['shipstacked:agentAuth']
+  if (typeof agentAuth === 'string' && /^https?:\/\/.+\/auth\.md$/.test(agentAuth)) {
+    pass(`metadata.shipstacked:agentAuth: ${agentAuth}`)
+  } else {
+    fail(`metadata.shipstacked:agentAuth missing or not a URL ending in /auth.md: ${JSON.stringify(agentAuth)}`)
+  }
+
   // ─── 7. Summary ────────────────────────────────────────────────────
   console.log('\n============================================================')
   if (failures === 0) {

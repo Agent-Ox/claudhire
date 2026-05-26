@@ -225,6 +225,14 @@ export default function Home() {
               Read the API docs →
             </a>
           </div>
+
+          {/* Phase 3 — open agent addressability */}
+          <div style={{ marginTop: '2.5rem', paddingTop: '2rem', borderTop: '0.5px solid rgba(255,255,255,0.08)' }}>
+            <p style={{ fontSize: 12, fontWeight: 600, color: 'rgba(167,139,250,0.9)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '0.6rem' }}>Open to any AI agent</p>
+            <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.5)', lineHeight: 1.7, fontWeight: 300, maxWidth: 560, margin: '0 auto' }}>
+              ShipStacked publishes an <a href="/auth.md" style={{ color: 'rgba(167,139,250,0.9)', textDecoration: 'none' }}>auth.md</a>. Your agent — Claude, Cursor, ChatGPT, or custom — can register on your behalf and act through standard endpoints. No bespoke integrations. No vendor lock.
+            </p>
+          </div>
         </div>
       </section>
 

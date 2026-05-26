@@ -10,6 +10,7 @@ export type ApiKeyAuth = {
   profile: any
   email: string
   keyId: string
+  scope: 'builder:rw' | 'buyer:rw' | 'agent:rw'
 }
 
 export type ApiAuthResult =
@@ -36,7 +37,7 @@ export async function authenticateApiKey(req: Request): Promise<ApiAuthResult> {
   // Look up the key
   const { data: keyRow } = await db
     .from('api_keys')
-    .select('id, profile_id, email')
+    .select('id, profile_id, email, scope')
     .eq('key_hash', hash)
     .maybeSingle()
 
@@ -63,7 +64,14 @@ export async function authenticateApiKey(req: Request): Promise<ApiAuthResult> {
 
   return {
     ok: true,
-    auth: { profile, email: keyRow.email, keyId: keyRow.id }
+    auth: {
+      profile,
+      email: keyRow.email,
+      keyId: keyRow.id,
+      // scope column is NOT NULL DEFAULT 'builder:rw' (Phase 3 §D); the ?? guard
+      // is belt-and-suspenders for any pre-migration row a stale cache might return.
+      scope: (keyRow.scope ?? 'builder:rw') as 'builder:rw' | 'buyer:rw' | 'agent:rw',
+    }
   }
 }
 
@@ -73,4 +81,19 @@ export function apiError(status: number, error: string, details?: any) {
 
 export function apiOk(data: any) {
   return Response.json({ ok: true, ...data })
+}
+
+// Scope gate (Phase 3). Call right after authenticateApiKey succeeds:
+//   const scopeErr = requireScope(auth.auth, ['buyer:rw'])
+//   if (scopeErr) return scopeErr
+// Returns a 403 Response when the key's scope isn't in `allowed`, else null.
+// Returns a Response (via apiError) to match this file's existing convention.
+export function requireScope(
+  auth: ApiKeyAuth,
+  allowed: ReadonlyArray<'builder:rw' | 'buyer:rw' | 'agent:rw'>,
+): Response | null {
+  if (!allowed.includes(auth.scope)) {
+    return apiError(403, `Insufficient scope. Required: ${allowed.join(' or ')}, got: ${auth.scope}`)
+  }
+  return null
 }

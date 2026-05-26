@@ -31,7 +31,7 @@ export async function GET() {
 
   const { data: keys } = await db
     .from('api_keys')
-    .select('id, name, key_prefix, last_used_at, created_at')
+    .select('id, name, key_prefix, scope, last_used_at, created_at')
     .eq('profile_id', profile.id)
     .order('created_at', { ascending: false })
 
@@ -97,11 +97,16 @@ export async function POST(req: Request) {
 
   const name = body.name?.trim() || 'My agent'
 
+  // Phase 3: optional scope. Defaults to 'builder:rw' so the existing Card-3 /
+  // AgentOnboarding flow (which sends no scope) is unchanged.
+  const ALLOWED_SCOPES = ['builder:rw', 'buyer:rw', 'agent:rw']
+  const scope = ALLOWED_SCOPES.includes(body.scope) ? body.scope : 'builder:rw'
+
   const { raw, hash, prefix } = generateKey()
 
   const { data: keyRow, error } = await db
     .from('api_keys')
-    .insert({ profile_id: profile.id, email: user.email, key_hash: hash, key_prefix: prefix, name })
+    .insert({ profile_id: profile.id, email: user.email, key_hash: hash, key_prefix: prefix, name, scope })
     .select('id, name, key_prefix, created_at')
     .single()
 
@@ -113,6 +118,7 @@ export async function POST(req: Request) {
     key_prefix: prefix,
     name: keyRow.name,
     id: keyRow.id,
+    scope,
     warning: 'Copy this key now. It will never be shown again.',
   })
 }

@@ -63,6 +63,10 @@ Read the most recent SESSION_<date>.md for the live to-do. Top of the queue at l
 
 - **`current_period_end` clause duplication** — currently in canonical `getEntityModes()` only. The 9 inline `.eq('status', 'active')` checks across the codebase should consolidate into the canonical helper (separate batch).
 
+- **Phase 1 (`11e9a31`) — agent enrichment smoke test (Block 5R §5R.5)** — NOT yet run on prod. With a real `sk_ss_` key, `POST /api/v1/builds`, wait ~30s, then confirm the receipt subject is an agent entity: `SELECT pr.id, pr.slug, pr.subject_id, e.kind, e.slug, pr.verification_level, pr.issued_at FROM proof_receipts pr JOIN entities e ON e.id = pr.subject_id WHERE pr.issued_at > NOW() - INTERVAL '5 minutes' ORDER BY pr.issued_at DESC LIMIT 5;` — expected `e.kind = 'agent'`. If `human`, Block 5R is wrong.
+
+- **Phase 1 (`11e9a31`) — full §I cold walkthrough on prod** — NOT yet run. Verify: homepage step-03 copy (no "Velocity Score"), dashboard "Proof of Work" card, Atlas role chips on `/u/<classified-builder>`, OG image role pills, `/atlas/roles/<id>` lists ≥1 practitioner, `/join` Card 2 + Card 3 copy, junk profiles 404, `verify-agent-card.ts --base https://shipstacked.com` green. Full list in `docs/audit/DISCOVERY_phase1_foundation.md` §M.
+
 ## Deploy-time + manual verification checklist (do once, after current session ships)
 
 These accumulated through Session N+1 — none are blocking outreach but each is a 1-2 minute check that closes a real gap.
@@ -102,6 +106,10 @@ Full 5-scenario Stripe CLI test plan deferred to a later session. Code shipped S
 - Hardcoded Stripe price ID → env var refactor
 - Consolidate 9 inline `status='active'` checks into canonical `getEntityModes()`
 - **`/hirer` vs `/hirers` route collision** — singular = paid dashboard, plural = marketing landing. Typo-prone for users; both routes exist and serve different purposes. Defer naming consolidation; for now both stay as-is. Future: consider renaming dashboard to `/dashboard/hirer` or similar.
+
+## Known issues
+
+- **`getRankedBuilders` derives `atlasClusters` from `atlas_inferred` only** (not `atlas_confirmed`). `/api/v1/talent/search` (Phase 3) inherits this behavior for parity with the `/talent` UI. Phase 6 (Atlas wiring) revisits.
 
 ## Analytics
 

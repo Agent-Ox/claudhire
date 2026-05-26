@@ -184,8 +184,20 @@ export default function ApiDocsPage() {
           </div>
         </Section>
 
-        {/* Endpoints */}
-        <Section title="Endpoints">
+        {/* Auth surface — open agent registration */}
+        <Section title="Auth surface — register any agent">
+          <p style={{ fontSize: 15, color: '#6e6e73', lineHeight: 1.7, marginBottom: '1.25rem' }}>
+            ShipStacked publishes an <a href="/auth.md" style={{ color: '#0071e3', textDecoration: 'none' }}>auth.md</a> open protocol. An agent — Claude, Cursor, ChatGPT, or custom — can register on behalf of a user without a browser signup: it triggers a one-time code to the user&apos;s email, the user confirms, and the agent receives a scoped API key.
+          </p>
+          <Endpoint method="GET" path="/.well-known/oauth-protected-resource" description="RFC 9728 protected-resource metadata." />
+          <Endpoint method="GET" path="/.well-known/oauth-authorization-server" description="OAuth AS metadata with the agent_auth block (claim endpoints, scopes, TTLs)." />
+          <Endpoint method="GET" path="/auth.md" description="Human-readable agent-registration protocol description (text/markdown)." />
+          <Endpoint method="POST" path="/api/agent/auth/claim" description="Start the user-claimed OTP flow. Emails a 6-digit code, returns a claim_token." />
+          <Endpoint method="POST" path="/api/agent/auth/claim/complete" description="Submit claim_token + otp_code; returns a scoped sk_ss_ API key." />
+        </Section>
+
+        {/* Builder endpoints (builder:rw) */}
+        <Section title="Builder endpoints (builder:rw)">
           <p style={{ fontSize: 15, color: '#6e6e73', lineHeight: 1.7, marginBottom: '1.25rem' }}>
             Base URL: <code style={{ fontFamily: 'monospace', background: '#f0f0f5', padding: '0.15rem 0.4rem', borderRadius: 4 }}>https://shipstacked.com/api/v1</code>
             <br />
@@ -196,6 +208,25 @@ export default function ApiDocsPage() {
           <Endpoint method="POST" path="/builds" description="Post a build to the Build Feed. Include outcome and url to count towards auto-verification." />
           <Endpoint method="GET" path="/builds" description="Fetch your 20 most recent build posts." />
           <Endpoint method="POST" path="/avatar" description="Upload a profile photo. Accepts base64 image or public image URL." />
+        </Section>
+
+        {/* Buyer endpoints (buyer:rw) */}
+        <Section title="Buyer endpoints (buyer:rw)">
+          <p style={{ fontSize: 15, color: '#6e6e73', lineHeight: 1.7, marginBottom: '1.25rem' }}>
+            For agents acting on behalf of a hirer. Require a <code style={{ fontFamily: 'monospace', background: '#f0f0f5', padding: '0.15rem 0.4rem', borderRadius: 4 }}>buyer:rw</code> key — a builder-scoped key gets 403.
+          </p>
+          <Endpoint method="GET" path="/talent/search" description="Formula-E ranked builder directory. Filter by cluster, role, shipped. Returns per-builder Atlas roles + proof-of-work aggregates." />
+          <Endpoint method="GET" path="/builders/<username>" description="Deep-fetch a public builder: profile, skills, projects, recent proof receipts + Atlas roles." />
+          <Endpoint method="GET" path="/messages" description="List your conversations." />
+          <Endpoint method="POST" path="/messages" description="Message a builder by username. Creates or appends a conversation. Body: to_username, body, optional job_id." />
+          <Endpoint method="POST" path="/jobs" description="Post a job. Body mirrors the dashboard job form (role_title required)." />
+          <Endpoint method="GET" path="/saved-profiles" description="List your shortlist." />
+          <Endpoint method="POST" path="/saved-profiles" description="Save or unsave a builder. Body: builder_username + action (save | unsave)." />
+        </Section>
+
+        {/* Universal */}
+        <Section title="Universal (any scope)">
+          <Endpoint method="GET" path="/me/scope" description="Machine-readable capability map for the current key — what it can and cannot do." />
         </Section>
 
         {/* PATCH /profile fields */}

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { createClient } from '@/lib/supabase'
 import posthog from 'posthog-js'
 import FeedbackCard from './FeedbackCard'
+import ConnectAnAgent from '@/app/components/ConnectAnAgent'
 
 type HirerProfile = {
   id?: string
@@ -358,6 +359,9 @@ export default function HirerDashboardClient({
             </div>
           )}
         </div>
+
+        {/* Connect an Agent — Phase 3 (buyer:rw) */}
+        <ConnectAnAgent scope="buyer:rw" variant="buyer_dashboard" email={email} />
 
         <div style={{ borderTop: '0.5px solid #e0e0e5', paddingTop: '2rem', marginBottom: '2.5rem' }}>
           <div style={{ marginBottom: '0.5rem' }}>
