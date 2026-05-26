@@ -50,6 +50,14 @@ export async function getEntityModes(): Promise<ResolvedUser> {
 
     const hasSubscription = !!subscription
     const hasProfile = !!profile
+
+    // Phase 2 (rollover from Phase 1 Item 8): surface email/auth drift early.
+    // If a user has a profile but no active sub, AND the profile has a user_id,
+    // log so we can spot mismatch before paying-customer issues hit support.
+    if (!hasSubscription && hasProfile && profile?.user_id) {
+      console.warn(`[getEntityModes] user ${user.id} (email=${user.email}) has profile but no active subscription — verify email match if expected as paying customer`)
+    }
+
     const metaRole = user.user_metadata?.role
 
     const modes: EntityModes = {

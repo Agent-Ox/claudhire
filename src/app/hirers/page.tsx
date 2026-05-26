@@ -2,6 +2,8 @@
 
 import Link from 'next/link'
 import BuilderMap from '../components/BuilderMap'
+import EnableHiringButton from '@/app/components/EnableHiringButton'
+import { createClient } from '@/lib/supabase'
 import posthog from 'posthog-js'
 
 import { useState, useEffect } from 'react'
@@ -11,6 +13,7 @@ export default function HirersPage() {
   const [loading, setLoading] = useState(false)
   const [realProfiles, setRealProfiles] = useState<any[]>([])
   const [feedPosts, setFeedPosts] = useState<any[]>([])
+  const [isAuthed, setIsAuthed] = useState<boolean | null>(null)
 
   useEffect(() => {
     // Build Feed — try featured first, fall back to recent
@@ -33,6 +36,13 @@ export default function HirersPage() {
       .then(r => r.json())
       .then(({ builders }) => { if (builders?.length) setRealProfiles(builders) })
       .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setIsAuthed(!!user)
+    }).catch(() => setIsAuthed(false))
   }, [])
 
   const displayProfiles = realProfiles
@@ -160,17 +170,23 @@ export default function HirersPage() {
           ShipStacked is where AI-native builders post real work, earn verified status, and get found. Browse proof-of-work profiles, watch the Build Feed, post roles, and message anyone directly. No CVs. No recruiters. No placement fees.
         </p>
         <div className="emp-cta-wrap">
-          <input
-            className="emp-input"
-            type="email"
-            placeholder="your@company.com"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && goToCheckout()}
-          />
-          <button className="btn-primary" onClick={goToCheckout} disabled={loading}>
-            {loading ? 'Redirecting...' : 'Get full access — $199/mo'}
-          </button>
+          {isAuthed === true ? (
+            <EnableHiringButton source="hirers_authed" variant="primary" />
+          ) : (
+            <>
+              <input
+                className="emp-input"
+                type="email"
+                placeholder="your@company.com"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && goToCheckout()}
+              />
+              <button className="btn-primary" onClick={goToCheckout} disabled={loading}>
+                {loading ? 'Redirecting...' : 'Get full access — $199/mo'}
+              </button>
+            </>
+          )}
           <p className="emp-note">No commission. No placement fee. Cancel anytime.</p>
         </div>
         <div className="emp-proof">
@@ -346,17 +362,23 @@ export default function HirersPage() {
               </div>
             ))}
             <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <input
-                className="emp-input"
-                type="email"
-                placeholder="your@company.com"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && goToCheckout()}
-              />
-              <button className="btn-primary" onClick={goToCheckout} disabled={loading}>
-                {loading ? 'Redirecting...' : 'Get full access — $199/mo'}
-              </button>
+              {isAuthed === true ? (
+                <EnableHiringButton source="hirers_authed" variant="primary" />
+              ) : (
+                <>
+                  <input
+                    className="emp-input"
+                    type="email"
+                    placeholder="your@company.com"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && goToCheckout()}
+                  />
+                  <button className="btn-primary" onClick={goToCheckout} disabled={loading}>
+                    {loading ? 'Redirecting...' : 'Get full access — $199/mo'}
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

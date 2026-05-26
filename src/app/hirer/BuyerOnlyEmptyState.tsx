@@ -9,6 +9,8 @@
 // via the existing /api/checkout flow — same as any other path into the
 // paid product. No Stripe touch happens here.
 
+import EnableHiringButton from '@/app/components/EnableHiringButton'
+
 export default function BuyerOnlyEmptyState({ email }: { email: string }) {
   return (
     <div style={{ minHeight: '100vh', background: '#fbfbfd', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
@@ -30,12 +32,10 @@ export default function BuyerOnlyEmptyState({ email }: { email: string }) {
 
         {/* Secondary cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(220px, 100%), 1fr))', gap: '1rem', marginTop: '1rem', marginBottom: '2.5rem' }}>
-          <div style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.5rem' }}>
-            <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6e6e73', marginBottom: '0.5rem' }}>Buyer Mode</p>
-            <h3 style={{ fontSize: 17, fontWeight: 700, color: '#1d1d1f', marginBottom: '0.3rem' }}>Activate when ready</h3>
-            <p style={{ fontSize: 13, color: '#6e6e73', lineHeight: 1.5, marginBottom: '1rem' }}>$199/mo. Cancel anytime. Activates on first message-builder or post-job action.</p>
-            <a href="/hirers#pricing" style={{ fontSize: 13, padding: '0.5rem 1rem', background: '#f5f5f7', color: '#1d1d1f', borderRadius: 980, textDecoration: 'none', fontWeight: 500, display: 'inline-block' }}>See pricing</a>
-          </div>
+          {/* Buyer Mode — live toggle (Phase 2). Replaces the static "See pricing"
+              card so a buyer-only user activates directly via session-keyed checkout
+              instead of bouncing to /hirers#pricing. */}
+          <EnableHiringButton source="buyer_empty_state" variant="card" />
           <div style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.5rem' }}>
             <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6e6e73', marginBottom: '0.5rem' }}>Build Feed</p>
             <h3 style={{ fontSize: 17, fontWeight: 700, color: '#1d1d1f', marginBottom: '0.3rem' }}>See what builders ship</h3>

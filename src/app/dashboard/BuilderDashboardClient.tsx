@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import ShareButtons from '@/app/u/[username]/ShareButtons'
 import FeedPostForm from '@/app/feed/FeedPostForm'
 import CollectionToggleCard from './CollectionToggleCard'
+import EnableHiringButton from '@/app/components/EnableHiringButton'
 
 function ProofOfWorkCard({ l1Count, l0Count, distinctHosts, lastShippedAt, username }: { l1Count: number; l0Count: number; distinctHosts: number; lastShippedAt: string | null; username: string }) {
   const hasProof = l1Count > 0
@@ -178,6 +179,9 @@ export default function BuilderDashboardClient({
               </div>
               <ProofOfWorkCard l1Count={l1Count} l0Count={l0Count} distinctHosts={distinctHosts} lastShippedAt={lastShippedAt} username={profile.username} />
             </div>
+
+            {/* Buyer Mode toggle — composable, per Phase 2 spec */}
+            <EnableHiringButton source="dashboard_enable_hiring" variant="card" />
 
             {/* Top grid — verification */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
