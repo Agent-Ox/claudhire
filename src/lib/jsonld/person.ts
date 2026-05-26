@@ -36,7 +36,6 @@ export interface PersonProfileInput {
   linkedin_url: string | null
   website_url: string | null
   verified: boolean
-  velocity_score: number | null
   primary_profession: string | null
   seniority: string | null
   work_type: string | null
@@ -90,7 +89,6 @@ export interface PersonJsonLd {
     description?: string
   }>
   'shipstacked:verified'?: true
-  'shipstacked:velocityScore'?: number
   'shipstacked:primaryProfession'?: string
   'shipstacked:seniority'?: string
   'shipstacked:workType'?: string
@@ -180,9 +178,6 @@ export function buildPersonJsonLd(
   }
 
   if (profile.verified) out['shipstacked:verified'] = true
-  if (typeof profile.velocity_score === 'number' && profile.velocity_score > 0) {
-    out['shipstacked:velocityScore'] = profile.velocity_score
-  }
 
   const primaryProf = nonEmpty(profile.primary_profession)
   if (primaryProf) out['shipstacked:primaryProfession'] = primaryProf

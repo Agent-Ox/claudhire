@@ -20,7 +20,7 @@ export async function GET(
   // Verify user is part of this conversation
   const { data: conv } = await admin
     .from('conversations')
-    .select('*, profiles!builder_profile_id(email, full_name, avatar_url, username, verified, velocity_score), jobs(role_title, company_name)')
+    .select('*, profiles!builder_profile_id(email, full_name, avatar_url, username, verified), jobs(role_title, company_name)')
     .eq('id', id)
     .maybeSingle()
 

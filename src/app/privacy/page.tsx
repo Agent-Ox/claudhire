@@ -107,7 +107,7 @@ export default function PrivacyPage() {
               ['Processing payments and managing subscriptions', 'Performance of a contract'],
               ['Sending transactional emails (welcome, verification, message notifications)', 'Performance of a contract'],
               ['Auto-verification of builder profiles', 'Performance of a contract'],
-              ['Calculating Velocity Scores', 'Performance of a contract'],
+              ['Calculating proof-of-work rankings', 'Performance of a contract'],
               ['Displaying your public profile to hirers and visitors', 'Legitimate interests'],
               ['Making your published profile discoverable through trusted third-party discovery and hiring partners, so that you can be found and hired', 'Legitimate interests'],
               ['Improving the platform through usage analytics', 'Legitimate interests'],

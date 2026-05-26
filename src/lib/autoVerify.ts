@@ -83,7 +83,7 @@ export async function checkAutoVerify(profileId: string): Promise<boolean> {
             View your verified profile →
           </a>
           <p style="color: #aeaeb2; font-size: 13px; line-height: 1.6;">
-            Keep shipping. Every build you post strengthens your Velocity Score and your proof-of-work record.
+            Keep shipping. Every build you post strengthens your proof-of-work record.
           </p>
           <hr style="border: none; border-top: 1px solid #e0e0e5; margin: 1.5rem 0;" />
           <p style="color: #aeaeb2; font-size: 12px;">ShipStacked — The proof-of-work platform for AI-native builders.</p>

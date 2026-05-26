@@ -50,7 +50,7 @@ export default async function TalentPage({ searchParams }: { searchParams: Promi
     isPaidHirer = !!sub
   }
 
-  // Quality-ranked builders (Formula E) — replaces the frozen velocity sort.
+  // Quality-ranked builders (Formula E).
   // Ranked first (quality_score DESC), then "not yet ranked" builders below.
   const { ranked, belowThreshold } = await getRankedBuilders()
   const allBuilders = [...ranked, ...belowThreshold] as any[]

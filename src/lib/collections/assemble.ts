@@ -85,7 +85,7 @@ export async function getConsentedCollection(
     db.from('profiles')
       .select(
         'id, user_id, username, full_name, role, bio, about, location, ' +
-        'github_url, x_url, linkedin_url, website_url, verified, velocity_score, ' +
+        'github_url, x_url, linkedin_url, website_url, verified, ' +
         'primary_profession, seniority, work_type, day_rate, timezone, languages, entity_id, published',
       )
       .in('id', ids),
@@ -116,7 +116,6 @@ export async function getConsentedCollection(
     linkedin_url: string | null
     website_url: string | null
     verified: boolean
-    velocity_score: number | null
     primary_profession: string | null
     seniority: string | null
     work_type: string | null
@@ -193,7 +192,6 @@ export async function getConsentedCollection(
         linkedin_url: p.linkedin_url ?? null,
         website_url: p.website_url ?? null,
         verified: !!p.verified,
-        velocity_score: p.velocity_score ?? null,
         primary_profession: p.primary_profession ?? null,
         seniority: p.seniority ?? null,
         work_type: p.work_type ?? null,

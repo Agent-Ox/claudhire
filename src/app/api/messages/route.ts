@@ -28,7 +28,7 @@ export async function GET(req: Request) {
 
     const { data: existing } = await admin
       .from('conversations')
-      .select('*, profiles!builder_profile_id(username, full_name, avatar_url, verified, velocity_score), jobs(role_title, company_name)')
+      .select('*, profiles!builder_profile_id(username, full_name, avatar_url, verified), jobs(role_title, company_name)')
       .eq('employer_email', user.email!)
       .eq('builder_profile_id', newProfileId)
       .is('job_id', null)
@@ -46,7 +46,7 @@ export async function GET(req: Request) {
         job_id: null,
         last_message_at: new Date().toISOString(),
       })
-      .select('*, profiles!builder_profile_id(username, full_name, avatar_url, verified, velocity_score), jobs(role_title, company_name)')
+      .select('*, profiles!builder_profile_id(username, full_name, avatar_url, verified), jobs(role_title, company_name)')
       .single()
     return NextResponse.json({ conversation: conv })
   }
@@ -70,7 +70,7 @@ export async function GET(req: Request) {
   if (as === 'hirer') {
     const { data } = await admin
       .from('conversations')
-      .select('*, profiles!builder_profile_id(username, full_name, avatar_url, verified, velocity_score), jobs(role_title)')
+      .select('*, profiles!builder_profile_id(username, full_name, avatar_url, verified), jobs(role_title)')
       .eq('employer_email', user.email)
       .order('last_message_at', { ascending: false })
     conversations = data || []

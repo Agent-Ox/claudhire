@@ -317,7 +317,7 @@ export default function Home() {
             <div className="step">
               <p className="step-num">03 — Get found</p>
               <h3>Let the work speak</h3>
-              <p>Get auto-verified when your proof is real. Your Velocity Score shows you&apos;re active. Hirers with real budgets find you — no applications, no guessing.</p>
+              <p>Get auto-verified when your proof is real. Your shipped work is ranked and discoverable. Hirers with real budgets find you — no applications, no guessing.</p>
             </div>
           </div>
         </div>

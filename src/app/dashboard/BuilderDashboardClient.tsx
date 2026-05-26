@@ -5,31 +5,36 @@ import ShareButtons from '@/app/u/[username]/ShareButtons'
 import FeedPostForm from '@/app/feed/FeedPostForm'
 import CollectionToggleCard from './CollectionToggleCard'
 
-function VelocityRing({ score }: { score: number }) {
-  const r = 38
-  const circ = 2 * Math.PI * r
-  const dash = (score / 100) * circ
-  const color = score >= 75 ? '#1a7f37' : score >= 50 ? '#0071e3' : score >= 25 ? '#bf7e00' : '#aeaeb2'
-  const label = score >= 75 ? 'High velocity' : score >= 50 ? 'Building' : score >= 25 ? 'Getting started' : 'Just started'
-
+function ProofOfWorkCard({ l1Count, l0Count, distinctHosts, lastShippedAt, username }: { l1Count: number; l0Count: number; distinctHosts: number; lastShippedAt: string | null; username: string }) {
+  const hasProof = l1Count > 0
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-      <div style={{ position: 'relative', flexShrink: 0 }}>
-        <svg width="92" height="92" viewBox="0 0 92 92">
-          <circle cx="46" cy="46" r={r} fill="none" stroke="#e0e0e5" strokeWidth="7"/>
-          <circle cx="46" cy="46" r={r} fill="none" stroke={color} strokeWidth="7"
-            strokeDasharray={circ} strokeDashoffset={circ - dash}
-            strokeLinecap="round" transform="rotate(-90 46 46)"
-            style={{ transition: 'stroke-dashoffset 0.8s ease' }}
-          />
-          <text x="46" y="42" textAnchor="middle" fontSize="18" fontWeight="800" fill={color}>{score}</text>
-          <text x="46" y="56" textAnchor="middle" fontSize="9" fontWeight="600" fill="#aeaeb2" letterSpacing="0.5">/100</text>
-        </svg>
-      </div>
-      <div>
-        <p style={{ fontSize: 16, fontWeight: 700, color: '#1d1d1f', marginBottom: '0.2rem', letterSpacing: '-0.02em' }}>{label}</p>
-        <p style={{ fontSize: 12, color: '#6e6e73', lineHeight: 1.5 }}>Velocity Score — based on GitHub activity, builds shipped, and profile completeness.</p>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      {hasProof ? (
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+            <div>
+              <p style={{ fontSize: 24, fontWeight: 800, color: '#1d1d1f', lineHeight: 1 }}>{l1Count}</p>
+              <p style={{ fontSize: 11, color: '#6e6e73', marginTop: '0.25rem' }}>Verified receipts</p>
+            </div>
+            <div>
+              <p style={{ fontSize: 24, fontWeight: 800, color: '#1d1d1f', lineHeight: 1 }}>{distinctHosts}</p>
+              <p style={{ fontSize: 11, color: '#6e6e73', marginTop: '0.25rem' }}>Distinct hosts</p>
+            </div>
+            <div>
+              <p style={{ fontSize: 24, fontWeight: 800, color: '#1d1d1f', lineHeight: 1 }}>{lastShippedAt ? new Date(lastShippedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '—'}</p>
+              <p style={{ fontSize: 11, color: '#6e6e73', marginTop: '0.25rem' }}>Last shipped</p>
+            </div>
+          </div>
+          {l0Count > 0 && (
+            <p style={{ fontSize: 12, color: '#bf7e00', lineHeight: 1.5 }}>{l0Count} receipt{l0Count === 1 ? '' : 's'} with unreachable artifacts. Re-post with live URLs to upgrade to verified.</p>
+          )}
+          <a href={`/u/${username}`} style={{ fontSize: 13, fontWeight: 600, color: '#0071e3', textDecoration: 'none' }}>View your public profile →</a>
+        </>
+      ) : (
+        <>
+          <p style={{ fontSize: 13, color: '#6e6e73', lineHeight: 1.6 }}>Post your first build below. Your proof-of-work record starts the moment your work is verified.</p>
+        </>
+      )}
     </div>
   )
 }
@@ -61,7 +66,10 @@ export default function BuilderDashboardClient({
   hirers,
   email,
   githubData,
-  velocityScore: initialScore,
+  l1Count,
+  l0Count,
+  distinctHosts,
+  lastShippedAt,
   provenPostCount,
   agentMode = false,
   activeCollections = [],
@@ -72,7 +80,10 @@ export default function BuilderDashboardClient({
   hirers: any[]
   email: string
   githubData: any | null
-  velocityScore: number
+  l1Count: number
+  l0Count: number
+  distinctHosts: number
+  lastShippedAt: string | null
   provenPostCount: number
   agentMode?: boolean
   activeCollections?: Array<{ slug: string; title: string; description: string | null }>
@@ -81,7 +92,6 @@ export default function BuilderDashboardClient({
   const [requestSent, setRequestSent] = useState(false)
   const [requesting, setRequesting] = useState(false)
   const [githubStatus, setGithubStatus] = useState<'idle' | 'just_connected' | 'error'>('idle')
-  const [velocityScore] = useState(initialScore)
   const [acceptsInquiries, setAcceptsInquiries] = useState<boolean>(profile?.accepts_project_inquiries !== false)
   const [savingInquiryPref, setSavingInquiryPref] = useState(false)
   const [apiKeys, setApiKeys] = useState<any[]>([])
@@ -161,12 +171,12 @@ export default function BuilderDashboardClient({
               </div>
             )}
 
-            {/* Velocity Score card */}
+            {/* Proof of Work card */}
             <div style={{ background: 'white', border: '1px solid #e0e0e5', borderRadius: 14, padding: '1.5rem', marginBottom: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-                <p style={{ fontSize: 12, fontWeight: 600, color: '#6e6e73', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Velocity Score</p>
+                <p style={{ fontSize: 12, fontWeight: 600, color: '#6e6e73', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Proof of Work</p>
               </div>
-              <VelocityRing score={velocityScore} />
+              <ProofOfWorkCard l1Count={l1Count} l0Count={l0Count} distinctHosts={distinctHosts} lastShippedAt={lastShippedAt} username={profile.username} />
             </div>
 
             {/* Top grid — verification */}
@@ -191,7 +201,7 @@ export default function BuilderDashboardClient({
                   </div>
                 ) : (
                   <div>
-                    <p style={{ fontSize: 12, color: '#6e6e73', lineHeight: 1.5, marginBottom: '0.75rem' }}>Connect to prove your builds are real. Feeds 40 points into your Velocity Score.</p>
+                    <p style={{ fontSize: 12, color: '#6e6e73', lineHeight: 1.5, marginBottom: '0.75rem' }}>Connect to prove your builds are real. Your GitHub activity strengthens your proof-of-work record.</p>
                     <a href="/api/github/connect" style={{ fontSize: 12, padding: '0.4rem 0.875rem', background: '#1d1d1f', color: 'white', borderRadius: 980, textDecoration: 'none', fontWeight: 500 }}>Connect GitHub</a>
                   </div>
                 )}

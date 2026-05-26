@@ -60,7 +60,7 @@ import {
   type AtlasClassifierInput,
   type AtlasClassifierResult,
 } from '@/services/atlas-classifier'
-import { findOrCreateHumanEntity } from '@/lib/entities'
+import { findOrCreateHumanEntity, type EntityRow } from '@/lib/entities'
 import { publishProofReceipt, type PasteDraft } from '@/lib/paste/publish'
 
 // Batch 5: dedupe_key format = sha256(subject_id|normalized_artifact_url|event_type).
@@ -853,6 +853,7 @@ async function processArtifactForWrite(
   profile: ProfileRow,
   user: User,
   artifact: NormalizedArtifact,
+  subjectEntity?: EntityRow,
 ): Promise<
   | { ok: true; written: WrittenReceipt; entity_was_created: boolean }
   | { ok: false; failure: Omit<WriteFailure, 'profile_username' | 'artifact_url'> }
@@ -943,14 +944,21 @@ async function processArtifactForWrite(
   // the just-created entity (idempotent).
   let entityWasCreated = false
   let entityId: number
-  try {
-    const eRes = await findOrCreateHumanEntity(admin, user)
-    entityWasCreated = eRes.was_created
-    entityId = eRes.entity.id
-  } catch (err) {
-    return {
-      ok: false,
-      failure: { stage: 'publish', error: 'pre-publish entity check failed: ' + (err instanceof Error ? err.message : String(err)) },
+  if (subjectEntity) {
+    // Caller pinned the subject entity (agent enrichment path) — use it for the
+    // dedupe key so it matches publishProofReceipt's subject_id. Caller owns its
+    // lifecycle, so entity_was_created stays false.
+    entityId = subjectEntity.id
+  } else {
+    try {
+      const eRes = await findOrCreateHumanEntity(admin, user)
+      entityWasCreated = eRes.was_created
+      entityId = eRes.entity.id
+    } catch (err) {
+      return {
+        ok: false,
+        failure: { stage: 'publish', error: 'pre-publish entity check failed: ' + (err instanceof Error ? err.message : String(err)) },
+      }
     }
   }
 
@@ -963,7 +971,7 @@ async function processArtifactForWrite(
   // 6. publishProofReceipt
   let publishResult
   try {
-    publishResult = await publishProofReceipt({ admin, user, draft: draftWithDedupeKey })
+    publishResult = await publishProofReceipt({ admin, user, draft: draftWithDedupeKey, ...(subjectEntity ? { subjectEntity } : {}) })
   } catch (err) {
     return {
       ok: false,
@@ -1025,6 +1033,7 @@ export async function runRealWriteForOne(
   admin: SupabaseClient,
   profileId: string,
   log: (msg: string) => void = () => {},
+  opts?: { subjectEntity?: EntityRow },
 ): Promise<WriteReport> {
   const { data: prof, error } = await admin
     .from('profiles')
@@ -1052,13 +1061,14 @@ export async function runRealWriteForOne(
       },
     }
   }
-  return runRealWrite(admin, [prof.username], log)
+  return runRealWrite(admin, [prof.username], log, opts)
 }
 
 export async function runRealWrite(
   admin: SupabaseClient,
   usernames: readonly string[],
   log: (msg: string) => void = () => {},
+  opts?: { subjectEntity?: EntityRow },
 ): Promise<WriteReport> {
   const report: WriteReport = {
     builders_processed: 0,
@@ -1195,7 +1205,7 @@ export async function runRealWrite(
     for (const artifact of normalized) {
       log(`[write] ${profile.username} → ${artifact.normalized_url}`)
       try {
-        const result = await processArtifactForWrite(admin, profile, user, artifact)
+        const result = await processArtifactForWrite(admin, profile, user, artifact, opts?.subjectEntity)
         if (result.ok) {
           written.push(result.written)
           report.written_flat.push(result.written)

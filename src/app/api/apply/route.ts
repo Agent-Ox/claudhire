@@ -18,7 +18,7 @@ export async function POST(req: Request) {
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('id, full_name, email, username, bio, role, location, velocity_score')
+      .select('id, full_name, email, username, bio, role, location')
       .eq('email', user.email)
       .maybeSingle()
 
@@ -72,7 +72,7 @@ export async function POST(req: Request) {
       `Hi — I'm ${profile.full_name}${profile.role ? `, ${profile.role}` : ''}${profile.location ? ` based in ${profile.location}` : ''}.`,
       profile.bio ? `\n\n${profile.bio}` : '',
       `\n\nI'm interested in the ${job.role_title} position. My full profile and build history is at ${profileUrl}`,
-      profile.velocity_score ? ` — Velocity Score: ${profile.velocity_score}/100.` : '.',
+      '.',
       '\n\nHappy to discuss further.',
     ].join('')
 

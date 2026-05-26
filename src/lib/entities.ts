@@ -415,3 +415,41 @@ export async function findOrCreateBuyerEntity(
 
   return { entity: inserted as EntityRow, was_created: true };
 }
+
+/**
+ * Resolve the entity kind for a given owner_user_id by querying entities directly.
+ * Used by /api/enrich to route receipt subject resolution through the right factory
+ * (findOrCreateAgentEntity vs findOrCreateHumanEntity) when called via API-key auth.
+ *
+ * Returns 'agent' if the user owns a kind='agent' entity (priority).
+ * Returns 'human' if the user owns a kind='human' entity.
+ * Returns null if neither exists (caller decides whether to mint).
+ *
+ * Note: this does NOT touch the profiles.entity_id ↔ entities.profile_id link contract,
+ * which remains human-only per Spec §0. Agent entities continue to have no profile link.
+ */
+export async function resolveEntityKindForOwner(
+  admin: SupabaseClient,
+  userId: string,
+): Promise<'agent' | 'human' | null> {
+  // Agent priority — if both exist, agent wins (it's the more specific identity).
+  const { data: agentRow } = await admin
+    .from('entities')
+    .select('id')
+    .eq('owner_user_id', userId)
+    .eq('kind', 'agent')
+    .limit(1)
+    .maybeSingle()
+  if (agentRow) return 'agent'
+
+  const { data: humanRow } = await admin
+    .from('entities')
+    .select('id')
+    .eq('owner_user_id', userId)
+    .eq('kind', 'human')
+    .limit(1)
+    .maybeSingle()
+  if (humanRow) return 'human'
+
+  return null
+}

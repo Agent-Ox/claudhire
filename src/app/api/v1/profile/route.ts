@@ -95,7 +95,7 @@ export async function PATCH(req: Request) {
 
   const { data: updated } = await db
     .from('profiles')
-    .select('username, full_name, role, bio, verified, published, velocity_score')
+    .select('username, full_name, role, bio, verified, published')
     .eq('id', profile.id)
     .maybeSingle()
 

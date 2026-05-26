@@ -66,7 +66,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   // artifacts are not shown as "proof of work"). Hidden entirely when none.
   const { data: rawReceipts } = profile.entity_id ? await supabase
     .from('proof_receipts')
-    .select('id, slug, title, description, event_type, atlas_confirmed, verification_level, issued_at, artifacts')
+    .select('id, slug, title, description, event_type, atlas_confirmed, atlas_inferred, verification_level, issued_at, artifacts')
     .eq('subject_id', profile.entity_id)
     .eq('visibility', 'public')
     .eq('verification_level', 'L1_artifact_confirmed')
@@ -122,7 +122,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       linkedin_url: profile.linkedin_url,
       website_url: profile.website_url,
       verified: !!profile.verified,
-      velocity_score: profile.velocity_score,
       primary_profession: profile.primary_profession,
       seniority: profile.seniority,
       work_type: profile.work_type,
@@ -439,11 +438,17 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                         {r.description.length > 140 ? r.description.slice(0, 139) + '…' : r.description}
                       </p>
                     )}
-                    {Array.isArray(r.atlas_confirmed) && r.atlas_confirmed.length > 0 && (
+                    {((Array.isArray(r.atlas_confirmed) && r.atlas_confirmed.length > 0) ||
+                      (Array.isArray(r.atlas_inferred) && r.atlas_inferred.length > 0)) && (
                       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: '0.5rem' }}>
-                        {r.atlas_confirmed.map((roleId: string) => (
-                          <span key={roleId} className="tag-claude">{roleId}</span>
+                        {(r.atlas_confirmed ?? []).map((roleId: string) => (
+                          <span key={`c-${roleId}`} className="tag-claude">{roleId}</span>
                         ))}
+                        {(r.atlas_inferred ?? [])
+                          .filter((roleId: string) => !(r.atlas_confirmed ?? []).includes(roleId))
+                          .map((roleId: string) => (
+                            <span key={`i-${roleId}`} className="tag-claude" style={{ opacity: 0.55 }}>{roleId} · inferred</span>
+                          ))}
                       </div>
                     )}
                   </div>

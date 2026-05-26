@@ -175,10 +175,16 @@ export interface PublishInput {
   draft: PasteDraft
   draftId?: string
   requestId?: string
+  // Phase 1 (Block 5R): optional explicit subject entity. When provided,
+  // publishProofReceipt uses it for proof_receipts.subject_id and skips the
+  // internal findOrCreateHumanEntity resolution. Used by /api/enrich on the
+  // API-key path to route agent-owned receipts onto the agent's kind='agent'
+  // entity instead of forcing them onto a (possibly newly-minted) human entity.
+  subjectEntity?: EntityRow
 }
 
 export async function publishProofReceipt(input: PublishInput): Promise<PublishResult> {
-  const { admin, user, draft, draftId, requestId } = input
+  const { admin, user, draft, draftId, requestId, subjectEntity } = input
 
   // Atlas role validation: drop unknowns silently with a warning log.
   const confirmed = filterAtlasRoles(draft.atlas_roles_confirmed)
@@ -188,18 +194,28 @@ export async function publishProofReceipt(input: PublishInput): Promise<PublishR
     console.warn(`[publish] dropped unknown atlas role: ${dropped}`)
   }
 
-  // 1. Subject entity (find or create). Track creation so we can roll back.
-  let entityResult: { entity: EntityRow; was_created: boolean }
-  try {
-    entityResult = await findOrCreateHumanEntity(admin, user)
-  } catch (e) {
-    return {
-      success: false,
-      error: 'server_error',
-      message: e instanceof Error ? e.message : 'entity resolution failed',
+  // 1. Subject entity. Phase 1 (Block 5R): prefer a caller-pinned subject entity
+  // (agent enrichment path); otherwise find/create the human entity (legacy Card 1
+  // signup, EditProfileForm, /paste/review — all human-subject receipts). Track
+  // creation so we can roll back, but only when WE created it; a caller-pinned
+  // entity is never rolled back here (the caller owns its lifecycle).
+  let entity: EntityRow
+  let entityWasCreated = false
+  if (subjectEntity) {
+    entity = subjectEntity
+  } else {
+    try {
+      const entityResult = await findOrCreateHumanEntity(admin, user)
+      entity = entityResult.entity
+      entityWasCreated = entityResult.was_created
+    } catch (e) {
+      return {
+        success: false,
+        error: 'server_error',
+        message: e instanceof Error ? e.message : 'entity resolution failed',
+      }
     }
   }
-  const { entity, was_created: entityWasCreated } = entityResult
 
   async function cleanupEntity() {
     if (entityWasCreated) {

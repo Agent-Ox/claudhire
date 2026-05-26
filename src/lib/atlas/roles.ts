@@ -72,14 +72,16 @@ export async function getRecentReceiptsAtRole(
   version: string,
   limit = 5,
 ): Promise<RecentReceiptAtRole[]> {
-  // Step 1 ships a gin(atlas_confirmed) index — the contains-array filter
-  // ("atlas_confirmed cs '{A4}'") plans against it. Filter by atlas_version
-  // to keep cross-version receipts off this page; v0.3 receipts only show
-  // on v0.3 pages.
+  // Match receipts where the role appears in EITHER atlas_confirmed OR
+  // atlas_inferred (Phase 1 — confirmed-OR-inferred). gin(atlas_confirmed)
+  // exists; atlas_inferred has no gin index yet (Phase 5 adds it), so that
+  // arm falls back to a seq scan — acceptable at current receipt scale.
+  // Filter by atlas_version to keep cross-version receipts off this page;
+  // v0.3 receipts only show on v0.3 pages.
   const { data, error } = await supabase
     .from('proof_receipts')
     .select('slug, title, issued_at, subject:entities!proof_receipts_subject_id_fkey(display_name, slug)')
-    .contains('atlas_confirmed', [roleId])
+    .or(`atlas_confirmed.cs.{${roleId}},atlas_inferred.cs.{${roleId}}`)
     .eq('atlas_version', version)
     .eq('visibility', 'public')
     .order('issued_at', { ascending: false })

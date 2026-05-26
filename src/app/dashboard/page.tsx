@@ -4,6 +4,7 @@ import BuilderDashboardClient from './BuilderDashboardClient'
 import AgentOnboarding from './AgentOnboarding'
 import { listActiveCollections } from '@/lib/collections/collections'
 import { listMembershipsForProfile } from '@/lib/collections/consent'
+import { extractHost, isSharedDocHost } from '@/lib/ranking/quality-score'
 
 export default async function DashboardPage({
   searchParams,
@@ -59,6 +60,32 @@ export default async function DashboardPage({
     .not('url', 'is', null)
     .neq('url', '')
 
+  // Proof-of-Work card data (Phase 1 — replaces the retired dashboard ring). Keyed on the
+  // builder's entity; unlinked profiles (entity_id null) show the empty state.
+  let l1Count = 0
+  let l0Count = 0
+  let distinctHosts = 0
+  let lastShippedAt: string | null = null
+  if (profile.entity_id) {
+    const { data: powReceipts } = await supabase
+      .from('proof_receipts')
+      .select('verification_level, artifacts, issued_at')
+      .eq('subject_id', profile.entity_id)
+    const hosts = new Set<string>()
+    for (const r of (powReceipts || [])) {
+      if (r.verification_level === 'L1_artifact_confirmed') {
+        l1Count++
+        const artifacts = Array.isArray(r.artifacts) ? (r.artifacts as Array<{ url?: string | null }>) : []
+        const host = extractHost(artifacts[0]?.url)
+        if (host && !isSharedDocHost(host)) hosts.add(host)
+      } else if (r.verification_level === 'L0_claimed') {
+        l0Count++
+      }
+      if (r.issued_at && (!lastShippedAt || r.issued_at > lastShippedAt)) lastShippedAt = r.issued_at
+    }
+    distinctHosts = hosts.size
+  }
+
   // Consented collections — per-collection cards rendered in a loop on the
   // dashboard, gated on profile.published in the client component. Zero
   // active collections → empty arrays → no cards → dashboard byte-identical
@@ -77,7 +104,10 @@ export default async function DashboardPage({
       hirers={hirers || []}
       email={user.email!}
       githubData={githubData || null}
-      velocityScore={profile?.velocity_score || 0}
+      l1Count={l1Count}
+      l0Count={l0Count}
+      distinctHosts={distinctHosts}
+      lastShippedAt={lastShippedAt}
       provenPostCount={provenPostCount || 0}
       activeCollections={activeCollections}
       memberships={memberships}

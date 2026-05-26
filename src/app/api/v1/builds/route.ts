@@ -2,6 +2,7 @@ import { rateLimit } from '@/lib/rateLimit'
 import { authenticateApiKey, apiError, apiOk } from '@/lib/apiAuth'
 import { createClient } from '@supabase/supabase-js'
 import { checkAutoVerify } from '@/lib/autoVerify'
+import { after } from 'next/server'
 
 const admin = () => createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -52,17 +53,27 @@ export async function POST(req: Request) {
 
   if (error) return apiError(500, 'Failed to create build post', error.message)
 
-  // Trigger velocity recalculation fire-and-forget
-  const cutoff = new Date()
-  cutoff.setDate(cutoff.getDate() - 90)
-  db.from('posts')
-    .select('id', { count: 'exact', head: true })
-    .eq('profile_id', profile.id)
-    .gte('created_at', cutoff.toISOString())
-    .then(() => {})
-
   // Fire auto-verify check
   const nowVerified = await checkAutoVerify(profile.id)
+
+  // Phase 1: trigger enrichment so the agent's build creates a proof_receipt
+  // and enters the ranking engine. Subject resolution routes to the agent's
+  // kind='agent' entity via resolveEntityKindForOwner in /api/enrich.
+  after(async () => {
+    try {
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shipstacked.com'
+      await fetch(`${siteUrl}/api/enrich`, {
+        method: 'POST',
+        headers: {
+          'Authorization': req.headers.get('authorization')!,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      })
+    } catch (err) {
+      console.warn('[v1/builds] enrichment trigger failed', err)
+    }
+  })
 
   const hasOutcomeAndUrl = !!(post.outcome && post.url)
 

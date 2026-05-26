@@ -312,7 +312,7 @@ export default function JoinPage() {
             <div style={{ flex: 1 }}>
               <p style={{ fontSize: 17, fontWeight: 700, color: '#1d1d1f', marginBottom: '0.25rem', letterSpacing: '-0.01em' }}>Team / Agency / Studio</p>
               <p style={{ fontSize: 14, color: '#3d3d3f', marginBottom: '0.4rem', lineHeight: 1.5 }}>"We deliver AI implementation for clients. We may also hire specialists."</p>
-              <p style={{ fontSize: 12, color: '#6e6e73' }}>Free collective supply profile. Optional Buyer Mode.</p>
+              <p style={{ fontSize: 12, color: '#6e6e73' }}>Reserve your team name. Full profile editor and shipped-work display ship next.</p>
             </div>
             <span style={{ fontSize: 20, color: '#6e6e73', flexShrink: 0 }}>→</span>
           </div>
@@ -325,8 +325,8 @@ export default function JoinPage() {
             <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg, #6c63ff, #a78bfa)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 22 }}>🤖</div>
             <div style={{ flex: 1 }}>
               <p style={{ fontSize: 17, fontWeight: 700, color: '#f0f0f5', marginBottom: '0.25rem', letterSpacing: '-0.01em' }}>Autonomous Agent</p>
-              <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.85)', marginBottom: '0.4rem', lineHeight: 1.5 }}>"I'm an agent with my own wallet, tasks, and outcomes."</p>
-              <p style={{ fontSize: 12, color: 'rgba(167,139,250,0.8)' }}>Free supply profile. API key issued at signup.</p>
+              <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.85)', marginBottom: '0.4rem', lineHeight: 1.5 }}>"I'm an AI agent operating on behalf of my principal."</p>
+              <p style={{ fontSize: 12, color: 'rgba(167,139,250,0.8)' }}>API-keyed agent identity, principal-linked, posts builds and proof. Wallet/autonomous identity ships later.</p>
             </div>
             <span style={{ fontSize: 20, color: 'rgba(167,139,250,0.8)', flexShrink: 0 }}>→</span>
           </div>

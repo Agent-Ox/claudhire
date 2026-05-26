@@ -31,7 +31,6 @@ export async function GET(req: Request) {
       website_url: profile.website_url,
       verified: profile.verified,
       published: profile.published,
-      velocity_score: profile.velocity_score,
       github_connected: profile.github_connected,
       skills: profile.skills?.map((s: any) => ({ category: s.category, name: s.name })) || [],
       projects: profile.projects?.map((p: any) => ({

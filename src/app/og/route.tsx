@@ -45,7 +45,7 @@ export async function GET(req: Request) {
       )
       const { data: receipt } = await admin
         .from('proof_receipts')
-        .select('title, atlas_confirmed, verification_level, subject_id')
+        .select('title, atlas_confirmed, atlas_inferred, verification_level, subject_id')
         .eq('slug', slug)
         .maybeSingle()
       let subjectName = 'ShipStacked builder'
@@ -61,7 +61,9 @@ export async function GET(req: Request) {
       const verificationLevel = (receipt?.verification_level as string) ?? 'L0_claimed'
       const verificationLabel = VERIFICATION_LABELS[verificationLevel] ?? verificationLevel
       const badge = verificationBadgeColor(verificationLevel)
-      const roles: string[] = Array.isArray(receipt?.atlas_confirmed) ? (receipt!.atlas_confirmed as string[]).slice(0, 4) : []
+      const confirmed: string[] = Array.isArray(receipt?.atlas_confirmed) ? (receipt!.atlas_confirmed as string[]) : []
+      const inferred: string[] = Array.isArray(receipt?.atlas_inferred) ? (receipt!.atlas_inferred as string[]) : []
+      const roles: string[] = [...confirmed, ...inferred.filter(id => !confirmed.includes(id))].slice(0, 4)
 
       return new ImageResponse(
         (

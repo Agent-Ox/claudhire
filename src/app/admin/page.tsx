@@ -58,7 +58,6 @@ export default async function AdminPage() {
   const newBuildersThisMonth = profiles?.filter(p => p.created_at >= thisMonth).length || 0
   const activeBuilders30d = profiles?.filter(p => p.last_seen_at && p.last_seen_at >= thirtyDaysAgo).length || 0
   const activeBuilders7d = profiles?.filter(p => p.last_seen_at && p.last_seen_at >= sevenDaysAgo).length || 0
-  const highVelocity = profiles?.filter(p => (p.velocity_score || 0) >= 75).length || 0
 
   const totalHirers = activeSubscriptions.length
   const activeHirerConvs = new Set(conversations?.filter(c => c.last_message_at >= thirtyDaysAgo).map(c => c.employer_email)).size
@@ -145,7 +144,6 @@ export default async function AdminPage() {
                 { label: 'Active (30d)', value: String(activeBuilders30d) },
                 { label: 'Active (7d)', value: String(activeBuilders7d) },
                 { label: 'GitHub connected', value: githubConnected + ' (' + githubPct + '%)' },
-                { label: 'High velocity (75+)', value: String(highVelocity) },
               ].map(s => (
                 <div key={s.label} style={{ padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: 10 }}>
                   <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.4)', marginBottom: '0.3rem' }}>{s.label}</p>
@@ -261,7 +259,7 @@ export default async function AdminPage() {
             <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 700 }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                  {['Name', 'Email', 'Velocity', 'Verified', 'Last seen', 'Joined', 'Profile'].map(h => (
+                  {['Name', 'Email', 'Verified', 'Last seen', 'Joined', 'Profile'].map(h => (
                     <th key={h} style={{ padding: '0.75rem 1rem', textAlign: 'left', fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.4)', letterSpacing: '0.04em' }}>{h}</th>
                   ))}
                 </tr>
@@ -271,9 +269,6 @@ export default async function AdminPage() {
                   <tr key={p.id} style={{ borderBottom: i < (profiles?.length || 0) - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
                     <td style={{ padding: '0.75rem 1rem', fontSize: 13, fontWeight: 500, color: '#f0f0f5' }}>{p.full_name}</td>
                     <td style={{ padding: '0.75rem 1rem', fontSize: 12, color: 'rgba(240,240,245,0.5)' }}>{p.email}</td>
-                    <td style={{ padding: '0.75rem 1rem' }}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: (p.velocity_score || 0) >= 75 ? '#1a7f37' : (p.velocity_score || 0) >= 50 ? '#0071e3' : '#aeaeb2' }}>{p.velocity_score || 0}</span>
-                    </td>
                     <td style={{ padding: '0.75rem 1rem' }}>
                       <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
                         <VerifyToggle profileId={p.id} initialVerified={p.verified} builderEmail={p.email} builderName={p.full_name} />

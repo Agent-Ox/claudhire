@@ -22,9 +22,10 @@
 import { NextResponse, after } from 'next/server'
 import { createHash } from 'node:crypto'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
-import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient, type User } from '@supabase/supabase-js'
 import { runRealWriteForOne } from '@/lib/enrichment/profile-adapter'
-import { findOrCreateHumanEntity } from '@/lib/entities'
+import { authenticateApiKey } from '@/lib/apiAuth'
+import { resolveEntityKindForOwner, findOrCreateAgentEntity, findOrCreateHumanEntity, type EntityRow } from '@/lib/entities'
 
 const ADMIN_EMAIL = 'oxleethomas+admin@gmail.com'
 
@@ -81,69 +82,110 @@ async function gatherMaterialInputs(admin: SupabaseClient, profileId: string): P
 }
 
 export async function POST(req: Request) {
-  const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
-
-  const url = new URL(req.url)
-  const force = url.searchParams.get('force') === '1'
-
-  let body: { profile_id?: string; entity_id?: number } = {}
-  try { body = await req.json() } catch { /* allow empty body — caller may target self */ }
-
   const admin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
-  // Resolve target profile.
-  // - If body.profile_id supplied: use it (admin re-enrich path).
-  // - Else: look up by user.email (self-enrich; signup + EditProfileForm).
-  let profileId: string
-  if (body.profile_id) {
-    profileId = body.profile_id
+  let resolvedProfile: { id: string; user_id: string | null; username: string }
+  let targetUser: User
+  let force = false
+
+  const authHeader = req.headers.get('authorization')
+  if (authHeader && authHeader.startsWith('Bearer sk_ss_')) {
+    // ── API-key path (agent enrichment trigger from /api/v1/builds) ────
+    const apiAuth = await authenticateApiKey(req)
+    if (!apiAuth.ok) {
+      return NextResponse.json({ error: apiAuth.error }, { status: apiAuth.status })
+    }
+    const p = apiAuth.auth.profile as { id: string; user_id: string | null; username: string }
+    if (!p.user_id) {
+      return NextResponse.json({ error: 'API-key profile has no user_id' }, { status: 500 })
+    }
+    resolvedProfile = { id: p.id, user_id: p.user_id, username: p.username }
+    const { data: lookup } = await admin.auth.admin.getUserById(p.user_id)
+    if (!lookup?.user) {
+      return NextResponse.json({ error: 'Auth user not found for API key' }, { status: 500 })
+    }
+    targetUser = lookup.user
+    // API-key auth ignores ?force=1 (no admin override on the agent path).
   } else {
-    const { data: ownProfile } = await admin
+    // ── Cookie-session path (Card 1 signup, EditProfileForm, admin re-enrich) ─
+    const supabase = await createServerSupabaseClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+    }
+
+    const url = new URL(req.url)
+    force = url.searchParams.get('force') === '1'
+
+    let body: { profile_id?: string; entity_id?: number } = {}
+    try { body = await req.json() } catch { /* allow empty body */ }
+
+    let profileId: string
+    if (body.profile_id) {
+      profileId = body.profile_id
+    } else {
+      const { data: ownProfile } = await admin
+        .from('profiles')
+        .select('id')
+        .eq('email', user.email)
+        .maybeSingle()
+      if (!ownProfile) {
+        return NextResponse.json({ error: 'No profile for current user' }, { status: 400 })
+      }
+      profileId = ownProfile.id
+    }
+
+    const { data: profile } = await admin
       .from('profiles')
-      .select('id')
-      .eq('email', user.email)
+      .select('id, user_id, username')
+      .eq('id', profileId)
       .maybeSingle()
-    if (!ownProfile) return NextResponse.json({ error: 'No profile for current user' }, { status: 400 })
-    profileId = ownProfile.id
-  }
+    if (!profile) {
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+    }
 
-  // Auth gate: owner OR admin
-  const { data: profile } = await admin
-    .from('profiles')
-    .select('id, user_id, username')
-    .eq('id', profileId)
-    .maybeSingle()
-  if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+    const isAdmin = user.email === ADMIN_EMAIL || user.user_metadata?.role === 'admin'
+    const isOwner = profile.user_id === user.id
+    if (!isAdmin && !isOwner) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
-  const isAdmin = user.email === ADMIN_EMAIL || user.user_metadata?.role === 'admin'
-  const isOwner = profile.user_id === user.id
-  if (!isAdmin && !isOwner) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  }
-
-  // Resolve / create the entity so we can query enrichment_runs by entity_id.
-  // findOrCreateHumanEntity is idempotent (existing entity returned if one
-  // already exists for this user). For Card 1 first-time triggers this is
-  // the moment the entity row appears.
-  let entityId: number
-  try {
-    // Need the auth user for findOrCreateHumanEntity. For self-enrich, it's
-    // `user` from the session. For admin re-enrich, fetch via profile.user_id.
-    let targetUser = user
+    resolvedProfile = { id: profile.id, user_id: profile.user_id, username: profile.username }
+    // Admin re-enrich of another user's profile: resolve the entity for the
+    // TARGET profile's owner, not the admin's session user (preserves pre-5R behavior).
     if (!isOwner && profile.user_id) {
       const { data: lookup } = await admin.auth.admin.getUserById(profile.user_id)
-      if (lookup?.user) targetUser = lookup.user
+      targetUser = lookup?.user ?? user
+    } else {
+      targetUser = user
     }
-    const { entity } = await findOrCreateHumanEntity(admin, targetUser)
-    entityId = entity.id
+  }
+
+  // ── From here, both auth paths converge ────────────────────────────────
+  const profileId = resolvedProfile.id
+
+  // Route entity resolution by kind. Agents (API-key auth or any user owning a
+  // kind='agent' entity) get their agent entity; humans get their human entity.
+  // The resolved entity is threaded into runEnrichment → publishProofReceipt
+  // via the new subjectEntity option (Phase 1 Block 5R).
+  const kind = await resolveEntityKindForOwner(admin, targetUser.id)
+  let entity: EntityRow
+  try {
+    if (kind === 'agent') {
+      const result = await findOrCreateAgentEntity(admin, targetUser)
+      entity = result.entity
+    } else {
+      // 'human' OR null (genuinely new account) — both go through human factory.
+      const result = await findOrCreateHumanEntity(admin, targetUser)
+      entity = result.entity
+    }
   } catch (err: any) {
     return NextResponse.json({ error: `Entity resolution failed: ${err.message}` }, { status: 500 })
   }
+  const entityId = entity.id
 
   // ── D8(b) per-hour count cap (platform-wide) ────────────────────────────
   if (!force) {
@@ -234,7 +276,7 @@ export async function POST(req: Request) {
   // sent (serverless tears down the function context). `after` tells
   // Next.js / Vercel to keep the function alive until the promise resolves
   // (bounded by the function timeout — max ~60s on default plan).
-  after(runEnrichment(admin, runId, profileId))
+  after(runEnrichment(admin, runId, profileId, entity))
 
   return NextResponse.json({
     accepted: true,
@@ -254,11 +296,12 @@ async function runEnrichment(
   admin: SupabaseClient,
   runId: number,
   profileId: string,
+  subjectEntity?: EntityRow,
 ): Promise<void> {
   const log = (msg: string) => console.log(`[enrich run=${runId}] ${msg}`)
   log('start')
   try {
-    const report = await runRealWriteForOne(admin, profileId, log)
+    const report = await runRealWriteForOne(admin, profileId, log, { subjectEntity })
     const written = report.totals.receipts_written
     const realFailures = report.failures.filter(f => f.stage !== 'duplicate').length
     const duplicates = report.failures.filter(f => f.stage === 'duplicate').length

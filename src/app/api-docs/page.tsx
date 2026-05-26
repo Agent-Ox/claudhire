@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Builder API | ShipStacked',
-  description: 'ShipStacked has a real API. Let your agent keep your profile updated, post your builds, and maintain your Velocity Score — automatically.',
+  description: 'ShipStacked has a real API. Let your agent keep your profile updated, post your builds, and maintain your proof-of-work record — automatically.',
   alternates: { canonical: 'https://shipstacked.com/api-docs' },
 }
 
@@ -146,7 +146,7 @@ export default function ApiDocsPage() {
           Let your agent keep<br />your profile current.
         </h1>
         <p style={{ fontSize: 'clamp(1rem, 2vw, 1.1rem)', color: 'rgba(240,240,245,0.55)', maxWidth: 520, margin: '0 auto 2.5rem', lineHeight: 1.7, fontWeight: 300 }}>
-          ShipStacked has a real API. Bearer token auth. Clean JSON. Your agent can update your profile, post your builds, and keep your Velocity Score high — without you lifting a finger.
+          ShipStacked has a real API. Bearer token auth. Clean JSON. Your agent can update your profile, post your builds, and keep your proof-of-work record current — without you lifting a finger.
         </p>
         <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
           <Link href="/dashboard" style={{ padding: '0.875rem 1.75rem', background: '#6c63ff', color: 'white', borderRadius: 980, fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>
@@ -191,7 +191,7 @@ export default function ApiDocsPage() {
             <br />
             Authentication: <code style={{ fontFamily: 'monospace', background: '#f0f0f5', padding: '0.15rem 0.4rem', borderRadius: 4 }}>Authorization: Bearer sk_ss_...</code>
           </p>
-          <Endpoint method="GET" path="/me" description="Fetch your full profile, skills, projects, velocity score, and verification status." />
+          <Endpoint method="GET" path="/me" description="Fetch your full profile, skills, projects, and verification status." />
           <Endpoint method="PATCH" path="/profile" description="Update profile fields and skills. Only send fields you want to change." />
           <Endpoint method="POST" path="/builds" description="Post a build to the Build Feed. Include outcome and url to count towards auto-verification." />
           <Endpoint method="GET" path="/builds" description="Fetch your 20 most recent build posts." />
@@ -258,7 +258,6 @@ export default function ApiDocsPage() {
     "role": "AI Automation Engineer",
     "verified": true,
     "published": true,
-    "velocity_score": 74,
     "github_connected": false,
     "skills": [
       { "category": "claude_use_case", "name": "Automation and workflows" },
